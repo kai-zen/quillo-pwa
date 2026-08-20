@@ -2,6 +2,7 @@
 
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
+import { IconButton, Select } from "@/components/common";
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
 import type { Label, Sprint, Task, TaskStatus } from "@/shared/types";
@@ -109,56 +110,50 @@ const TaskItem: FC<Props> = ({
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5">
-          <select
+          <Select
             value={task.status}
             onChange={(event) =>
               onStatusChange(event.target.value as TaskStatus)
             }
             disabled={pending}
             aria-label="Task status"
-            className="rounded-md border border-border bg-transparent px-2 py-1.5 text-xs outline-none focus:border-foreground disabled:opacity-50"
+            sizeVariant="sm"
           >
             {STATUS_OPTIONS.map((value) => (
               <option key={value} value={value}>
                 {STATUS_LABELS[value]}
               </option>
             ))}
-          </select>
+          </Select>
 
           {!task.parent_id && (
-            <button
-              type="button"
+            <IconButton
+              label="Add subtask"
+              size="sm"
               onClick={() => onAddSubtask(task)}
               disabled={pending}
-              className="cursor-pointer rounded-md p-1.5 text-muted transition-colors hover:bg-accent-soft hover:text-foreground disabled:opacity-50"
-              aria-label="Add subtask"
-              title="Add subtask"
             >
               <Plus className="h-4 w-4" aria-hidden />
-            </button>
+            </IconButton>
           )}
 
-          <button
-            type="button"
+          <IconButton
+            label="Edit task"
+            size="sm"
             onClick={() => onEdit(task)}
             disabled={pending}
-            className="cursor-pointer rounded-md p-1.5 text-muted transition-colors hover:bg-accent-soft hover:text-foreground disabled:opacity-50"
-            aria-label="Edit task"
-            title="Edit"
           >
             <Pencil className="h-4 w-4" aria-hidden />
-          </button>
+          </IconButton>
 
-          <button
-            type="button"
+          <IconButton
+            label="Delete task"
+            size="sm"
             onClick={onDelete}
             disabled={pending}
-            className="cursor-pointer rounded-md p-1.5 text-muted transition-colors hover:bg-accent-soft hover:text-foreground disabled:opacity-50"
-            aria-label="Delete task"
-            title="Delete"
           >
             <Trash2 className="h-4 w-4" aria-hidden />
-          </button>
+          </IconButton>
         </div>
       </div>
 

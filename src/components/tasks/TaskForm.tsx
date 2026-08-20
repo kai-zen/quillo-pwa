@@ -1,6 +1,13 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, FormEvent, useState } from "react";
+import {
+  Button,
+  Field,
+  Input,
+  Select,
+  Textarea,
+} from "@/components/common";
 import { getErrorMessage } from "@/shared/errors";
 import { useLabelsApi, useTasksApi } from "@/shared/hooks";
 import type {
@@ -22,10 +29,6 @@ import {
   toDateInputValue,
   toUpdateBody,
 } from "./helpers";
-
-const fieldClass =
-  "w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground";
-const labelClass = "mb-1.5 block text-sm text-muted";
 
 export type TaskFormMode =
   | { type: "create"; parentId?: RecordId | null }
@@ -108,21 +111,18 @@ const TaskForm: FC<Props> = ({
     }
   };
 
-  const buildBody = (): CreateTaskBody | UpdateTaskBody => {
-    const body: CreateTaskBody = {
-      title: title.trim(),
-      priority,
-      status,
-      description: description.trim(),
-      label_ids: labelIds,
-      sprint_id: sprintId || null,
-      doing_date: doingDate || null,
-      parent_id: editingHasChildren ? null : parentId || null,
-    };
-    return body;
-  };
+  const buildBody = (): CreateTaskBody | UpdateTaskBody => ({
+    title: title.trim(),
+    priority,
+    status,
+    description: description.trim(),
+    label_ids: labelIds,
+    sprint_id: sprintId || null,
+    doing_date: doingDate || null,
+    parent_id: editingHasChildren ? null : parentId || null,
+  });
 
-  const onSubmit = async (event: SubmitEvent) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
@@ -160,7 +160,7 @@ const TaskForm: FC<Props> = ({
 
   return (
     <form
-      onSubmit={(event) => onSubmit(event as unknown as SubmitEvent)}
+      onSubmit={onSubmit}
       className="rounded-lg border border-border bg-surface p-4"
     >
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -178,90 +178,77 @@ const TaskForm: FC<Props> = ({
               : "Add something to your backlog."}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="cursor-pointer text-sm text-muted transition-colors hover:text-foreground"
-        >
+        <Button variant="ghost" size="sm" onClick={onClose}>
           Cancel
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-col gap-3">
-        <label className="block">
-          <span className={labelClass}>Title</span>
-          <input
+        <Field label="Title">
+          <Input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             required
             maxLength={200}
-            className={fieldClass}
             placeholder="What needs doing?"
           />
-        </label>
+        </Field>
 
-        <label className="block">
-          <span className={labelClass}>Description</span>
-          <textarea
+        <Field label="Description">
+          <Textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={3}
-            className={`${fieldClass} resize-y`}
             placeholder="Optional notes"
           />
-        </label>
+        </Field>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block">
-            <span className={labelClass}>Status</span>
-            <select
+          <Field label="Status">
+            <Select
               value={status}
               onChange={(event) => setStatus(event.target.value as TaskStatus)}
-              className={fieldClass}
+              className="w-full"
             >
               {STATUS_OPTIONS.map((value) => (
                 <option key={value} value={value}>
                   {STATUS_LABELS[value]}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Field>
 
-          <label className="block">
-            <span className={labelClass}>Priority</span>
-            <select
+          <Field label="Priority">
+            <Select
               value={priority}
               onChange={(event) =>
                 setPriority(event.target.value as TaskPriority)
               }
-              className={fieldClass}
+              className="w-full"
             >
               {PRIORITY_OPTIONS.map((value) => (
                 <option key={value} value={value}>
                   {PRIORITY_LABELS[value]}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Field>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block">
-            <span className={labelClass}>Doing date</span>
-            <input
+          <Field label="Doing date">
+            <Input
               type="date"
               value={doingDate}
               onChange={(event) => setDoingDate(event.target.value)}
-              className={fieldClass}
             />
-          </label>
+          </Field>
 
-          <label className="block">
-            <span className={labelClass}>Sprint</span>
-            <select
+          <Field label="Sprint">
+            <Select
               value={sprintId}
               onChange={(event) => setSprintId(event.target.value)}
-              className={fieldClass}
+              className="w-full"
             >
               <option value="">None</option>
               {sprints.map((sprint) => (
@@ -269,17 +256,16 @@ const TaskForm: FC<Props> = ({
                   {sprint.name}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Field>
         </div>
 
         {!isSubtaskCreate && !editingHasChildren && (
-          <label className="block">
-            <span className={labelClass}>Parent task</span>
-            <select
+          <Field label="Parent task">
+            <Select
               value={parentId}
               onChange={(event) => setParentId(event.target.value)}
-              className={fieldClass}
+              className="w-full"
             >
               <option value="">None (top-level)</option>
               {eligibleParents.map((task) => (
@@ -287,12 +273,12 @@ const TaskForm: FC<Props> = ({
                   {task.title}
                 </option>
               ))}
-            </select>
-          </label>
+            </Select>
+          </Field>
         )}
 
         <fieldset>
-          <legend className={labelClass}>Labels</legend>
+          <legend className="mb-1.5 block text-sm text-muted">Labels</legend>
           {labels.length === 0 ? (
             <p className="text-sm text-muted">No labels yet.</p>
           ) : (
@@ -324,16 +310,14 @@ const TaskForm: FC<Props> = ({
           )}
 
           <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
-            <label className="block min-w-0 flex-1">
-              <span className={labelClass}>New label</span>
-              <input
+            <Field label="New label" className="min-w-0 flex-1">
+              <Input
                 value={newLabelName}
                 onChange={(event) => setNewLabelName(event.target.value)}
-                className={fieldClass}
                 placeholder="Name"
                 maxLength={50}
               />
-            </label>
+            </Field>
             <div className="flex flex-wrap gap-1.5 pb-0.5">
               {LABEL_COLORS.map((color) => (
                 <button
@@ -351,34 +335,25 @@ const TaskForm: FC<Props> = ({
                 />
               ))}
             </div>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={onCreateLabel}
               disabled={pending || !newLabelName.trim()}
-              className="cursor-pointer rounded-lg border border-border px-3 py-2 text-sm text-foreground transition-colors hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-50"
             >
               Add label
-            </button>
+            </Button>
           </div>
         </fieldset>
 
         {error && <p className="text-sm text-foreground">{error}</p>}
 
         <div className="flex justify-end gap-2 pt-1">
-          <button
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:text-foreground"
-          >
+          <Button variant="ghost" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={pending}
-            className="cursor-pointer rounded-lg bg-foreground px-3 py-2 text-sm text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-          >
+          </Button>
+          <Button type="submit" disabled={pending}>
             {pending ? "Saving…" : editing ? "Save changes" : "Create task"}
-          </button>
+          </Button>
         </div>
       </div>
     </form>

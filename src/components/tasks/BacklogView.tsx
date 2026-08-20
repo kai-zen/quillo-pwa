@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { FC, useState } from "react";
+import { Button, Select } from "@/components/common";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Sprint, Task, TaskListQuery, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
@@ -70,28 +71,23 @@ const BacklogView: FC = () => {
             Every task in one place. Schedule days and sprints from here.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => openCreate()}
-          className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-sm text-background transition-opacity hover:opacity-90"
-        >
+        <Button onClick={() => openCreate()}>
           <Plus className="h-4 w-4" aria-hidden />
           New task
-        </button>
+        </Button>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <label className="text-sm text-muted" htmlFor="backlog-status-filter">
           Status
         </label>
-        <select
+        <Select
           id="backlog-status-filter"
           value={statusFilter}
           onChange={(event) => {
             setStatusFilter(event.target.value as TaskStatus | "");
             setPage(1);
           }}
-          className="rounded-lg border border-border bg-transparent px-3 py-1.5 text-sm outline-none focus:border-foreground"
         >
           <option value="">All</option>
           {TASK_STATUSES.map((status) => (
@@ -99,7 +95,7 @@ const BacklogView: FC = () => {
               {STATUS_LABELS[status]}
             </option>
           ))}
-        </select>
+        </Select>
         <span className="text-sm text-muted">
           {total} task{total === 1 ? "" : "s"}
         </span>
@@ -136,13 +132,13 @@ const BacklogView: FC = () => {
           <p className="mt-1 text-sm text-muted">
             Create your first task to start the backlog.
           </p>
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            className="mt-4"
             onClick={() => openCreate()}
-            className="mt-4 cursor-pointer text-sm text-muted transition-colors hover:text-foreground"
           >
             New task
-          </button>
+          </Button>
         </div>
       )}
 
@@ -174,27 +170,27 @@ const BacklogView: FC = () => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setPage((current) => Math.max(1, current - 1))}
             disabled={page <= 1 || tasksQuery.isFetching}
-            className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-50"
           >
             Previous
-          </button>
+          </Button>
           <span className="text-sm text-muted">
             Page {page} of {totalPages}
           </span>
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() =>
               setPage((current) => Math.min(totalPages, current + 1))
             }
             disabled={page >= totalPages || tasksQuery.isFetching}
-            className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-50"
           >
             Next
-          </button>
+          </Button>
         </div>
       )}
     </div>

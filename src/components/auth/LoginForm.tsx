@@ -1,6 +1,7 @@
 "use client";
 
 import { FC, FormEvent, useState } from "react";
+import { Button, Field, Input } from "@/components/common";
 import { getErrorMessage } from "@/shared/errors";
 import { useAuth } from "./AuthProvider";
 
@@ -48,21 +49,18 @@ const LoginForm: FC = () => {
         </p>
       </div>
 
-      <label className="block">
-        <span className="mb-1.5 block text-sm text-muted">Username</span>
-        <input
+      <Field label="Username">
+        <Input
           name="username"
           autoComplete="username"
           value={username}
           onChange={(event) => setUsername(event.target.value)}
           required
-          className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground"
         />
-      </label>
+      </Field>
 
-      <label className="block">
-        <span className="mb-1.5 block text-sm text-muted">Password</span>
-        <input
+      <Field label="Password">
+        <Input
           name="password"
           type="password"
           autoComplete={isRegister ? "new-password" : "current-password"}
@@ -70,30 +68,24 @@ const LoginForm: FC = () => {
           onChange={(event) => setPassword(event.target.value)}
           required
           minLength={1}
-          className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground"
         />
-      </label>
+      </Field>
 
       {error && <p className="text-sm text-foreground">{error}</p>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="cursor-pointer rounded-lg bg-foreground px-3 py-2 text-sm text-background transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-      >
+      <Button type="submit" disabled={pending}>
         {pending ? "Please wait…" : isRegister ? "Create account" : "Sign in"}
-      </button>
+      </Button>
 
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         onClick={() => {
           setMode(isRegister ? "login" : "register");
           setError("");
         }}
-        className="cursor-pointer rounded-lg text-sm text-muted transition-colors hover:text-foreground"
       >
         {isRegister ? "Already have an account? Sign in" : "Need an account?"}
-      </button>
+      </Button>
     </form>
   );
 };
