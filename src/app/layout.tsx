@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import { Manrope } from "next/font/google";
 import { FC, ReactNode } from "react";
+import AppShell from "@/components/layout/app-shell";
+import "./globals.css";
 import Providers from "./providers";
 
+const manrope = Manrope({
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Quillo PWA App",
-  description: "Quillo PWA App. Personal Tasks Manager Inspired By Scrum.",
+  title: "Quillo",
+  description: "Personal tasks manager inspired by Scrum.",
 };
 
 interface Props {
@@ -14,9 +22,11 @@ interface Props {
 
 const RootLayout: FC<Props> = ({ children }) => {
   return (
-    <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+    <html lang="en" className={`${manrope.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col font-sans">
+        <Providers>
+          <AppShell>{children}</AppShell>
+        </Providers>
       </body>
     </html>
   );
