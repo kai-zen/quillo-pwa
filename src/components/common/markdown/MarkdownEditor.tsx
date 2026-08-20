@@ -81,12 +81,6 @@ const MarkdownEditor: FC<Props> = ({
           )}
         </div>
       )}
-
-      {!compact && (
-        <p className="border-t border-border px-3 py-1.5 text-xs text-muted">
-          Markdown supported
-        </p>
-      )}
     </div>
   );
 };

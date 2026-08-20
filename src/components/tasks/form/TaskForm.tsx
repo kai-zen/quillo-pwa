@@ -34,106 +34,85 @@ const TaskForm: FC<Props> = ({
 
   return (
     <>
-      <form
-        onSubmit={form.onSubmit}
-        className="rounded-lg border border-border bg-surface p-4"
-      >
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-base font-semibold tracking-tight text-foreground">
-              {form.editing
-                ? "Edit task"
-                : form.isSubtaskCreate
-                  ? "New subtask"
-                  : "New task"}
-            </h2>
-            <p className="mt-0.5 text-sm text-muted">
-              {form.editing
-                ? "Update the task details."
-                : form.isSubtaskCreate
-                  ? form.parentTitle
-                    ? `Nested under “${form.parentTitle}”.`
-                    : "A shorter form for a nested task."
-                  : "Add something to your backlog."}
-            </p>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+      <form onSubmit={form.onSubmit} className="flex flex-col gap-3 w-full">
+        <p className="text-sm text-muted">
+          {form.editing
+            ? "Update the task details."
+            : form.isSubtaskCreate
+              ? form.parentTitle
+                ? `Nested under “${form.parentTitle}”.`
+                : "A shorter form for a nested task."
+              : "Add something to your backlog."}
+        </p>
+
+        <Field label="Title" htmlFor={titleId}>
+          <Input
+            id={titleId}
+            value={form.title}
+            onChange={(event) => form.setTitle(event.target.value)}
+            required
+            maxLength={200}
+            autoFocus
+            placeholder="What needs doing?"
+          />
+        </Field>
+
+        <Field label="Description">
+          <MarkdownEditor
+            value={form.description}
+            onChange={form.setDescription}
+            rows={form.isSubtaskCreate ? 3 : 6}
+            compact={form.isSubtaskCreate}
+            placeholder="Notes, checklists, links…"
+          />
+        </Field>
+
+        <LabelField
+          labels={labels}
+          selectedIds={form.labelIds}
+          onChange={form.setLabelIds}
+          onCreate={form.openLabelCreate}
+        />
+
+        <TaskMetaFields
+          editing={!!form.editing}
+          isSubtaskCreate={form.isSubtaskCreate}
+          priority={form.priority}
+          onPriorityChange={form.setPriority}
+          status={form.status}
+          onStatusChange={form.setStatus}
+          doingDate={form.doingDate}
+          onDoingDateChange={form.setDoingDate}
+          sprintId={form.sprintId}
+          onSprintIdChange={form.setSprintId}
+          sprints={sprints}
+        />
+
+        {form.error && <p className="text-sm text-foreground">{form.error}</p>}
+
+        <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+          {canCreateSubtask && (
+            <Button
+              variant="secondary"
+              className="mr-auto"
+              onClick={onCreateSubtask}
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Create subtask
+            </Button>
+          )}
+          <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <Field label="Title" htmlFor={titleId}>
-            <Input
-              id={titleId}
-              value={form.title}
-              onChange={(event) => form.setTitle(event.target.value)}
-              required
-              maxLength={200}
-              autoFocus
-              placeholder="What needs doing?"
-            />
-          </Field>
-
-          <Field label="Description">
-            <MarkdownEditor
-              value={form.description}
-              onChange={form.setDescription}
-              rows={form.isSubtaskCreate ? 3 : 6}
-              compact={form.isSubtaskCreate}
-              placeholder="Notes, checklists, links…"
-            />
-          </Field>
-
-          <LabelField
-            labels={labels}
-            selectedIds={form.labelIds}
-            onChange={form.setLabelIds}
-            onCreate={form.openLabelCreate}
-          />
-
-          <TaskMetaFields
-            editing={!!form.editing}
-            isSubtaskCreate={form.isSubtaskCreate}
-            priority={form.priority}
-            onPriorityChange={form.setPriority}
-            status={form.status}
-            onStatusChange={form.setStatus}
-            doingDate={form.doingDate}
-            onDoingDateChange={form.setDoingDate}
-            sprintId={form.sprintId}
-            onSprintIdChange={form.setSprintId}
-            sprints={sprints}
-          />
-
-          {form.error && (
-            <p className="text-sm text-foreground">{form.error}</p>
-          )}
-
-          <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-            {canCreateSubtask && (
-              <Button
-                variant="secondary"
-                className="mr-auto"
-                onClick={onCreateSubtask}
-              >
-                <Plus className="h-4 w-4" aria-hidden />
-                Create subtask
-              </Button>
-            )}
-            <Button variant="ghost" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={form.pending}>
-              {form.pending
-                ? "Saving…"
-                : form.editing
-                  ? "Save changes"
-                  : form.isSubtaskCreate
-                    ? "Create subtask"
-                    : "Create task"}
-            </Button>
-          </div>
+          <Button type="submit" disabled={form.pending}>
+            {form.pending
+              ? "Saving…"
+              : form.editing
+                ? "Save changes"
+                : form.isSubtaskCreate
+                  ? "Create subtask"
+                  : "Create task"}
+          </Button>
         </div>
       </form>
 
@@ -150,3 +129,9 @@ const TaskForm: FC<Props> = ({
 };
 
 export default TaskForm;
+
+export function taskFormTitle(mode: TaskFormMode): string {
+  if (mode.type === "edit") return "Edit task";
+  if (mode.parentId) return "New subtask";
+  return "New task";
+}

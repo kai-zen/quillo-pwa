@@ -16,11 +16,6 @@ interface Props {
 
 const Modal: FC<Props> = ({ open, onClose, title, children, className }) => {
   const titleId = useId();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +34,7 @@ const Modal: FC<Props> = ({ open, onClose, title, children, className }) => {
     };
   }, [open, onClose]);
 
-  if (!mounted || !open) return null;
+  if (!open) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-80 flex items-end justify-center sm:items-center sm:p-4">
@@ -54,7 +49,7 @@ const Modal: FC<Props> = ({ open, onClose, title, children, className }) => {
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          "relative z-10 flex max-h-[85vh] w-full flex-col rounded-t-xl border border-border bg-surface shadow-xl sm:max-w-md sm:rounded-xl",
+          "relative z-10 flex max-h-[85vh] w-full flex-col rounded-t-xl border border-border bg-surface shadow-xl sm:max-w-md lg:max-w-xl sm:rounded-xl",
           className,
         )}
       >

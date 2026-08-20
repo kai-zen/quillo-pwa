@@ -1,7 +1,7 @@
 "use client";
 
 import { FC } from "react";
-import { Field, Input, Select } from "@/components/common";
+import { DatePicker, Field, Select } from "@/components/common";
 import type { RecordId, Sprint, TaskPriority, TaskStatus } from "@/shared/types";
 import {
   PRIORITY_LABELS,
@@ -75,10 +75,10 @@ const TaskMetaFields: FC<Props> = ({
       </div>
 
       <Field label="Doing date">
-        <Input
-          type="date"
+        <DatePicker
           value={doingDate}
-          onChange={(event) => onDoingDateChange(event.target.value)}
+          onChange={onDoingDateChange}
+          aria-label="Doing date"
         />
       </Field>
     </div>

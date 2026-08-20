@@ -2,12 +2,12 @@
 
 import { Plus } from "lucide-react";
 import { FC, useState } from "react";
-import { Button, Select } from "@/components/common";
+import { Button, Modal, Select } from "@/components/common";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Sprint, Task, TaskListQuery, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
 import { groupTasks, labelsById, STATUS_LABELS } from "./helpers";
-import TaskForm, { type TaskFormMode } from "./form/TaskForm";
+import TaskForm, { taskFormTitle, type TaskFormMode } from "./form/TaskForm";
 import TaskItem from "./TaskItem";
 
 const PAGE_LIMIT = 50;
@@ -100,25 +100,32 @@ const BacklogView: FC = () => {
         </span>
       </div>
 
-      {formMode && (
-        <TaskForm
-          key={
-            formMode.type === "edit"
-              ? formMode.task._id
-              : `create-${formMode.parentId ?? "root"}`
-          }
-          mode={formMode}
-          labels={labels}
-          sprints={sprints}
-          onClose={() => setFormMode(null)}
-          onSaved={() => setFormMode(null)}
-          onCreateSubtask={
-            formMode.type === "edit" && !formMode.task.parent_id
-              ? () => openCreate(formMode.task)
-              : undefined
-          }
-        />
-      )}
+      <Modal
+        open={!!formMode}
+        onClose={() => setFormMode(null)}
+        title={formMode ? taskFormTitle(formMode) : ""}
+        className="max-w-3xl"
+      >
+        {formMode && (
+          <TaskForm
+            key={
+              formMode.type === "edit"
+                ? formMode.task._id
+                : `create-${formMode.parentId ?? "root"}`
+            }
+            mode={formMode}
+            labels={labels}
+            sprints={sprints}
+            onClose={() => setFormMode(null)}
+            onSaved={() => setFormMode(null)}
+            onCreateSubtask={
+              formMode.type === "edit" && !formMode.task.parent_id
+                ? () => openCreate(formMode.task)
+                : undefined
+            }
+          />
+        )}
+      </Modal>
 
       {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
 
