@@ -1,5 +1,5 @@
+import { defineEndpoint } from "../types";
 import { ROUTES } from "../routes";
-import type { EndpointDef } from "../types";
 import type {
   CreateTaskBody,
   IdParam,
@@ -10,35 +10,35 @@ import type {
 } from "@/shared/types";
 
 export const tasksModule = {
-  create: {
+  create: defineEndpoint<Task, CreateTaskBody>({
     method: "POST",
     path: ROUTES.tasks.base,
     auth: true,
-  } satisfies EndpointDef<Task, CreateTaskBody>,
+  }),
 
-  list: {
+  list: defineEndpoint<PaginatedResponse<Task>, never, TaskListQuery>({
     method: "GET",
     path: ROUTES.tasks.base,
     auth: true,
-  } satisfies EndpointDef<PaginatedResponse<Task>, never, TaskListQuery>,
+  }),
 
-  get: {
+  get: defineEndpoint<Task, never, never, IdParam>({
     method: "GET",
     path: ROUTES.tasks.byId,
     auth: true,
-  } satisfies EndpointDef<Task, never, never, IdParam>,
+  }),
 
-  update: {
+  update: defineEndpoint<Task, UpdateTaskBody, never, IdParam>({
     method: "PUT",
     path: ROUTES.tasks.byId,
     auth: true,
-  } satisfies EndpointDef<Task, UpdateTaskBody, never, IdParam>,
+  }),
 
-  delete: {
+  delete: defineEndpoint<void, never, never, IdParam>({
     method: "DELETE",
     path: ROUTES.tasks.byId,
     auth: true,
-  } satisfies EndpointDef<void, never, never, IdParam>,
+  }),
 } as const;
 
 export type TasksModule = typeof tasksModule;

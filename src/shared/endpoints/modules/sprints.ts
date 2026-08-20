@@ -1,5 +1,5 @@
+import { defineEndpoint } from "../types";
 import { ROUTES } from "../routes";
-import type { EndpointDef } from "../types";
 import type {
   CreateSprintBody,
   IdParam,
@@ -10,39 +10,35 @@ import type {
 } from "@/shared/types";
 
 export const sprintsModule = {
-  create: {
+  create: defineEndpoint<Sprint, CreateSprintBody>({
     method: "POST",
     path: ROUTES.sprints.base,
     auth: true,
-  } satisfies EndpointDef<Sprint, CreateSprintBody>,
+  }),
 
-  list: {
+  list: defineEndpoint<PaginatedResponse<Sprint>, never, SprintListQuery>({
     method: "GET",
     path: ROUTES.sprints.base,
     auth: true,
-  } satisfies EndpointDef<
-    PaginatedResponse<Sprint>,
-    never,
-    SprintListQuery
-  >,
+  }),
 
-  get: {
+  get: defineEndpoint<Sprint, never, never, IdParam>({
     method: "GET",
     path: ROUTES.sprints.byId,
     auth: true,
-  } satisfies EndpointDef<Sprint, never, never, IdParam>,
+  }),
 
-  update: {
+  update: defineEndpoint<Sprint, UpdateSprintBody, never, IdParam>({
     method: "PUT",
     path: ROUTES.sprints.byId,
     auth: true,
-  } satisfies EndpointDef<Sprint, UpdateSprintBody, never, IdParam>,
+  }),
 
-  delete: {
+  delete: defineEndpoint<void, never, never, IdParam>({
     method: "DELETE",
     path: ROUTES.sprints.byId,
     auth: true,
-  } satisfies EndpointDef<void, never, never, IdParam>,
+  }),
 } as const;
 
 export type SprintsModule = typeof sprintsModule;

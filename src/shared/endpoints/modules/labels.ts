@@ -1,5 +1,5 @@
+import { defineEndpoint } from "../types";
 import { ROUTES } from "../routes";
-import type { EndpointDef } from "../types";
 import type {
   CreateLabelBody,
   IdParam,
@@ -10,35 +10,35 @@ import type {
 } from "@/shared/types";
 
 export const labelsModule = {
-  create: {
+  create: defineEndpoint<Label, CreateLabelBody>({
     method: "POST",
     path: ROUTES.labels.base,
     auth: true,
-  } satisfies EndpointDef<Label, CreateLabelBody>,
+  }),
 
-  list: {
+  list: defineEndpoint<PaginatedResponse<Label>, never, LabelListQuery>({
     method: "GET",
     path: ROUTES.labels.base,
     auth: true,
-  } satisfies EndpointDef<PaginatedResponse<Label>, never, LabelListQuery>,
+  }),
 
-  get: {
+  get: defineEndpoint<Label, never, never, IdParam>({
     method: "GET",
     path: ROUTES.labels.byId,
     auth: true,
-  } satisfies EndpointDef<Label, never, never, IdParam>,
+  }),
 
-  update: {
+  update: defineEndpoint<Label, UpdateLabelBody, never, IdParam>({
     method: "PUT",
     path: ROUTES.labels.byId,
     auth: true,
-  } satisfies EndpointDef<Label, UpdateLabelBody, never, IdParam>,
+  }),
 
-  delete: {
+  delete: defineEndpoint<void, never, never, IdParam>({
     method: "DELETE",
     path: ROUTES.labels.byId,
     auth: true,
-  } satisfies EndpointDef<void, never, never, IdParam>,
+  }),
 } as const;
 
 export type LabelsModule = typeof labelsModule;

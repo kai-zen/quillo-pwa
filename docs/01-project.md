@@ -47,18 +47,18 @@ Domain types, request bodies, list queries, and shared shapes (`PaginatedRespons
 
 ### `src/shared/endpoints`
 
-| File | Role |
-| ---- | ---- |
-| `routes.ts` | All path strings / path builders |
-| `client.ts` | Axios instance, auth token helpers, typed `request()` |
-| `types.ts` | `EndpointDef` and related endpoint types |
+| File           | Role                                                                        |
+| -------------- | --------------------------------------------------------------------------- |
+| `routes.ts`    | All path strings / path builders                                            |
+| `client.ts`    | Axios instance, auth token helpers, typed `request()`                       |
+| `types.ts`     | `EndpointDef` and related endpoint types                                    |
 | `modules/*.ts` | One object per domain: method, path, auth, typed body/query/params/response |
 
 Each module entry is a static definition. Example:
 
 ```ts
-labelsModule.list  // GET /labels → PaginatedResponse<Label>
-labelsModule.get   // GET /labels/:id → Label
+labelsModule.list; // GET /labels → PaginatedResponse<Label>
+labelsModule.get; // GET /labels/:id → Label
 ```
 
 Call them through `request(endpoint, { body, query, params })`.
@@ -67,14 +67,14 @@ Call them through `request(endpoint, { body, query, params })`.
 
 One hook per module. Each returns:
 
-- **Query helpers** — functions that take params and return a React Query result (must be called during render)
+- **Query helpers** — functions named `use…` that take params and return a React Query result (must be called during render)
 - **Mutation helpers** — async functions (`mutateAsync`) for create / update / delete / auth
 
 Example:
 
 ```ts
-const { getTasksList, createTask } = useTasksApi();
-const { data, isLoading } = getTasksList({ doing_date: "2026-08-20" });
+const { useTasksList, createTask } = useTasksApi();
+const { data, isLoading } = useTasksList({ doing_date: "2026-08-20" });
 await createTask({ title: "Ship v1" });
 ```
 
@@ -116,11 +116,11 @@ One nesting level only. Parent/child `done` is linked on the API; the UI just se
 
 ## How the views work
 
-| View    | Rule                                   |
-| ------- | -------------------------------------- |
-| Backlog | `GET /tasks` with no special filter    |
-| Daily   | `GET /tasks?doing_date=YYYY-MM-DD`     |
-| Sprint  | `GET /tasks?sprint_id=<id>`            |
+| View    | Rule                                |
+| ------- | ----------------------------------- |
+| Backlog | `GET /tasks` with no special filter |
+| Daily   | `GET /tasks?doing_date=YYYY-MM-DD`  |
+| Sprint  | `GET /tasks?sprint_id=<id>`         |
 
 A task can appear in more than one view.
 

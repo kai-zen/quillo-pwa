@@ -26,3 +26,12 @@ export type EndpointOptions<TBody = never, TQuery = never, TParams = never> = {
   query?: TQuery;
   params?: TParams;
 };
+
+export const defineEndpoint = <
+  TResponse = unknown,
+  TBody = never,
+  TQuery = never,
+  TParams = never,
+>(
+  endpoint: EndpointDef<TResponse, TBody, TQuery, TParams>,
+): EndpointDef<TResponse, TBody, TQuery, TParams> => endpoint;

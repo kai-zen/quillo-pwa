@@ -1,5 +1,5 @@
+import { defineEndpoint } from "../types";
 import { ROUTES } from "../routes";
-import type { EndpointDef } from "../types";
 import type {
   AuthResponse,
   ChangePasswordBody,
@@ -9,35 +9,35 @@ import type {
 } from "@/shared/types";
 
 export const usersModule = {
-  register: {
+  register: defineEndpoint<AuthResponse, RegisterBody>({
     method: "POST",
     path: ROUTES.users.register,
     auth: false,
-  } satisfies EndpointDef<AuthResponse, RegisterBody>,
+  }),
 
-  login: {
+  login: defineEndpoint<AuthResponse, LoginBody>({
     method: "POST",
     path: ROUTES.users.login,
     auth: false,
-  } satisfies EndpointDef<AuthResponse, LoginBody>,
+  }),
 
-  getMe: {
+  getMe: defineEndpoint<User>({
     method: "GET",
     path: ROUTES.users.me,
     auth: true,
-  } satisfies EndpointDef<User>,
+  }),
 
-  changePassword: {
+  changePassword: defineEndpoint<void, ChangePasswordBody>({
     method: "PATCH",
     path: ROUTES.users.changePassword,
     auth: true,
-  } satisfies EndpointDef<void, ChangePasswordBody>,
+  }),
 
-  deleteMe: {
+  deleteMe: defineEndpoint<void>({
     method: "DELETE",
     path: ROUTES.users.deleteMe,
     auth: true,
-  } satisfies EndpointDef<void>,
+  }),
 } as const;
 
 export type UsersModule = typeof usersModule;
