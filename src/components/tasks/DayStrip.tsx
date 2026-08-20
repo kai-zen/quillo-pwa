@@ -66,25 +66,50 @@ const DayStrip: FC<Props> = ({ selectedDate, onSelect }) => {
               type="button"
               role="option"
               aria-selected={isSelected}
+              aria-current={isToday ? "date" : undefined}
               onClick={() => onSelect(iso)}
               className={cn(
-                "flex w-14 flex-col items-center gap-0.5 rounded-xl px-1.5 my-1 py-2 text-center transition-colors cursor-pointer border border-border",
+                "my-1 flex w-14 cursor-pointer flex-col items-center gap-1 rounded-xl border px-1.5 py-2 text-center transition-colors",
                 isSelected
-                  ? "bg-accent-soft text-foreground"
-                  : "text-muted hover:bg-background hover:text-foreground",
-                isToday && !isSelected && "ring-1 ring-border/70",
+                  ? "border-foreground bg-foreground text-background"
+                  : isToday
+                    ? "border-foreground/40 bg-accent-soft text-foreground hover:border-foreground/60"
+                    : "border-transparent text-muted hover:border-border hover:bg-accent-soft hover:text-foreground",
               )}
             >
-              <span className="text-[10px] font-semibold uppercase tracking-wide">
+              <span
+                className={cn(
+                  "text-[10px] font-semibold uppercase tracking-wide",
+                  isSelected
+                    ? "text-background/70"
+                    : isToday
+                      ? "text-foreground/70"
+                      : "text-muted",
+                )}
+              >
                 {formatDayChipWeekday(iso)}
               </span>
               <span
                 className={cn(
                   "text-lg font-semibold tabular-nums leading-none",
-                  isSelected ? "text-foreground" : "text-foreground/90",
+                  isSelected
+                    ? "text-background"
+                    : isToday
+                      ? "text-foreground"
+                      : "text-foreground/55",
                 )}
               >
                 {formatDayChipDay(iso)}
+              </span>
+              <span
+                className="flex h-1 items-center justify-center"
+                aria-hidden
+              >
+                {isToday && !isSelected ? (
+                  <span className="h-1 w-1 rounded-full bg-foreground" />
+                ) : isSelected && isToday ? (
+                  <span className="h-1 w-1 rounded-full bg-background/80" />
+                ) : null}
               </span>
             </button>
           </SwiperSlide>
