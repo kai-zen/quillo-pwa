@@ -1,5 +1,6 @@
 {
   "name": "quillo-pwa",
+  "description": "Quillo PWA App. Personal Tasks Manager Inspired By Scrum.",
   "version": "0.1.0",
   "private": true,
   "scripts": {
