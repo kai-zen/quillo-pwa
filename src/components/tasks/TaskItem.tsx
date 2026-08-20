@@ -2,7 +2,7 @@
 
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
-import { IconButton, Select } from "@/components/common";
+import { IconButton, Markdown, Select } from "@/components/common";
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
 import type { Label, Sprint, Task, TaskStatus } from "@/shared/types";
@@ -79,9 +79,9 @@ const TaskItem: FC<Props> = ({
           </div>
 
           {task.description && (
-            <p className="mt-1 line-clamp-2 text-sm text-muted">
-              {task.description}
-            </p>
+            <div className="mt-1">
+              <Markdown compact>{task.description}</Markdown>
+            </div>
           )}
 
           <div className="mt-2 flex flex-wrap items-center gap-2">

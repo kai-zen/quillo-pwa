@@ -6,6 +6,7 @@ type IconButtonSize = "sm" | "md";
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
   size?: IconButtonSize;
+  active?: boolean;
   children: ReactNode;
 }
 
@@ -17,6 +18,7 @@ const sizeClass: Record<IconButtonSize, string> = {
 const IconButton: FC<Props> = ({
   label,
   size = "md",
+  active = false,
   className,
   type = "button",
   children,
@@ -29,7 +31,10 @@ const IconButton: FC<Props> = ({
       aria-label={label}
       title={title ?? label}
       className={cn(
-        "cursor-pointer text-muted transition-colors hover:bg-accent-soft hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        active
+          ? "bg-accent-soft text-foreground"
+          : "text-muted hover:bg-accent-soft hover:text-foreground",
         sizeClass[size],
         className,
       )}

@@ -5,8 +5,8 @@ import {
   Button,
   Field,
   Input,
+  MarkdownEditor,
   Select,
-  Textarea,
 } from "@/components/common";
 import { getErrorMessage } from "@/shared/errors";
 import { useLabelsApi, useTasksApi } from "@/shared/hooks";
@@ -195,11 +195,11 @@ const TaskForm: FC<Props> = ({
         </Field>
 
         <Field label="Description">
-          <Textarea
+          <MarkdownEditor
             value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            rows={3}
-            placeholder="Optional notes"
+            onChange={setDescription}
+            rows={6}
+            placeholder={"Notes, checklists, links…\n\n**bold**, _italic_, `code`"}
           />
         </Field>
 
