@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FC, ReactNode } from "react";
-import AppBrand from "./app-brand";
-import { NAV_ITEMS } from "./nav";
+import ThemeToggle from "@/components/theme/ThemeToggle";
+import AppBrand from "./AppBrand";
+import { NAV_ITEMS } from "./constants";
 
 interface Props {
   children: ReactNode;
@@ -20,7 +21,7 @@ const AppShell: FC<Props> = ({ children }) => {
 
   return (
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
-      <aside className="hidden w-52 shrink-0 flex-col border-r border-border bg-surface/80 px-4 py-6 backdrop-blur-sm md:flex">
+      <aside className="hidden w-52 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
         <div className="mb-10">
           <AppBrand />
         </div>
@@ -55,8 +56,11 @@ const AppShell: FC<Props> = ({ children }) => {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center border-b border-border bg-surface/70 px-4 py-3 backdrop-blur-sm md:hidden">
-          <AppBrand />
+        <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:justify-end md:px-8">
+          <div className="md:hidden">
+            <AppBrand />
+          </div>
+          <ThemeToggle />
         </header>
 
         <main className="flex-1 px-4 py-5 pb-24 md:px-8 md:py-8 md:pb-8">
@@ -65,7 +69,7 @@ const AppShell: FC<Props> = ({ children }) => {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-10 flex border-t border-border bg-surface/95 backdrop-blur-sm md:hidden"
+        className="fixed inset-x-0 bottom-0 z-10 flex border-t border-border bg-surface md:hidden"
         aria-label="Main"
       >
         {NAV_ITEMS.map((item) => {

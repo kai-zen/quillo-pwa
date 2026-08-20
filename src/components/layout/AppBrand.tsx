@@ -13,16 +13,16 @@ const AppBrand: FC<Props> = ({ compact = false }) => {
       className="inline-flex items-center gap-2.5 text-foreground transition-opacity hover:opacity-80"
     >
       <Image
-        src="/logo.svg"
+        src="/logo-cropped.svg"
         alt=""
-        width={28}
-        height={28}
+        width={20}
+        height={20}
         priority
-        className="h-7 w-7 shrink-0"
+        className="h-5 w-5 shrink-0 dark:invert"
         aria-hidden
       />
       {!compact && (
-        <span className="text-xl font-semibold tracking-tight">Quillo</span>
+        <span className="text-2xl font-semibold tracking-tight">Quillo</span>
       )}
     </Link>
   );
