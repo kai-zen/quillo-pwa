@@ -15,30 +15,36 @@ import {
 import "swiper/css";
 
 interface Props {
+  centerDate: string;
   selectedDate: string;
   onSelect: (iso: string) => void;
 }
 
-const DayStrip: FC<Props> = ({ selectedDate, onSelect }) => {
+const DayStrip: FC<Props> = ({ centerDate, selectedDate, onSelect }) => {
   const today = todayIso();
-  const days = useMemo(() => buildDayStrip(today), [today]);
+  const days = useMemo(() => buildDayStrip(centerDate), [centerDate]);
   const swiperRef = useRef<SwiperInstance | null>(null);
   const selectedIndex = days.indexOf(selectedDate);
+  const initialSlide =
+    selectedIndex >= 0
+      ? selectedIndex
+      : Math.min(DAY_STRIP_PAST, days.length - 1);
 
   useEffect(() => {
     if (!swiperRef.current || selectedIndex < 0) return;
     swiperRef.current.slideTo(selectedIndex, 280);
-  }, [selectedIndex]);
+  }, [selectedIndex, centerDate]);
 
   return (
     <Swiper
+      key={centerDate}
       modules={[FreeMode, Mousewheel]}
       slidesPerView="auto"
       spaceBetween={6}
       centeredSlides
       centeredSlidesBounds
       slideToClickedSlide
-      initialSlide={DAY_STRIP_PAST}
+      initialSlide={initialSlide}
       freeMode={{
         enabled: true,
         sticky: true,

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Label, Sprint, Task } from "@/shared/types";
 import type { TaskFormMode } from "./form/TaskForm";
-import { todayIso } from "./helpers";
+import { buildDayStrip, todayIso } from "./helpers";
 
 const PAGE_LIMIT = 50;
 
@@ -14,6 +14,7 @@ export function useTasksDayView() {
   const { useSprintsList } = useSprintsApi();
 
   const [selectedDate, setSelectedDate] = useState(todayIso);
+  const [stripCenter, setStripCenter] = useState(todayIso);
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
 
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
@@ -34,6 +35,19 @@ export function useTasksDayView() {
   const isError = tasksQuery.isError;
   const isEmpty = !isLoading && !isError && tasks.length === 0;
 
+  const selectDate = (iso: string) => {
+    if (!iso) return;
+    setSelectedDate(iso);
+  };
+
+  const jumpToDate = (iso: string) => {
+    if (!iso) return;
+    setSelectedDate(iso);
+    if (!buildDayStrip(stripCenter).includes(iso)) {
+      setStripCenter(iso);
+    }
+  };
+
   const openCreate = (parent?: Task) => {
     setFormMode({
       type: "create",
@@ -48,7 +62,9 @@ export function useTasksDayView() {
 
   return {
     selectedDate,
-    setSelectedDate,
+    stripCenter,
+    selectDate,
+    jumpToDate,
     formMode,
     labels,
     sprints,

@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { FC } from "react";
-import { Button, Modal } from "@/components/common";
+import { Button, DatePicker, Modal } from "@/components/common";
 import DayStrip from "./DayStrip";
 import TaskForm, { taskFormTitle } from "./form/TaskForm";
 import { formatDayHeading } from "./helpers";
@@ -12,7 +12,9 @@ import { useTasksDayView } from "./useTasksDayView";
 const TasksView: FC = () => {
   const {
     selectedDate,
-    setSelectedDate,
+    stripCenter,
+    selectDate,
+    jumpToDate,
     formMode,
     labels,
     sprints,
@@ -46,14 +48,26 @@ const TasksView: FC = () => {
       </div>
 
       <div>
-        <DayStrip selectedDate={selectedDate} onSelect={setSelectedDate} />
+        <DayStrip
+          centerDate={stripCenter}
+          selectedDate={selectedDate}
+          onSelect={selectDate}
+        />
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-foreground">{heading}</p>
-        <span className="text-xs font-medium tabular-nums text-muted">
-          {taskTotal} task{taskTotal === 1 ? "" : "s"}
-        </span>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <DatePicker
+          value={selectedDate}
+          onChange={jumpToDate}
+          clearable={false}
+          aria-label="Go to date"
+          placeholder="Pick a date…"
+        />
+        <div>
+          <p className="text-sm font-medium tabular-nums">
+            {taskTotal} task{taskTotal === 1 ? "" : "s"}
+          </p>
+        </div>
       </div>
 
       <Modal
