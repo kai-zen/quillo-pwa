@@ -5,9 +5,14 @@ import {
   KeyboardEvent,
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
+import {
+  resolvePopoverPlacement,
+  type PopoverPlacement,
+} from "../placement";
 import { readOptions, type SelectOption, type SelectProps } from "./helpers";
 
 type UseSelectArgs = Pick<
@@ -42,6 +47,7 @@ export function useSelect({
     String(defaultValue ?? options[0]?.value ?? ""),
   );
   const [open, setOpen] = useState(false);
+  const [placement, setPlacement] = useState<PopoverPlacement>("bottom");
   const [activeIndex, setActiveIndex] = useState(-1);
 
   const selectedValue = String(
@@ -70,6 +76,18 @@ export function useSelect({
     close();
   };
 
+  const updatePlacement = () => {
+    const root = rootRef.current;
+    const list = listRef.current;
+    if (!root || !list) return;
+    setPlacement(resolvePopoverPlacement(root, list));
+  };
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePlacement();
+  }, [open, options.length]);
+
   useEffect(() => {
     if (!open) return;
 
@@ -85,11 +103,17 @@ export function useSelect({
       }
     };
 
+    const onReposition = () => updatePlacement();
+
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("keydown", onKeyDown, true);
+    window.addEventListener("resize", onReposition);
+    document.addEventListener("scroll", onReposition, true);
     return () => {
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("resize", onReposition);
+      document.removeEventListener("scroll", onReposition, true);
     };
   }, [open]);
 
@@ -123,6 +147,7 @@ export function useSelect({
     setActiveIndex(
       selectedIndex >= 0 ? selectedIndex : (enabledIndexes[0] ?? -1),
     );
+    setPlacement("bottom");
     setOpen(true);
   };
 
@@ -172,6 +197,7 @@ export function useSelect({
     triggerId,
     options,
     open,
+    placement,
     activeIndex,
     selectedValue,
     selectedOption,

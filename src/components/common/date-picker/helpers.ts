@@ -1,7 +1,4 @@
 export type DatePickerSize = "sm" | "md";
-export type DatePickerPlacement = "top" | "bottom";
-
-export const POPOVER_GAP = 6;
 
 export interface DatePickerProps {
   value?: string;
@@ -138,20 +135,3 @@ export const formatMonthLabel = (date: Date): string =>
 
 export const todayIso = (): string => toIsoDate(new Date());
 
-/** Nearest ancestor that can clip absolutely positioned children. */
-export const getClippingParent = (el: HTMLElement): HTMLElement | null => {
-  let parent = el.parentElement;
-
-  while (parent && parent !== document.body) {
-    const { overflow, overflowY } = getComputedStyle(parent);
-    if (
-      /(auto|scroll|hidden|clip)/.test(overflow) ||
-      /(auto|scroll|hidden|clip)/.test(overflowY)
-    ) {
-      return parent;
-    }
-    parent = parent.parentElement;
-  }
-
-  return null;
-};

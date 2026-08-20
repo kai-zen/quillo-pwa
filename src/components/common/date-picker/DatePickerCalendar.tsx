@@ -13,14 +13,14 @@ import {
   parseIsoDate,
   todayIso,
   WEEKDAY_LABELS,
-  type DatePickerPlacement,
 } from "./helpers";
+import type { PopoverPlacement } from "../placement";
 
 interface Props {
   popoverRef: RefObject<HTMLDivElement | null>;
   popoverId: string;
   triggerId: string;
-  placement: DatePickerPlacement;
+  placement: PopoverPlacement;
   viewMonth: Date;
   selectedValue: string;
   min?: string;

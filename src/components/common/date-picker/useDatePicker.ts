@@ -10,15 +10,16 @@ import {
 } from "react";
 import {
   addMonths,
-  getClippingParent,
   isValidIsoDate,
   parseIsoDate,
-  POPOVER_GAP,
   startOfMonth,
   todayIso,
-  type DatePickerPlacement,
   type DatePickerProps,
 } from "./helpers";
+import {
+  resolvePopoverPlacement,
+  type PopoverPlacement,
+} from "../placement";
 
 type UseDatePickerArgs = Pick<
   DatePickerProps,
@@ -55,7 +56,7 @@ export function useDatePicker({
     defaultValue ?? "",
   );
   const [open, setOpen] = useState(false);
-  const [placement, setPlacement] = useState<DatePickerPlacement>("bottom");
+  const [placement, setPlacement] = useState<PopoverPlacement>("bottom");
   const [viewMonth, setViewMonth] = useState(() => {
     const initial = value ?? defaultValue ?? "";
     const parsed = parseIsoDate(initial);
@@ -94,20 +95,7 @@ export function useDatePicker({
     const root = rootRef.current;
     const popover = popoverRef.current;
     if (!root || !popover) return;
-
-    const triggerRect = root.getBoundingClientRect();
-    const clipParent = getClippingParent(root);
-    const clipRect = clipParent?.getBoundingClientRect();
-    const boundsTop = clipRect?.top ?? 0;
-    const boundsBottom = clipRect?.bottom ?? window.innerHeight;
-
-    const spaceBelow = boundsBottom - triggerRect.bottom;
-    const spaceAbove = triggerRect.top - boundsTop;
-    const needed = popover.offsetHeight + POPOVER_GAP;
-
-    setPlacement(
-      spaceBelow < needed && spaceAbove > spaceBelow ? "top" : "bottom",
-    );
+    setPlacement(resolvePopoverPlacement(root, popover));
   };
 
   useLayoutEffect(() => {

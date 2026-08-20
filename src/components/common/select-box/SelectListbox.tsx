@@ -8,11 +8,13 @@ import {
   type SelectOption,
   type SelectSize,
 } from "./helpers";
+import type { PopoverPlacement } from "../placement";
 
 interface Props {
   listRef: RefObject<HTMLUListElement | null>;
   listboxId: string;
   triggerId: string;
+  placement: PopoverPlacement;
   options: SelectOption[];
   selectedValue: string;
   activeIndex: number;
@@ -25,6 +27,7 @@ const SelectListbox: FC<Props> = ({
   listRef,
   listboxId,
   triggerId,
+  placement,
   options,
   selectedValue,
   activeIndex,
@@ -37,7 +40,10 @@ const SelectListbox: FC<Props> = ({
     id={listboxId}
     role="listbox"
     aria-labelledby={triggerId}
-    className="absolute z-50 mt-1.5 max-h-60 w-full overflow-auto rounded-lg border border-border bg-surface py-1 shadow-lg shadow-black/10 dark:border-border dark:bg-surface dark:shadow-black/50"
+    className={cn(
+      "absolute z-50 max-h-60 w-full overflow-auto rounded-lg border border-border bg-surface py-1 shadow-lg shadow-black/10 dark:border-border dark:bg-surface dark:shadow-black/50",
+      placement === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5",
+    )}
   >
     {options.map((option, index) => {
       const selected = option.value === selectedValue;

@@ -31,6 +31,7 @@ const Select: FC<SelectProps> = ({
     triggerId,
     options,
     open,
+    placement,
     activeIndex,
     selectedValue,
     selectedOption,
@@ -112,6 +113,7 @@ const Select: FC<SelectProps> = ({
           listRef={listRef}
           listboxId={listboxId}
           triggerId={triggerId}
+          placement={placement}
           options={options}
           selectedValue={selectedValue}
           activeIndex={activeIndex}
