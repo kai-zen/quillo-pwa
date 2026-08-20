@@ -16,6 +16,22 @@ export const STATUS_LABELS: Record<TaskStatus, string> = {
   cancelled: "Cancelled",
 };
 
+export const STATUS_BADGE_CLASS: Record<TaskStatus, string> = {
+  todo: "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
+  doing: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
+  done: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+  paused: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  cancelled: "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300",
+};
+
+export const STATUS_DOT_CLASS: Record<TaskStatus, string> = {
+  todo: "bg-neutral-400",
+  doing: "bg-sky-500",
+  done: "bg-emerald-500",
+  paused: "bg-amber-500",
+  cancelled: "bg-rose-500",
+};
+
 export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   unset: "Unset",
   low: "Low",

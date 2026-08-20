@@ -17,7 +17,7 @@ import {
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Label, Task, TaskListQuery, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
-import { groupTasks, labelsById, STATUS_LABELS } from "./helpers";
+import { groupTasks, labelsById, STATUS_BADGE_CLASS, STATUS_DOT_CLASS, STATUS_LABELS } from "./helpers";
 import TaskForm, { taskFormTitle, type TaskFormMode } from "./form/TaskForm";
 
 const PAGE_LIMIT = 50;
@@ -236,7 +236,19 @@ const BacklogView: FC = () => {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm text-muted">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
+                        STATUS_BADGE_CLASS[task.status],
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          STATUS_DOT_CLASS[task.status],
+                        )}
+                        aria-hidden
+                      />
                       {STATUS_LABELS[task.status]}
                     </span>
                   </TableCell>
