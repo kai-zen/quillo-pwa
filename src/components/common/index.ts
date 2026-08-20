@@ -5,6 +5,6 @@ export { default as Input } from "./Input";
 export { default as Markdown } from "./markdown/Markdown";
 export { default as MarkdownEditor } from "./markdown/MarkdownEditor";
 export { default as Modal } from "./Modal";
-export { default as Select } from "./Select";
+export { default as Select } from "./Select/Select";
 export { default as Textarea } from "./Textarea";
 export { cn } from "./cn";

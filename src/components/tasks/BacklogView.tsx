@@ -7,7 +7,7 @@ import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Sprint, Task, TaskListQuery, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
 import { groupTasks, labelsById, STATUS_LABELS } from "./helpers";
-import TaskForm, { type TaskFormMode } from "./TaskForm";
+import TaskForm, { type TaskFormMode } from "./form/TaskForm";
 import TaskItem from "./TaskItem";
 
 const PAGE_LIMIT = 50;
