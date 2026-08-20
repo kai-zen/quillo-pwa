@@ -90,6 +90,7 @@ export interface Task extends Timestamps {
   doing_date: string | null;
   parent_id: RecordId | null;
   task_number: number;
+  children: Task[];
 }
 
 // ---------------------------------------------------------------------------

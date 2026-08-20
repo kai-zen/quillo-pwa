@@ -7,5 +7,13 @@ export { default as Markdown } from "./markdown/Markdown";
 export { default as MarkdownEditor } from "./markdown/MarkdownEditor";
 export { default as Modal } from "./Modal";
 export { default as Select } from "./select-box/Select";
+export {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./Table";
 export { default as Textarea } from "./Textarea";
 export { cn } from "./cn";

@@ -1,14 +1,24 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ListFilter, Plus } from "lucide-react";
 import { FC, useState } from "react";
-import { Button, Modal, Select } from "@/components/common";
+import {
+  Button,
+  Modal,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  cn,
+} from "@/components/common";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
-import type { Sprint, Task, TaskListQuery, TaskStatus } from "@/shared/types";
+import type { Label, Task, TaskListQuery, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
 import { groupTasks, labelsById, STATUS_LABELS } from "./helpers";
 import TaskForm, { taskFormTitle, type TaskFormMode } from "./form/TaskForm";
-import TaskItem from "./TaskItem";
 
 const PAGE_LIMIT = 50;
 
@@ -18,6 +28,7 @@ const BacklogView: FC = () => {
   const { useSprintsList } = useSprintsApi();
 
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "">("");
+  const [labelFilter, setLabelFilter] = useState("");
   const [page, setPage] = useState(1);
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
 
@@ -25,6 +36,7 @@ const BacklogView: FC = () => {
     page,
     limit: PAGE_LIMIT,
     ...(statusFilter ? { status: statusFilter } : {}),
+    ...(labelFilter ? { label_ids: labelFilter } : {}),
   };
 
   const tasksQuery = useTasksList(listQuery);
@@ -32,16 +44,17 @@ const BacklogView: FC = () => {
   const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
 
   const tasks = tasksQuery.data?.items ?? [];
-  const labels = labelsQuery.data?.items ?? [];
+  const labels: Label[] = labelsQuery.data?.items ?? [];
   const sprints = sprintsQuery.data?.items ?? [];
   const total = tasksQuery.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
   const groups = groupTasks(tasks);
   const labelMap = labelsById(labels);
-  const sprintMap = new Map(
-    sprints.map((sprint: Sprint) => [sprint._id, sprint]),
-  ) as Map<string, Sprint>;
+  const rows = groups.flatMap(({ task, children }) => [
+    { task, depth: 0 },
+    ...children.map((child) => ({ task: child, depth: 1 })),
+  ]);
 
   const isLoading =
     tasksQuery.isLoading || labelsQuery.isLoading || sprintsQuery.isLoading;
@@ -59,26 +72,36 @@ const BacklogView: FC = () => {
     setFormMode({ type: "edit", task });
   };
 
+  const resolveLabels = (task: Task): Label[] =>
+    task.label_ids
+      .map((id) => labelMap.get(id))
+      .filter((label): label is Label => !!label);
+
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
             Backlog
           </h1>
-          <p className="mt-2 text-sm text-muted">
-            Every task in one place. Schedule days and sprints from here.
+          <p className="mt-1.5 text-sm text-muted">
+            Capture, organize, and schedule your upcoming work.
           </p>
         </div>
-        <Button onClick={() => openCreate()}>
+        <Button onClick={() => openCreate()} className="shadow-sm">
           <Plus className="h-4 w-4" aria-hidden />
           New task
         </Button>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <label className="text-sm text-muted" htmlFor="backlog-status-filter">
-          Status
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-2.5 shadow-sm shadow-black/2">
+        <span className="inline-flex items-center gap-2 pl-1 text-sm font-medium text-foreground">
+          <ListFilter className="h-4 w-4 text-muted" aria-hidden />
+          Filter
+        </span>
+        <span className="h-5 w-px bg-border" aria-hidden />
+        <label className="sr-only" htmlFor="backlog-status-filter">
+          Filter by status
         </label>
         <Select
           id="backlog-status-filter"
@@ -87,15 +110,37 @@ const BacklogView: FC = () => {
             setStatusFilter(event.target.value as TaskStatus | "");
             setPage(1);
           }}
+          sizeVariant="sm"
+          className="w-36"
         >
-          <option value="">All</option>
+          <option value="">All statuses</option>
           {TASK_STATUSES.map((status) => (
             <option key={status} value={status}>
               {STATUS_LABELS[status]}
             </option>
           ))}
         </Select>
-        <span className="text-sm text-muted">
+        <label className="sr-only" htmlFor="backlog-label-filter">
+          Filter by label
+        </label>
+        <Select
+          id="backlog-label-filter"
+          value={labelFilter}
+          onChange={(event) => {
+            setLabelFilter(event.target.value);
+            setPage(1);
+          }}
+          sizeVariant="sm"
+          className="w-40"
+        >
+          <option value="">All labels</option>
+          {labels.map((label: Label) => (
+            <option key={label._id} value={label._id}>
+              {label.name}
+            </option>
+          ))}
+        </Select>
+        <span className="ml-auto pr-1 text-xs font-medium tabular-nums text-muted">
           {total} task{total === 1 ? "" : "s"}
         </span>
       </div>
@@ -135,9 +180,12 @@ const BacklogView: FC = () => {
         </p>
       )}
 
-      {!isLoading && !isError && groups.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
-          <p className="text-lg text-foreground">No tasks yet.</p>
+      {!isLoading && !isError && rows.length === 0 && (
+        <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
+          <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft">
+            <Plus className="h-5 w-5 text-muted" aria-hidden />
+          </div>
+          <p className="font-medium text-foreground">No tasks yet</p>
           <p className="mt-1 text-sm text-muted">
             Create your first task to start the backlog.
           </p>
@@ -152,30 +200,72 @@ const BacklogView: FC = () => {
         </div>
       )}
 
-      {!isLoading && !isError && groups.length > 0 && (
-        <ul className="rounded-lg border border-border bg-surface px-4">
-          {groups.flatMap(({ task, children }) => [
-            <TaskItem
-              key={task._id}
-              task={task}
-              labelsById={labelMap}
-              sprintsById={sprintMap}
-              onEdit={openEdit}
-              onAddSubtask={openCreate}
-            />,
-            ...children.map((child) => (
-              <TaskItem
-                key={child._id}
-                task={child}
-                depth={1}
-                labelsById={labelMap}
-                sprintsById={sprintMap}
-                onEdit={openEdit}
-                onAddSubtask={openCreate}
-              />
-            )),
-          ])}
-        </ul>
+      {!isLoading && !isError && rows.length > 0 && (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-20">#</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead className="w-28">Status</TableHead>
+              <TableHead className="w-56">Labels</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map(({ task, depth }) => {
+              const taskLabels = resolveLabels(task);
+
+              return (
+                <TableRow
+                  key={task._id}
+                  onClick={() => openEdit(task)}
+                  aria-label={`Edit task ${task.task_number}: ${task.title}`}
+                >
+                  <TableCell>
+                    <span className="font-mono text-xs font-semibold tabular-nums text-muted">
+                      #{task.task_number}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={cn(
+                        "block truncate font-medium text-foreground",
+                        depth > 0 && "pl-5 text-muted",
+                      )}
+                    >
+                      {task.title}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted">
+                      {STATUS_LABELS[task.status]}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {taskLabels.length === 0 ? (
+                      <span className="text-xs text-muted">—</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        {taskLabels.map((label) => (
+                          <span
+                            key={label._id}
+                            className="inline-flex items-center gap-1.5 rounded-md bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-foreground"
+                          >
+                            <span
+                              className="h-1.5 w-1.5 rounded-full"
+                              style={{ backgroundColor: label.color }}
+                              aria-hidden
+                            />
+                            {label.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       )}
 
       {totalPages > 1 && (
