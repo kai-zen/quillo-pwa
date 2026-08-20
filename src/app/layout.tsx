@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import { FC, ReactNode } from "react";
-import AppShell from "@/components/layout/AppShell";
+import AuthGuard from "@/components/auth/AuthGuard";
 import "./globals.css";
 import Providers from "./providers";
 
@@ -34,7 +34,7 @@ const RootLayout: FC<Props> = ({ children }) => {
       </head>
       <body className="flex min-h-full flex-col font-sans">
         <Providers>
-          <AppShell>{children}</AppShell>
+          <AuthGuard>{children}</AuthGuard>
         </Providers>
       </body>
     </html>

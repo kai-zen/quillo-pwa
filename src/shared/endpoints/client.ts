@@ -2,6 +2,16 @@ import axios from "axios";
 import type { EndpointDef, EndpointOptions } from "./types";
 
 const AUTH_TOKEN_KEY = "quillo_auth_token";
+export const AUTH_CHANGED_EVENT = "quillo-auth-changed";
+
+const notifyAuthChanged = () => {
+  window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+};
+
+export const subscribeAuth = (onStoreChange: () => void) => {
+  window.addEventListener(AUTH_CHANGED_EVENT, onStoreChange);
+  return () => window.removeEventListener(AUTH_CHANGED_EVENT, onStoreChange);
+};
 
 export const API_BASE_URL = "https://quillo-api.sofre.app";
 
@@ -22,6 +32,8 @@ export const setAuthToken = (token: string | null): void => {
 
   if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
   else localStorage.removeItem(AUTH_TOKEN_KEY);
+
+  notifyAuthChanged();
 };
 
 apiClient.interceptors.request.use((config) => {
@@ -35,7 +47,7 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && getAuthToken()) {
       setAuthToken(null);
     }
     return Promise.reject(error);

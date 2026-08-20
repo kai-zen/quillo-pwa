@@ -1,9 +1,11 @@
 export {
   API_BASE_URL,
+  AUTH_CHANGED_EVENT,
   apiClient,
   getAuthToken,
   request,
   setAuthToken,
+  subscribeAuth,
 } from "./client";
 export {
   labelsModule,

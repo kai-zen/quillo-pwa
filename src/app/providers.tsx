@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, ReactNode, useState } from "react";
+import AuthProvider from "@/components/auth/AuthProvider";
 import ThemeProvider from "@/components/theme/ThemeProvider";
 
 interface Props {
@@ -23,7 +24,9 @@ const Providers: FC<Props> = ({ children }) => {
 
   return (
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>{children}</AuthProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   );
 };

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FC, ReactNode } from "react";
+import LogoutButton from "@/components/auth/LogoutButton";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import AppBrand from "./AppBrand";
 import { NAV_ITEMS } from "./constants";
@@ -60,7 +61,10 @@ const AppShell: FC<Props> = ({ children }) => {
           <div className="md:hidden">
             <AppBrand />
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-1">
+            <LogoutButton />
+            <ThemeToggle />
+          </div>
         </header>
 
         <main className="flex-1 px-4 py-5 pb-24 md:px-8 md:py-8 md:pb-8">
