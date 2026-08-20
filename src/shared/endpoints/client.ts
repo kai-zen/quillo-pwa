@@ -12,17 +12,17 @@ export const apiClient = axios.create({
   },
 });
 
-export function getAuthToken(): string | null {
+export const getAuthToken = (): string | null => {
   if (typeof window === "undefined") return null;
   return localStorage.getItem(AUTH_TOKEN_KEY);
-}
+};
 
-export function setAuthToken(token: string | null): void {
+export const setAuthToken = (token: string | null): void => {
   if (typeof window === "undefined") return;
 
   if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
   else localStorage.removeItem(AUTH_TOKEN_KEY);
-}
+};
 
 apiClient.interceptors.request.use((config) => {
   const token = getAuthToken();
@@ -42,10 +42,10 @@ apiClient.interceptors.response.use(
   },
 );
 
-function resolvePath<TParams>(
+const resolvePath = <TParams>(
   path: EndpointDef<unknown, never, never, TParams>["path"],
   params?: TParams,
-): string {
+): string => {
   if (typeof path === "function") {
     if (!params) {
       throw new Error("Path params are required for this endpoint.");
@@ -53,9 +53,9 @@ function resolvePath<TParams>(
     return path(params);
   }
   return path;
-}
+};
 
-export async function request<
+export const request = async <
   TResponse,
   TBody = never,
   TQuery = never,
@@ -63,7 +63,7 @@ export async function request<
 >(
   endpoint: EndpointDef<TResponse, TBody, TQuery, TParams>,
   options?: EndpointOptions<TBody, TQuery, TParams>,
-): Promise<TResponse> {
+): Promise<TResponse> => {
   const path = resolvePath(endpoint.path, options?.params);
 
   const response = await apiClient.request<TResponse>({
@@ -74,4 +74,4 @@ export async function request<
   });
 
   return response.data;
-}
+};

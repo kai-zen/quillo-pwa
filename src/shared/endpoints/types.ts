@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 type IfNever<T, Then, Else> = [T] extends [never] ? Then : Else;
@@ -16,19 +17,11 @@ export type EndpointDef<
   TParams = never,
 > = {
   method: HttpMethod;
-  path: IfNever<
-    TParams,
-    string,
-    string | ((params: TParams) => string)
-  >;
+  path: IfNever<TParams, string, string | ((params: TParams) => string)>;
   auth: boolean;
 };
 
-export type EndpointOptions<
-  TBody = never,
-  TQuery = never,
-  TParams = never,
-> = {
+export type EndpointOptions<TBody = never, TQuery = never, TParams = never> = {
   body?: TBody;
   query?: TQuery;
   params?: TParams;
