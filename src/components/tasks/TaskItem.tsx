@@ -2,7 +2,7 @@
 
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
-import { IconButton, Markdown, Select } from "@/components/common";
+import { Button, IconButton, Markdown, Select } from "@/components/common";
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
 import type { Label, Sprint, Task, TaskStatus } from "@/shared/types";
@@ -127,14 +127,15 @@ const TaskItem: FC<Props> = ({
           </Select>
 
           {!task.parent_id && (
-            <IconButton
-              label="Add subtask"
+            <Button
+              variant="ghost"
               size="sm"
               onClick={() => onAddSubtask(task)}
               disabled={pending}
             >
               <Plus className="h-4 w-4" aria-hidden />
-            </IconButton>
+              Subtask
+            </Button>
           )}
 
           <IconButton

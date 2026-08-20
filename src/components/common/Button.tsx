@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, FC } from "react";
+import { ButtonHTMLAttributes, FC, ReactNode } from "react";
 import { cn } from "./cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
@@ -7,6 +7,8 @@ type ButtonSize = "sm" | "md";
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  startIcon?: ReactNode;
+  endIcon?: ReactNode;
 }
 
 const variantClass: Record<ButtonVariant, string> = {
@@ -28,6 +30,9 @@ const Button: FC<Props> = ({
   size = "md",
   className,
   type = "button",
+  startIcon,
+  endIcon,
+  children,
   ...props
 }) => {
   return (
@@ -40,7 +45,11 @@ const Button: FC<Props> = ({
         className,
       )}
       {...props}
-    />
+    >
+      {startIcon && <span aria-hidden>{startIcon}</span>}
+      {children}
+      {endIcon && <span aria-hidden>{endIcon}</span>}
+    </button>
   );
 };
 

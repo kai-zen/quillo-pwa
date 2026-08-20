@@ -136,6 +136,7 @@ const Select: FC<Props> = ({
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
+        event.stopImmediatePropagation();
         close();
       }
     };

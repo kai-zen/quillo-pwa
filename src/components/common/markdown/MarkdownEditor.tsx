@@ -39,6 +39,7 @@ interface Props {
   disabled?: boolean;
   id?: string;
   className?: string;
+  compact?: boolean;
 }
 
 const MarkdownEditor: FC<Props> = ({
@@ -49,6 +50,7 @@ const MarkdownEditor: FC<Props> = ({
   disabled,
   id,
   className,
+  compact = false,
 }) => {
   const [tab, setTab] = useState<EditorTab>("write");
   const [active, setActive] = useState(EMPTY_FORMATS);
@@ -320,9 +322,11 @@ const MarkdownEditor: FC<Props> = ({
         </div>
       )}
 
-      <p className="border-t border-border px-3 py-1.5 text-xs text-muted">
-        Markdown supported
-      </p>
+      {!compact && (
+        <p className="border-t border-border px-3 py-1.5 text-xs text-muted">
+          Markdown supported
+        </p>
+      )}
     </div>
   );
 };

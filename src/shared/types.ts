@@ -75,6 +75,7 @@ export interface Sprint extends Timestamps {
   start_date: string;
   end_date: string;
   status: SprintStatus;
+  sprint_number: number;
 }
 
 export interface Task extends Timestamps {
@@ -88,6 +89,7 @@ export interface Task extends Timestamps {
   sprint_id: RecordId | null;
   doing_date: string | null;
   parent_id: RecordId | null;
+  task_number: number;
 }
 
 // ---------------------------------------------------------------------------

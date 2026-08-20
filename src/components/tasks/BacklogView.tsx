@@ -42,18 +42,17 @@ const BacklogView: FC = () => {
   const sprintMap = new Map(
     sprints.map((sprint: Sprint) => [sprint._id, sprint]),
   ) as Map<string, Sprint>;
-  const parentIdsWithChildren = new Set(
-    tasks
-      .map((task: Task) => task.parent_id)
-      .filter((id: string | null): id is string => !!id),
-  ) as Set<string>;
 
   const isLoading =
     tasksQuery.isLoading || labelsQuery.isLoading || sprintsQuery.isLoading;
   const isError = tasksQuery.isError;
 
-  const openCreate = (parentId?: string) => {
-    setFormMode({ type: "create", parentId: parentId ?? null });
+  const openCreate = (parent?: Task) => {
+    setFormMode({
+      type: "create",
+      parentId: parent?._id ?? null,
+      parentTitle: parent?.title,
+    });
   };
 
   const openEdit = (task: Task) => {
@@ -111,10 +110,13 @@ const BacklogView: FC = () => {
           mode={formMode}
           labels={labels}
           sprints={sprints}
-          tasks={tasks}
-          parentIdsWithChildren={parentIdsWithChildren}
           onClose={() => setFormMode(null)}
           onSaved={() => setFormMode(null)}
+          onCreateSubtask={
+            formMode.type === "edit" && !formMode.task.parent_id
+              ? () => openCreate(formMode.task)
+              : undefined
+          }
         />
       )}
 
@@ -128,14 +130,15 @@ const BacklogView: FC = () => {
 
       {!isLoading && !isError && groups.length === 0 && (
         <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
-          <p className="text-sm text-foreground">No tasks yet.</p>
+          <p className="text-lg text-foreground">No tasks yet.</p>
           <p className="mt-1 text-sm text-muted">
             Create your first task to start the backlog.
           </p>
           <Button
-            variant="ghost"
+            variant="secondary"
             className="mt-4"
             onClick={() => openCreate()}
+            startIcon={<Plus className="w-4" aria-hidden />}
           >
             New task
           </Button>
@@ -151,7 +154,7 @@ const BacklogView: FC = () => {
               labelsById={labelMap}
               sprintsById={sprintMap}
               onEdit={openEdit}
-              onAddSubtask={(parent) => openCreate(parent._id)}
+              onAddSubtask={openCreate}
             />,
             ...children.map((child) => (
               <TaskItem
@@ -161,7 +164,7 @@ const BacklogView: FC = () => {
                 labelsById={labelMap}
                 sprintsById={sprintMap}
                 onEdit={openEdit}
-                onAddSubtask={(parent) => openCreate(parent._id)}
+                onAddSubtask={openCreate}
               />
             )),
           ])}
