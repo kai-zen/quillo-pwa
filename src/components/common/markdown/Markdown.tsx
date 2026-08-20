@@ -3,7 +3,7 @@
 import { FC } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 interface Props {
   children: string;
