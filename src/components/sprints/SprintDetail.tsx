@@ -3,7 +3,7 @@
 import { ArrowLeft, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
-import { Button, IconButton, Modal, cn } from "@/components/common";
+import { Button, IconButton, Markdown, Modal, cn } from "@/components/common";
 import TaskForm, { taskFormTitle } from "@/components/tasks/form/TaskForm";
 import TaskSummaryTable from "@/components/tasks/TaskSummaryTable";
 import type { RecordId } from "@/shared/types";
@@ -109,9 +109,9 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
               {formatSprintRange(sprint.start_date, sprint.end_date)}
             </p>
             {sprint.description ? (
-              <p className="mt-2 max-w-2xl text-sm text-muted">
-                {sprint.description}
-              </p>
+              <div className="mt-2 max-w-2xl">
+                <Markdown compact>{sprint.description}</Markdown>
+              </div>
             ) : null}
           </div>
 
@@ -138,7 +138,7 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         open={!!sprintFormMode}
         onClose={closeSprintForm}
         title={sprintFormMode ? sprintFormTitle(sprintFormMode) : ""}
-        className="max-w-lg"
+        className="max-w-3xl"
       >
         {sprintFormMode && (
           <SprintForm

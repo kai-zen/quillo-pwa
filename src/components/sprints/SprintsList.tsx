@@ -104,7 +104,7 @@ const SprintsList: FC<Props> = ({ view }) => {
         open={!!sprintFormMode}
         onClose={closeSprintForm}
         title={sprintFormMode ? sprintFormTitle(sprintFormMode) : ""}
-        className="max-w-lg"
+        className="max-w-3xl"
       >
         {sprintFormMode && (
           <SprintForm

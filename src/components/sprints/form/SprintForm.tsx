@@ -6,8 +6,8 @@ import {
   DatePicker,
   Field,
   Input,
+  MarkdownEditor,
   Select,
-  Textarea,
 } from "@/components/common";
 import {
   SPRINT_STATUS_LABELS,
@@ -48,11 +48,10 @@ const SprintForm: FC<Props> = ({ mode, onClose, onSaved }) => {
       </Field>
 
       <Field label="Description">
-        <Textarea
+        <MarkdownEditor
           value={form.description}
-          onChange={(event) => form.setDescription(event.target.value)}
-          rows={3}
-          maxRows={8}
+          onChange={form.setDescription}
+          rows={4}
           placeholder="Goal or notes for this sprint…"
         />
       </Field>
