@@ -161,9 +161,6 @@ const BacklogView: FC = () => {
 
       {isEmpty && (
         <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
-          <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft">
-            <Plus className="h-5 w-5 text-muted" aria-hidden />
-          </div>
           <p className="font-medium text-foreground">No tasks yet</p>
           <p className="mt-1 text-sm text-muted">
             Create your first task to start the backlog.

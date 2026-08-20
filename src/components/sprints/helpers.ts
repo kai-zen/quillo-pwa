@@ -1,4 +1,4 @@
-import type { Sprint, SprintStatus, UpdateSprintBody } from "@/shared/types";
+import type { RecordId, Sprint, SprintStatus, UpdateSprintBody } from "@/shared/types";
 import { SPRINT_STATUSES } from "@/shared/types";
 
 export const SPRINT_STATUS_LABELS: Record<SprintStatus, string> = {
@@ -10,7 +10,8 @@ export const SPRINT_STATUS_LABELS: Record<SprintStatus, string> = {
 
 export const SPRINT_STATUS_BADGE_CLASS: Record<SprintStatus, string> = {
   planned: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300",
-  active: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+  active:
+    "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
   completed:
     "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
   archived: "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300",
@@ -24,6 +25,9 @@ export const SPRINT_STATUS_DOT_CLASS: Record<SprintStatus, string> = {
 };
 
 export const SPRINT_STATUS_OPTIONS = SPRINT_STATUSES;
+
+export const sprintHref = (id: RecordId | Sprint): string =>
+  `/sprints/${typeof id === "string" ? id : id._id}`;
 
 export const toDateInputValue = (value: string | null | undefined): string => {
   if (!value) return "";
