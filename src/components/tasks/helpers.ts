@@ -85,3 +85,80 @@ export const groupTasks = (tasks: Task[]): TaskGroup[] => {
 
 export const labelsById = (labels: Label[]): Map<RecordId, Label> =>
   new Map(labels.map((label) => [label._id, label]));
+
+/** Days shown before / after today in the home day strip. */
+export const DAY_STRIP_PAST = 14;
+export const DAY_STRIP_FUTURE = 14;
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export const toIsoDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+export const todayIso = (): string => toIsoDate(new Date());
+
+export const parseIsoDate = (value: string): Date | null => {
+  if (!ISO_DATE.test(value)) return null;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+  return date;
+};
+
+export const addDays = (iso: string, amount: number): string => {
+  const date = parseIsoDate(iso);
+  if (!date) return iso;
+  date.setDate(date.getDate() + amount);
+  return toIsoDate(date);
+};
+
+export const buildDayStrip = (
+  centerIso: string,
+  past = DAY_STRIP_PAST,
+  future = DAY_STRIP_FUTURE,
+): string[] => {
+  const days: string[] = [];
+  for (let offset = -past; offset <= future; offset += 1) {
+    days.push(addDays(centerIso, offset));
+  }
+  return days;
+};
+
+export const formatDayHeading = (iso: string): string => {
+  const date = parseIsoDate(iso);
+  if (!date) return iso;
+  return date.toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+export const formatDayChipWeekday = (iso: string): string => {
+  const date = parseIsoDate(iso);
+  if (!date) return "";
+  return date.toLocaleDateString(undefined, { weekday: "short" });
+};
+
+export const formatDayChipDay = (iso: string): string => {
+  const date = parseIsoDate(iso);
+  if (!date) return "";
+  return String(date.getDate());
+};
+
+export const formatDayChipMonth = (iso: string): string => {
+  const date = parseIsoDate(iso);
+  if (!date) return "";
+  return date.toLocaleDateString(undefined, { month: "short" });
+};

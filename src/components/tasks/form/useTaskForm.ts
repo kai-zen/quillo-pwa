@@ -19,6 +19,7 @@ export type TaskFormMode =
       parentId?: RecordId | null;
       parentTitle?: string;
       sprintId?: RecordId | null;
+      doingDate?: string | null;
     }
   | { type: "edit"; task: Task };
 
@@ -41,8 +42,11 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
   const [sprintId, setSprintId] = useState<RecordId | "">(
     editing?.sprint_id ?? "",
   );
+  const initialDoingDate =
+    editing?.doing_date ??
+    (mode.type === "create" ? (mode.doingDate ?? null) : null);
   const [doingDate, setDoingDate] = useState(
-    toDateInputValue(editing?.doing_date ?? null),
+    toDateInputValue(initialDoingDate),
   );
   const [labelManagerOpen, setLabelManagerOpen] = useState(false);
   const [labelDraftName, setLabelDraftName] = useState("");
