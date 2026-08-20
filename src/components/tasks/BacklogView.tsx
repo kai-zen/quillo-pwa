@@ -2,23 +2,13 @@
 
 import { ListFilter, Plus } from "lucide-react";
 import { FC, useState } from "react";
-import {
-  Button,
-  Modal,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  cn,
-} from "@/components/common";
+import { Button, Modal, Select } from "@/components/common";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Label, Task, TaskListQuery, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
-import { groupTasks, labelsById, STATUS_BADGE_CLASS, STATUS_DOT_CLASS, STATUS_LABELS } from "./helpers";
+import { STATUS_LABELS } from "./helpers";
 import TaskForm, { taskFormTitle, type TaskFormMode } from "./form/TaskForm";
+import TaskSummaryTable from "./TaskSummaryTable";
 
 const PAGE_LIMIT = 50;
 
@@ -49,16 +39,10 @@ const BacklogView: FC = () => {
   const total = tasksQuery.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
-  const groups = groupTasks(tasks);
-  const labelMap = labelsById(labels);
-  const rows = groups.flatMap(({ task, children }) => [
-    { task, depth: 0 },
-    ...children.map((child) => ({ task: child, depth: 1 })),
-  ]);
-
   const isLoading =
     tasksQuery.isLoading || labelsQuery.isLoading || sprintsQuery.isLoading;
   const isError = tasksQuery.isError;
+  const isEmpty = !isLoading && !isError && tasks.length === 0;
 
   const openCreate = (parent?: Task) => {
     setFormMode({
@@ -71,11 +55,6 @@ const BacklogView: FC = () => {
   const openEdit = (task: Task) => {
     setFormMode({ type: "edit", task });
   };
-
-  const resolveLabels = (task: Task): Label[] =>
-    task.label_ids
-      .map((id) => labelMap.get(id))
-      .filter((label): label is Label => !!label);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
@@ -180,7 +159,7 @@ const BacklogView: FC = () => {
         </p>
       )}
 
-      {!isLoading && !isError && rows.length === 0 && (
+      {isEmpty && (
         <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
           <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft">
             <Plus className="h-5 w-5 text-muted" aria-hidden />
@@ -200,84 +179,8 @@ const BacklogView: FC = () => {
         </div>
       )}
 
-      {!isLoading && !isError && rows.length > 0 && (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-20">#</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead className="w-28">Status</TableHead>
-              <TableHead className="w-56">Labels</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map(({ task, depth }) => {
-              const taskLabels = resolveLabels(task);
-
-              return (
-                <TableRow
-                  key={task._id}
-                  onClick={() => openEdit(task)}
-                  aria-label={`Edit task ${task.task_number}: ${task.title}`}
-                >
-                  <TableCell>
-                    <span className="font-mono text-xs font-semibold tabular-nums text-muted">
-                      #{task.task_number}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={cn(
-                        "block truncate font-medium text-foreground",
-                        depth > 0 && "pl-5 text-muted",
-                      )}
-                    >
-                      {task.title}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={cn(
-                        "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
-                        STATUS_BADGE_CLASS[task.status],
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "h-1.5 w-1.5 rounded-full",
-                          STATUS_DOT_CLASS[task.status],
-                        )}
-                        aria-hidden
-                      />
-                      {STATUS_LABELS[task.status]}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {taskLabels.length === 0 ? (
-                      <span className="text-xs text-muted">—</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1">
-                        {taskLabels.map((label) => (
-                          <span
-                            key={label._id}
-                            className="inline-flex items-center gap-1.5 rounded-md bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-foreground"
-                          >
-                            <span
-                              className="h-1.5 w-1.5 rounded-full"
-                              style={{ backgroundColor: label.color }}
-                              aria-hidden
-                            />
-                            {label.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+      {!isLoading && !isError && tasks.length > 0 && (
+        <TaskSummaryTable tasks={tasks} labels={labels} onEdit={openEdit} />
       )}
 
       {totalPages > 1 && (

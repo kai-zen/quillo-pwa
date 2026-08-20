@@ -16,10 +16,11 @@ export const useTasksApi = () => {
   const invalidateTasks = () =>
     queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 
-  const useTasksList = (query?: TaskListQuery) =>
+  const useTasksList = (query?: TaskListQuery, enabled = true) =>
     useQuery({
       queryKey: queryKeys.tasks.list(query),
       queryFn: () => request(tasksModule.list, { query }),
+      enabled,
     });
 
   const useTask = (id: RecordId, enabled = true) =>

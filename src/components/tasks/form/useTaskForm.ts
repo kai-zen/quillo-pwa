@@ -14,7 +14,12 @@ import type {
 import { toDateInputValue, toUpdateBody } from "../helpers";
 
 export type TaskFormMode =
-  | { type: "create"; parentId?: RecordId | null; parentTitle?: string }
+  | {
+      type: "create";
+      parentId?: RecordId | null;
+      parentTitle?: string;
+      sprintId?: RecordId | null;
+    }
   | { type: "edit"; task: Task };
 
 export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
@@ -69,7 +74,7 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
         description: description.trim(),
         label_ids: labelIds,
         status: "todo",
-        sprint_id: null,
+        sprint_id: mode.sprintId ?? null,
         parent_id: mode.parentId ?? null,
         ...(isSubtaskCreate
           ? {}
