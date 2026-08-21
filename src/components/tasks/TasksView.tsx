@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { FC } from "react";
 import { Button, DatePicker, Modal } from "@/components/common";
+import DayProgress from "./DayProgress";
 import DayStrip from "./DayStrip";
 import TaskForm, { taskFormTitle } from "./form/TaskForm";
 import { formatDayHeading } from "./helpers";
@@ -74,6 +75,10 @@ const TasksView: FC = () => {
         </div>
       </div>
 
+      {!isLoading && !isError && tasks.length > 0 && (
+        <DayProgress tasks={tasks} />
+      )}
+
       <Modal
         open={!!formMode}
         onClose={closeForm}
@@ -126,9 +131,7 @@ const TasksView: FC = () => {
         </div>
       )}
 
-      {actionError && (
-        <p className="text-sm text-foreground">{actionError}</p>
-      )}
+      {actionError && <p className="text-sm text-foreground">{actionError}</p>}
 
       {!isLoading && !isError && tasks.length > 0 && (
         <TaskDayCards
