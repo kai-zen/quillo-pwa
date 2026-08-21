@@ -6,6 +6,7 @@ import AppShell from "@/components/layout/AppShell";
 import { useAuth } from "./AuthProvider";
 
 const LOGIN_PATH = "/login";
+const OFFLINE_PATH = "/~offline";
 
 interface Props {
   children: ReactNode;
@@ -16,12 +17,15 @@ const AuthGuard: FC<Props> = ({ children }) => {
   const router = useRouter();
   const { isLoading, isAuthenticated } = useAuth();
   const isLogin = pathname === LOGIN_PATH;
+  const isOffline = pathname === OFFLINE_PATH;
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading || isOffline) return;
     if (!isAuthenticated && !isLogin) router.replace(LOGIN_PATH);
     if (isAuthenticated && isLogin) router.replace("/");
-  }, [isAuthenticated, isLoading, isLogin, router]);
+  }, [isAuthenticated, isLoading, isLogin, isOffline, router]);
+
+  if (isOffline) return children;
 
   if (isLoading) {
     return (

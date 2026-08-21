@@ -5,6 +5,7 @@ import {
   FC,
   ReactNode,
   useContext,
+  useEffect,
   useSyncExternalStore,
 } from "react";
 
@@ -23,6 +24,10 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const applyTheme = (theme: Theme) => {
   document.documentElement.classList.toggle("dark", theme === "dark");
+  const color = theme === "dark" ? "#000000" : "#ffffff";
+  document
+    .querySelectorAll('meta[name="theme-color"]')
+    .forEach((meta) => meta.setAttribute("content", color));
 };
 
 const getStoredTheme = (): Theme | null => {
@@ -72,6 +77,10 @@ const ThemeProvider: FC<Props> = ({ children }) => {
     getClientTheme,
     getServerTheme,
   );
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   const setTheme = (next: Theme) => {
     localStorage.setItem(STORAGE_KEY, next);
