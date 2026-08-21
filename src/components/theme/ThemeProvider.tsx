@@ -5,13 +5,13 @@ import {
   FC,
   ReactNode,
   useContext,
-  useEffect,
-  useState,
+  useSyncExternalStore,
 } from "react";
 
 export type Theme = "light" | "dark";
 
 const STORAGE_KEY = "quillo_theme";
+const THEME_CHANGED_EVENT = "quillo-theme-changed";
 
 interface ThemeContextValue {
   theme: Theme;
@@ -34,6 +34,26 @@ const getStoredTheme = (): Theme | null => {
 const getSystemTheme = (): Theme =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
+const getClientTheme = (): Theme => getStoredTheme() ?? getSystemTheme();
+const getServerTheme = (): Theme => "light";
+
+const subscribeTheme = (onStoreChange: () => void) => {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY || event.key === null) onStoreChange();
+  };
+
+  window.addEventListener(THEME_CHANGED_EVENT, onStoreChange);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener(THEME_CHANGED_EVENT, onStoreChange);
+    window.removeEventListener("storage", onStorage);
+  };
+};
+
+const notifyThemeChanged = () => {
+  window.dispatchEvent(new Event(THEME_CHANGED_EVENT));
+};
+
 export const useTheme = (): ThemeContextValue => {
   const context = useContext(ThemeContext);
   if (!context) {
@@ -47,17 +67,16 @@ interface Props {
 }
 
 const ThemeProvider: FC<Props> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>("light");
-
-  useEffect(() => {
-    const initial = getStoredTheme() ?? getSystemTheme();
-    applyTheme(initial);
-  }, []);
+  const theme = useSyncExternalStore(
+    subscribeTheme,
+    getClientTheme,
+    getServerTheme,
+  );
 
   const setTheme = (next: Theme) => {
-    setThemeState(next);
     localStorage.setItem(STORAGE_KEY, next);
     applyTheme(next);
+    notifyThemeChanged();
   };
 
   const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");

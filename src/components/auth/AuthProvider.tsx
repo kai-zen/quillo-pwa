@@ -96,8 +96,8 @@ const AuthProvider: FC<Props> = ({ children }) => {
   };
 
   const user = token ? (meQuery.data ?? null) : null;
-  const isAuthenticated = !!user;
-  const isLoading = !hydrated || (!!token && meQuery.isPending && !user);
+  const isAuthenticated = hydrated && !!token;
+  const isLoading = !hydrated;
 
   return (
     <AuthContext.Provider
