@@ -6,7 +6,7 @@ import { Button, DatePicker, Modal } from "@/components/common";
 import DayStrip from "./DayStrip";
 import TaskForm, { taskFormTitle } from "./form/TaskForm";
 import { formatDayHeading } from "./helpers";
-import TaskSummaryTable from "./TaskSummaryTable";
+import TaskDayCards from "./TaskDayCards";
 import { useTasksDayView } from "./useTasksDayView";
 
 const TasksView: FC = () => {
@@ -23,9 +23,13 @@ const TasksView: FC = () => {
     isLoading,
     isError,
     isEmpty,
+    pendingId,
+    actionError,
     openCreate,
     openEdit,
     closeForm,
+    toggleDone,
+    removeTask,
   } = useTasksDayView();
 
   const heading = formatDayHeading(selectedDate);
@@ -122,8 +126,20 @@ const TasksView: FC = () => {
         </div>
       )}
 
+      {actionError && (
+        <p className="text-sm text-foreground">{actionError}</p>
+      )}
+
       {!isLoading && !isError && tasks.length > 0 && (
-        <TaskSummaryTable tasks={tasks} labels={labels} onEdit={openEdit} />
+        <TaskDayCards
+          tasks={tasks}
+          labels={labels}
+          pendingId={pendingId}
+          onEdit={openEdit}
+          onCreateSubtask={openCreate}
+          onToggleDone={toggleDone}
+          onDelete={removeTask}
+        />
       )}
     </div>
   );

@@ -1,21 +1,30 @@
 "use client";
 
 import { useState } from "react";
+import { getErrorMessage } from "@/shared/errors";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
-import type { Label, Sprint, Task } from "@/shared/types";
+import type {
+  Label,
+  RecordId,
+  Sprint,
+  Task,
+  TaskStatus,
+} from "@/shared/types";
 import type { TaskFormMode } from "./form/TaskForm";
-import { buildDayStrip, todayIso } from "./helpers";
+import { buildDayStrip, toUpdateBody, todayIso } from "./helpers";
 
 const PAGE_LIMIT = 50;
 
 export function useTasksDayView() {
-  const { useTasksList } = useTasksApi();
+  const { useTasksList, updateTask, deleteTask } = useTasksApi();
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
 
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [stripCenter, setStripCenter] = useState(todayIso);
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
+  const [pendingId, setPendingId] = useState<RecordId | null>(null);
+  const [actionError, setActionError] = useState("");
 
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
@@ -60,6 +69,39 @@ export function useTasksDayView() {
   const openEdit = (task: Task) => setFormMode({ type: "edit", task });
   const closeForm = () => setFormMode(null);
 
+  const changeStatus = async (task: Task, status: TaskStatus) => {
+    if (pendingId || task.status === status) return;
+    setActionError("");
+    setPendingId(task._id);
+    try {
+      await updateTask(task._id, {
+        ...toUpdateBody(task),
+        status,
+      });
+    } catch (err) {
+      setActionError(getErrorMessage(err, "Could not update task status."));
+    } finally {
+      setPendingId(null);
+    }
+  };
+
+  const toggleDone = (task: Task) =>
+    changeStatus(task, task.status === "done" ? "todo" : "done");
+
+  const removeTask = async (task: Task) => {
+    if (pendingId) return;
+    if (!window.confirm(`Delete “${task.title}”?`)) return;
+    setActionError("");
+    setPendingId(task._id);
+    try {
+      await deleteTask(task._id);
+    } catch (err) {
+      setActionError(getErrorMessage(err, "Could not delete task."));
+    } finally {
+      setPendingId(null);
+    }
+  };
+
   return {
     selectedDate,
     stripCenter,
@@ -73,9 +115,13 @@ export function useTasksDayView() {
     isLoading,
     isError,
     isEmpty,
+    pendingId,
+    actionError,
     openCreate,
     openEdit,
     closeForm,
+    toggleDone,
+    removeTask,
   };
 }
 

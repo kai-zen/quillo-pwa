@@ -83,7 +83,7 @@ const TaskSummaryTable: FC<Props> = ({ tasks, labels, onEdit }) => {
                 >
                   <span
                     className={cn(
-                      "h-1.5 w-1.5 rounded-full",
+                      "h-1.5 w-1.5 rounded-full whitespace-nowrap",
                       STATUS_DOT_CLASS[task.status],
                     )}
                     aria-hidden
@@ -102,7 +102,7 @@ const TaskSummaryTable: FC<Props> = ({ tasks, labels, onEdit }) => {
                         className="inline-flex items-center gap-1.5 rounded-md bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-foreground"
                       >
                         <span
-                          className="h-1.5 w-1.5 rounded-full"
+                          className="h-1.5 w-1.5 rounded-full whitespace-nowrap"
                           style={{ backgroundColor: label.color }}
                           aria-hidden
                         />

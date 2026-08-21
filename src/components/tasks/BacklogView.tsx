@@ -43,6 +43,7 @@ const BacklogView: FC = () => {
     tasksQuery.isLoading || labelsQuery.isLoading || sprintsQuery.isLoading;
   const isError = tasksQuery.isError;
   const isEmpty = !isLoading && !isError && tasks.length === 0;
+  const hasTasks = !isLoading && !isError && tasks.length > 0;
 
   const openCreate = (parent?: Task) => {
     setFormMode({
@@ -176,7 +177,7 @@ const BacklogView: FC = () => {
         </div>
       )}
 
-      {!isLoading && !isError && tasks.length > 0 && (
+      {hasTasks && (
         <TaskSummaryTable tasks={tasks} labels={labels} onEdit={openEdit} />
       )}
 

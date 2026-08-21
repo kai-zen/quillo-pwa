@@ -68,11 +68,20 @@ export const groupTasks = (tasks: Task[]): TaskGroup[] => {
   const ids = new Set(tasks.map((task) => task._id));
   const childrenByParent = new Map<RecordId, Task[]>();
 
+  const addChild = (parentId: RecordId, child: Task) => {
+    const siblings = childrenByParent.get(parentId) ?? [];
+    if (siblings.some((item) => item._id === child._id)) return;
+    siblings.push(child);
+    childrenByParent.set(parentId, siblings);
+  };
+
   for (const task of tasks) {
-    if (!task.parent_id || !ids.has(task.parent_id)) continue;
-    const siblings = childrenByParent.get(task.parent_id) ?? [];
-    siblings.push(task);
-    childrenByParent.set(task.parent_id, siblings);
+    if (task.parent_id && ids.has(task.parent_id)) {
+      addChild(task.parent_id, task);
+    }
+    for (const child of task.children ?? []) {
+      addChild(task._id, child);
+    }
   }
 
   return tasks
