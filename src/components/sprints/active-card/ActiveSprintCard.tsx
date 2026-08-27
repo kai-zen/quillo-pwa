@@ -17,6 +17,7 @@ import {
 } from "../helpers";
 import { useActiveSprint } from "../hooks/useActiveSprint";
 import RemainingTaskRow from "./RemainingTaskRow";
+import SprintProgressRing from "./SprintProgressRing";
 
 interface Props {
   sprints: Sprint[];
@@ -80,7 +81,7 @@ const ActiveSprintCard: FC<Props> = ({
       <details className="group/sprint rounded-xl border border-border bg-surface shadow-sm shadow-black/2">
         <summary
           className={cn(
-            "flex cursor-pointer list-none items-start gap-2.5 px-3 py-2.5",
+            "flex cursor-pointer list-none items-center gap-2.5 px-3 py-2.5",
             "[&::-webkit-details-marker]:hidden",
             "hover:bg-foreground/3",
           )}
@@ -117,28 +118,20 @@ const ActiveSprintCard: FC<Props> = ({
               <span aria-hidden> · </span>
               {progressLabel}
             </p>
-            {!isLoading && !isError && progress.total > 0 && (
-              <div
-                className="mt-2 h-1.5 overflow-hidden rounded-full bg-accent-soft"
-                role="status"
-                aria-label={`${progress.done} of ${progress.total} sprint tasks done, ${progress.percent} percent`}
-              >
-                <div
-                  className={cn(
-                    "h-full rounded-full transition-[width,background-color] duration-500 ease-out",
-                    progress.complete
-                      ? "bg-emerald-500"
-                      : progress.percent === 0
-                        ? "bg-transparent"
-                        : "bg-foreground",
-                  )}
-                  style={{ width: `${progress.percent}%` }}
-                />
-              </div>
-            )}
           </div>
+          <SprintProgressRing
+            percent={isLoading || isError ? 0 : progress.percent}
+            complete={!isLoading && !isError && progress.complete}
+            label={
+              isLoading
+                ? "Loading sprint progress"
+                : isError
+                  ? "Could not load sprint progress"
+                  : `${progress.done} of ${progress.total} sprint tasks done, ${progress.percent} percent`
+            }
+          />
           <ChevronDown
-            className="mt-0.5 h-4 w-4 shrink-0 text-muted transition-transform group-open/sprint:rotate-180"
+            className="h-4 w-4 shrink-0 text-muted transition-transform group-open/sprint:rotate-180"
             aria-hidden
           />
         </summary>
