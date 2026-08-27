@@ -42,7 +42,7 @@ const DayProgress: FC<Props> = ({ tasks }) => {
       aria-live="polite"
       aria-label={`${done} of ${total} tasks done, ${percent} percent`}
     >
-      <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-accent-soft">
+      <div className="h-2 overflow-hidden rounded-full bg-accent-soft">
         <div
           className={cn(
             "h-full rounded-full transition-[width,background-color] duration-500 ease-out",
