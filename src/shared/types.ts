@@ -51,6 +51,20 @@ export const SPRINT_STATUSES = [
 ] as const;
 export type SprintStatus = (typeof SPRINT_STATUSES)[number];
 
+export const ROUTINE_REPEATS = ["everyday", "weekly"] as const;
+export type RoutineRepeat = (typeof ROUTINE_REPEATS)[number];
+
+export const DAYS_OF_WEEK = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
+export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];
+
 // ---------------------------------------------------------------------------
 // Entities
 // ---------------------------------------------------------------------------
@@ -76,6 +90,22 @@ export interface Sprint extends Timestamps {
   end_date: string;
   status: SprintStatus;
   sprint_number: number;
+}
+
+export interface RoutineDraft {
+  title: string;
+  priority: TaskPriority;
+  description: string;
+  label_ids: RecordId[];
+}
+
+export interface Routine extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  name: string;
+  repeat: RoutineRepeat;
+  days_of_week: DayOfWeek[];
+  drafts: RoutineDraft[];
 }
 
 export interface Task extends Timestamps {
@@ -146,6 +176,39 @@ export type UpdateSprintBody = CreateSprintBody;
 
 export interface SprintListQuery extends PaginationQuery {
   status?: SprintStatus;
+}
+
+// ---------------------------------------------------------------------------
+// Routines — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface RoutineDraftBody {
+  title: string;
+  priority?: TaskPriority;
+  description?: string;
+  label_ids?: RecordId[];
+}
+
+export interface CreateRoutineBody {
+  name: string;
+  repeat?: RoutineRepeat;
+  days_of_week?: DayOfWeek[];
+  drafts?: RoutineDraftBody[];
+}
+
+export type UpdateRoutineBody = CreateRoutineBody;
+
+export interface ApplyRoutinesBody {
+  routine_ids: RecordId[];
+  doing_date: string;
+}
+
+export interface ApplyRoutinesResponse {
+  items: Task[];
+}
+
+export interface RoutineListQuery extends PaginationQuery {
+  day?: DayOfWeek;
 }
 
 // ---------------------------------------------------------------------------

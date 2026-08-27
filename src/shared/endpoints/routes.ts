@@ -22,6 +22,12 @@ export const ROUTES = {
     byId: ({ id }: IdParam) => `/sprints/${id}`,
   },
 
+  routines: {
+    base: "/routines",
+    byId: ({ id }: IdParam) => `/routines/${id}`,
+    apply: "/routines/apply",
+  },
+
   tasks: {
     base: "/tasks",
     byId: ({ id }: IdParam) => `/tasks/${id}`,

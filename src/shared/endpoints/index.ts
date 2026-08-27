@@ -10,12 +10,14 @@ export {
 export {
   labelsModule,
   sprintsModule,
+  routinesModule,
   tasksModule,
   usersModule,
 } from "./modules";
 export type {
   LabelsModule,
   SprintsModule,
+  RoutinesModule,
   TasksModule,
   UsersModule,
 } from "./modules";
