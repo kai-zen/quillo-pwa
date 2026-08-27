@@ -1,6 +1,6 @@
 "use client";
 
-import { ListTodo, Plus, Repeat } from "lucide-react";
+import { ListTodo, Plus } from "lucide-react";
 import { FC } from "react";
 import { Button, DatePicker, Modal, PageHeader } from "@/components/common";
 import { ApplyRoutinesModal } from "@/components/routines";
@@ -47,16 +47,10 @@ const TasksView: FC = () => {
         description="Pick a day and work through what you planned to do."
         icon={ListTodo}
         actions={
-          <>
-            <Button variant="secondary" onClick={openApply}>
-              <Repeat className="h-4 w-4" aria-hidden />
-              From routines
-            </Button>
-            <Button onClick={() => openCreate()} className="shadow-sm">
-              <Plus className="h-4 w-4" aria-hidden />
-              New task
-            </Button>
-          </>
+          <Button onClick={() => openCreate()} className="shadow-sm">
+            <Plus className="h-4 w-4" aria-hidden />
+            Add tasks
+          </Button>
         }
       />
 
@@ -119,6 +113,10 @@ const TasksView: FC = () => {
                 ? () => openCreate(formMode.task)
                 : undefined
             }
+            onAddFromRoutines={() => {
+              closeForm();
+              openApply();
+            }}
           />
         )}
       </Modal>
@@ -145,17 +143,10 @@ const TasksView: FC = () => {
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <Button
-              variant="secondary"
-              onClick={openApply}
-              startIcon={<Repeat className="w-4" aria-hidden />}
-            >
-              From routines
-            </Button>
-            <Button
               onClick={() => openCreate()}
               startIcon={<Plus className="w-4" aria-hidden />}
             >
-              New task
+              Add tasks
             </Button>
           </div>
         </div>

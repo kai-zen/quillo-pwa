@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Repeat } from "lucide-react";
 import { FC, useId } from "react";
 import { Button, Field, Input, MarkdownEditor } from "@/components/common";
 import { LabelField, LabelManagerModal } from "@/components/labels";
@@ -17,6 +17,7 @@ interface Props {
   onClose: () => void;
   onSaved: () => void;
   onCreateSubtask?: () => void;
+  onAddFromRoutines?: () => void;
 }
 
 const TaskForm: FC<Props> = ({
@@ -26,11 +27,14 @@ const TaskForm: FC<Props> = ({
   onClose,
   onSaved,
   onCreateSubtask,
+  onAddFromRoutines,
 }) => {
   const titleId = useId();
   const form = useTaskForm(mode, onSaved);
   const canCreateSubtask =
     !!form.editing && !form.editing.parent_id && !!onCreateSubtask;
+  const canAddFromRoutines =
+    !!onAddFromRoutines && !form.editing && !form.isSubtaskCreate;
 
   return (
     <>
@@ -91,6 +95,16 @@ const TaskForm: FC<Props> = ({
         {form.error && <p className="text-sm text-foreground">{form.error}</p>}
 
         <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+          {canAddFromRoutines && (
+            <Button
+              variant="secondary"
+              className="mr-auto"
+              onClick={onAddFromRoutines}
+            >
+              <Repeat className="h-4 w-4" aria-hidden />
+              Add from routines
+            </Button>
+          )}
           {canCreateSubtask && (
             <Button
               variant="secondary"
