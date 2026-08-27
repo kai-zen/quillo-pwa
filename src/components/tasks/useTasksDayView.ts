@@ -57,12 +57,13 @@ export function useTasksDayView() {
     }
   };
 
-  const openCreate = (parent?: Task) => {
+  const openCreate = (parent?: Task, sprintId?: RecordId | null) => {
     setFormMode({
       type: "create",
       parentId: parent?._id ?? null,
       parentTitle: parent?.title,
       doingDate: selectedDate,
+      sprintId: sprintId ?? null,
     });
   };
 

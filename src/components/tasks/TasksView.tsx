@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { FC } from "react";
 import { Button, DatePicker, Modal } from "@/components/common";
+import { ActiveSprintCard } from "@/components/sprints";
 import DayProgress from "./DayProgress";
 import DayStrip from "./DayStrip";
 import TaskForm, { taskFormTitle } from "./form/TaskForm";
@@ -51,6 +52,15 @@ const TasksView: FC = () => {
           New task
         </Button>
       </div>
+
+      {!isLoading && (
+        <ActiveSprintCard
+          sprints={sprints}
+          selectedDate={selectedDate}
+          onCreateTask={(sprintId) => openCreate(undefined, sprintId)}
+          onEditTask={openEdit}
+        />
+      )}
 
       <div>
         <DayStrip

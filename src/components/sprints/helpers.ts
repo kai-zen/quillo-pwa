@@ -47,6 +47,45 @@ export const formatSprintDate = (value: string): string => {
 export const formatSprintRange = (start: string, end: string): string =>
   `${formatSprintDate(start)} – ${formatSprintDate(end)}`;
 
+export const daysUntil = (value: string, from = new Date()): number => {
+  const end = new Date(`${toDateInputValue(value)}T00:00:00`);
+  const start = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  if (Number.isNaN(end.getTime())) return 0;
+  return Math.round((end.getTime() - start.getTime()) / 86_400_000);
+};
+
+export const formatSprintCountdown = (endDate: string): string => {
+  const days = daysUntil(endDate);
+  if (days > 1) return `${days} days left`;
+  if (days === 1) return "1 day left";
+  if (days === 0) return "Ends today";
+  if (days === -1) return "Ended yesterday";
+  return `Ended ${Math.abs(days)} days ago`;
+};
+
+export const pickActiveSprint = (sprints: Sprint[]): Sprint | null => {
+  const active = sprints.filter((sprint) => sprint.status === "active");
+  if (active.length === 0) return null;
+  if (active.length === 1) return active[0];
+
+  const now = new Date();
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
+  const covering = active.filter((sprint) => {
+    const start = toDateInputValue(sprint.start_date);
+    const end = toDateInputValue(sprint.end_date);
+    return start <= today && today <= end;
+  });
+  const pool = covering.length > 0 ? covering : active;
+
+  return pool.reduce((best, sprint) =>
+    sprint.sprint_number > best.sprint_number ? sprint : best,
+  );
+};
+
 export const toUpdateBody = (sprint: Sprint): UpdateSprintBody => ({
   name: sprint.name,
   description: sprint.description,
