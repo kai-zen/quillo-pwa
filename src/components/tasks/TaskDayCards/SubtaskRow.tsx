@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { FC } from "react";
 import { IconButton, cn } from "@/components/common";
 import type { Task } from "@/shared/types";
+import { PRIORITY_BADGE_CLASS, PRIORITY_LABELS } from "../helpers";
 import DoneCheckbox from "./DoneCheckbox";
 
 interface Props {
@@ -40,6 +41,17 @@ const SubtaskRow: FC<Props> = ({
       >
         {task.title}
       </button>
+
+      {task.priority !== "unset" && (
+        <span
+          className={cn(
+            "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
+            PRIORITY_BADGE_CLASS[task.priority],
+          )}
+        >
+          {PRIORITY_LABELS[task.priority]}
+        </span>
+      )}
 
       <IconButton
         label={`Delete subtask ${task.task_number}`}

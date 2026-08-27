@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Flag, ListPlus, MoreHorizontal } from "lucide-react";
+import { ChevronDown, ListPlus, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 import { Button, cn } from "@/components/common";
@@ -11,9 +11,6 @@ import {
   formatSprintCountdown,
   formatSprintRange,
   sprintHref,
-  SPRINT_STATUS_BADGE_CLASS,
-  SPRINT_STATUS_DOT_CLASS,
-  SPRINT_STATUS_LABELS,
 } from "../helpers";
 import { useActiveSprint } from "../hooks/useActiveSprint";
 import RemainingTaskRow from "./RemainingTaskRow";
@@ -46,26 +43,7 @@ const ActiveSprintCard: FC<Props> = ({
     scheduleForDay,
   } = useActiveSprint(sprints, selectedDate);
 
-  if (!sprint) {
-    return (
-      <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border bg-surface px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <Flag className="mt-0.5 h-4 w-4 shrink-0 text-muted" aria-hidden />
-          <div>
-            <p className="font-medium text-foreground">No active sprint</p>
-            <p className="mt-0.5 text-sm text-muted">
-              Start a sprint to keep this week’s work in one place.
-            </p>
-          </div>
-        </div>
-        <Link href="/sprints">
-          <Button variant="secondary" size="sm">
-            View sprints
-          </Button>
-        </Link>
-      </div>
-    );
-  }
+  if (!sprint) return null;
 
   const scheduleLabel = selectedDate === todayIso() ? "Today" : "This day";
   const progressLabel = isLoading
@@ -87,49 +65,42 @@ const ActiveSprintCard: FC<Props> = ({
           )}
         >
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-xs font-semibold tabular-nums text-muted">
-                #{sprint.sprint_number}
-              </span>
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[11px] font-semibold",
-                  SPRINT_STATUS_BADGE_CLASS[sprint.status],
-                )}
-              >
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    SPRINT_STATUS_DOT_CLASS[sprint.status],
-                  )}
-                  aria-hidden
-                />
-                {SPRINT_STATUS_LABELS[sprint.status]}
-              </span>
-              <h2
-                id="active-sprint-heading"
-                className="min-w-0 truncate text-sm font-semibold tracking-tight text-foreground"
-              >
-                {sprint.name}
-              </h2>
+            <div className="flex items-center gap-2">
+              <SprintProgressRing
+                percent={isLoading || isError ? 0 : progress.percent}
+                complete={!isLoading && !isError && progress.complete}
+                label={
+                  isLoading
+                    ? "Loading sprint progress"
+                    : isError
+                      ? "Could not load sprint progress"
+                      : `${progress.done} of ${progress.total} sprint tasks done, ${progress.percent} percent`
+                }
+              />
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono tabular-nums text-muted">
+                    #{sprint.sprint_number}
+                  </span>
+                  <h2
+                    id="active-sprint-heading"
+                    className="min-w-0 truncate font-semibold tracking-tight text-foreground"
+                  >
+                    {sprint.name}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="mt-1 text-xs tabular-nums text-muted">
+                    {formatSprintCountdown(sprint.end_date)}
+                  </p>
+                  <div className="w-0.5 h-0.5 rounded-full bg-black/60 mt-1" />
+                  <p className="mt-1 text-xs tabular-nums text-muted">
+                    {progressLabel}
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="mt-1 text-xs tabular-nums text-muted">
-              {formatSprintCountdown(sprint.end_date)}
-              <span aria-hidden> · </span>
-              {progressLabel}
-            </p>
           </div>
-          <SprintProgressRing
-            percent={isLoading || isError ? 0 : progress.percent}
-            complete={!isLoading && !isError && progress.complete}
-            label={
-              isLoading
-                ? "Loading sprint progress"
-                : isError
-                  ? "Could not load sprint progress"
-                  : `${progress.done} of ${progress.total} sprint tasks done, ${progress.percent} percent`
-            }
-          />
           <ChevronDown
             className="h-4 w-4 shrink-0 text-muted transition-transform group-open/sprint:rotate-180"
             aria-hidden

@@ -5,6 +5,8 @@ import { FC } from "react";
 import { Button, Markdown, cn } from "@/components/common";
 import type { Label, RecordId, Task } from "@/shared/types";
 import {
+  PRIORITY_BADGE_CLASS,
+  PRIORITY_LABELS,
   STATUS_BADGE_CLASS,
   STATUS_DOT_CLASS,
   STATUS_LABELS,
@@ -85,6 +87,16 @@ const TaskAccordion: FC<Props> = ({
               />
               {STATUS_LABELS[task.status]}
             </span>
+            {task.priority !== "unset" && (
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
+                  PRIORITY_BADGE_CLASS[task.priority],
+                )}
+              >
+                {PRIORITY_LABELS[task.priority]}
+              </span>
+            )}
             {hasSubtasks && (
               <span className="text-[11px] tabular-nums text-muted">
                 {subtasksDone}/{childrenTasks.length} sub
@@ -114,9 +126,7 @@ const TaskAccordion: FC<Props> = ({
 
       <div className="space-y-3 border-t border-border px-3 py-3">
         {description ? (
-          <Markdown compact className="text-muted">
-            {description}
-          </Markdown>
+          <Markdown className="text-muted">{description}</Markdown>
         ) : null}
 
         <section className="space-y-1.5">
@@ -127,14 +137,14 @@ const TaskAccordion: FC<Props> = ({
                 : "Subtasks"}
             </h3>
             <Button
-              variant="ghost"
+              variant="secondary"
               size="sm"
               disabled={pending}
               onClick={() => onCreateSubtask(task)}
               startIcon={<Plus className="h-3.5 w-3.5" aria-hidden />}
               className="h-7 px-2 text-xs"
             >
-              Add
+              Add subtask
             </Button>
           </div>
 

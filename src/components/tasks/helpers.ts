@@ -40,6 +40,15 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   urgent: "Urgent",
 };
 
+export const PRIORITY_BADGE_CLASS: Record<TaskPriority, string> = {
+  unset:
+    "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
+  low: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+  medium: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+  high: "bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300",
+  urgent: "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300",
+};
+
 export const STATUS_OPTIONS = TASK_STATUSES;
 export const PRIORITY_OPTIONS = TASK_PRIORITIES;
 
@@ -91,6 +100,9 @@ export const groupTasks = (tasks: Task[]): TaskGroup[] => {
       children: childrenByParent.get(task._id) ?? [],
     }));
 };
+
+export const compareDoneLast = (a: Task, b: Task) =>
+  Number(a.status === "done") - Number(b.status === "done");
 
 export const labelsById = (labels: Label[]): Map<RecordId, Label> =>
   new Map(labels.map((label) => [label._id, label]));

@@ -2,7 +2,7 @@
 
 import { FC } from "react";
 import type { Label, RecordId, Task } from "@/shared/types";
-import { groupTasks, labelsById } from "../helpers";
+import { compareDoneLast, groupTasks, labelsById } from "../helpers";
 import TaskAccordion from "./TaskAccordion";
 
 interface Props {
@@ -25,7 +25,12 @@ const TaskDayCards: FC<Props> = ({
   onDelete,
 }) => {
   const labelMap = labelsById(labels);
-  const groups = groupTasks(tasks);
+  const groups = groupTasks(tasks)
+    .map((group) => ({
+      ...group,
+      children: [...group.children].sort(compareDoneLast),
+    }))
+    .sort((a, b) => compareDoneLast(a.task, b.task));
 
   if (groups.length === 0) return null;
 
