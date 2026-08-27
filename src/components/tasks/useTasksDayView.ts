@@ -23,6 +23,7 @@ export function useTasksDayView() {
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [stripCenter, setStripCenter] = useState(todayIso);
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
+  const [applyOpen, setApplyOpen] = useState(false);
   const [pendingId, setPendingId] = useState<RecordId | null>(null);
   const [actionError, setActionError] = useState("");
 
@@ -69,6 +70,8 @@ export function useTasksDayView() {
 
   const openEdit = (task: Task) => setFormMode({ type: "edit", task });
   const closeForm = () => setFormMode(null);
+  const openApply = () => setApplyOpen(true);
+  const closeApply = () => setApplyOpen(false);
 
   const changeStatus = async (task: Task, status: TaskStatus) => {
     if (pendingId || task.status === status) return;
@@ -121,6 +124,9 @@ export function useTasksDayView() {
     openCreate,
     openEdit,
     closeForm,
+    applyOpen,
+    openApply,
+    closeApply,
     toggleDone,
     removeTask,
   };

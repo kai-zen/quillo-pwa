@@ -1,6 +1,7 @@
 import type {
   LabelListQuery,
   RecordId,
+  RoutineListQuery,
   SprintListQuery,
   TaskListQuery,
 } from "@/shared/types";
@@ -19,6 +20,11 @@ export const queryKeys = {
     all: ["sprints"] as const,
     list: (query?: SprintListQuery) => ["sprints", "list", query] as const,
     detail: (id: RecordId) => ["sprints", "detail", id] as const,
+  },
+  routines: {
+    all: ["routines"] as const,
+    list: (query?: RoutineListQuery) => ["routines", "list", query] as const,
+    detail: (id: RecordId) => ["routines", "detail", id] as const,
   },
   tasks: {
     all: ["tasks"] as const,

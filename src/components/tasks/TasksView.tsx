@@ -1,8 +1,9 @@
 "use client";
 
-import { ListTodo, Plus } from "lucide-react";
+import { ListTodo, Plus, Repeat } from "lucide-react";
 import { FC } from "react";
 import { Button, DatePicker, Modal, PageHeader } from "@/components/common";
+import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
 import DayProgress from "./DayProgress";
 import DayStrip from "./DayStrip";
@@ -30,6 +31,9 @@ const TasksView: FC = () => {
     openCreate,
     openEdit,
     closeForm,
+    applyOpen,
+    openApply,
+    closeApply,
     toggleDone,
     removeTask,
   } = useTasksDayView();
@@ -43,10 +47,16 @@ const TasksView: FC = () => {
         description="Pick a day and work through what you planned to do."
         icon={ListTodo}
         actions={
-          <Button onClick={() => openCreate()} className="shadow-sm">
-            <Plus className="h-4 w-4" aria-hidden />
-            New task
-          </Button>
+          <>
+            <Button variant="secondary" onClick={openApply}>
+              <Repeat className="h-4 w-4" aria-hidden />
+              From routines
+            </Button>
+            <Button onClick={() => openCreate()} className="shadow-sm">
+              <Plus className="h-4 w-4" aria-hidden />
+              New task
+            </Button>
+          </>
         }
       />
 
@@ -113,6 +123,12 @@ const TasksView: FC = () => {
         )}
       </Modal>
 
+      <ApplyRoutinesModal
+        open={applyOpen}
+        doingDate={selectedDate}
+        onClose={closeApply}
+      />
+
       {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
 
       {isError && (
@@ -127,14 +143,21 @@ const TasksView: FC = () => {
           <p className="mt-1 text-sm text-muted">
             Schedule something for {heading}, or pick another day.
           </p>
-          <Button
-            variant="secondary"
-            className="mt-4"
-            onClick={() => openCreate()}
-            startIcon={<Plus className="w-4" aria-hidden />}
-          >
-            New task
-          </Button>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={openApply}
+              startIcon={<Repeat className="w-4" aria-hidden />}
+            >
+              From routines
+            </Button>
+            <Button
+              onClick={() => openCreate()}
+              startIcon={<Plus className="w-4" aria-hidden />}
+            >
+              New task
+            </Button>
+          </div>
         </div>
       )}
 
