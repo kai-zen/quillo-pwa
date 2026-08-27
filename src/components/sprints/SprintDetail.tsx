@@ -1,16 +1,15 @@
 "use client";
 
-import {
-  ArrowLeft,
-  Columns3,
-  ListPlus,
-  Pencil,
-  Plus,
-  Table2,
-} from "lucide-react";
-import Link from "next/link";
+import { Columns3, ListPlus, Pencil, Plus, Table2 } from "lucide-react";
 import { FC, useState } from "react";
-import { Button, IconButton, Markdown, Modal, cn } from "@/components/common";
+import {
+  Button,
+  IconButton,
+  Markdown,
+  Modal,
+  PageHeader,
+  cn,
+} from "@/components/common";
 import TaskForm, { taskFormTitle } from "@/components/tasks/form/TaskForm";
 import TaskKanbanBoard from "@/components/tasks/TaskKanbanBoard";
 import TaskSummaryTable from "@/components/tasks/TaskSummaryTable";
@@ -69,69 +68,49 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
 
   if (isSprintError || isSprintMissing || !sprint)
     return (
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
-        <Link
-          href="/sprints"
-          className="inline-flex w-fit items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          All sprints
-        </Link>
-        <p className="text-sm text-foreground">
-          {isSprintError
-            ? "Could not load this sprint. Try refreshing the page."
-            : "Sprint not found."}
-        </p>
+      <div className="mx-auto w-full max-w-5xl">
+        <PageHeader
+          title={isSprintError ? "Could not load sprint" : "Sprint not found"}
+          description={
+            isSprintError
+              ? "Try refreshing the page."
+              : "This sprint may have been deleted."
+          }
+          back={{ href: "/sprints", label: "All sprints" }}
+        />
       </div>
     );
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <div className="flex flex-col gap-4">
-        <Link
-          href="/sprints"
-          className="inline-flex w-fit items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden />
-          All sprints
-        </Link>
-
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-xs font-semibold tabular-nums text-muted">
-                #{sprint.sprint_number}
-              </span>
+      <PageHeader
+        title={sprint.name}
+        description={formatSprintRange(sprint.start_date, sprint.end_date)}
+        back={{ href: "/sprints", label: "All sprints" }}
+        eyebrow={
+          <>
+            <span className="font-mono text-xs font-semibold tabular-nums text-muted">
+              #{sprint.sprint_number}
+            </span>
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
+                SPRINT_STATUS_BADGE_CLASS[sprint.status],
+              )}
+            >
               <span
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
-                  SPRINT_STATUS_BADGE_CLASS[sprint.status],
+                  "h-1.5 w-1.5 rounded-full",
+                  SPRINT_STATUS_DOT_CLASS[sprint.status],
                 )}
-              >
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    SPRINT_STATUS_DOT_CLASS[sprint.status],
-                  )}
-                  aria-hidden
-                />
-                {SPRINT_STATUS_LABELS[sprint.status]}
-              </span>
-            </div>
-            <h1 className="mt-1.5 text-3xl font-semibold tracking-[-0.03em] text-foreground">
-              {sprint.name}
-            </h1>
-            <p className="mt-1.5 text-sm text-muted">
-              {formatSprintRange(sprint.start_date, sprint.end_date)}
-            </p>
-            {sprint.description ? (
-              <div className="mt-2 max-w-2xl">
-                <Markdown compact>{sprint.description}</Markdown>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
+                aria-hidden
+              />
+              {SPRINT_STATUS_LABELS[sprint.status]}
+            </span>
+          </>
+        }
+        actions={
+          <>
             <IconButton label="Edit sprint" onClick={openEditSprint}>
               <Pencil className="h-4 w-4" aria-hidden />
             </IconButton>
@@ -143,9 +122,13 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
               <Plus className="h-4 w-4" aria-hidden />
               New task
             </Button>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      >
+        {sprint.description ? (
+          <Markdown compact>{sprint.description}</Markdown>
+        ) : null}
+      </PageHeader>
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted">Tasks in this sprint</p>
@@ -269,7 +252,9 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         </div>
       )}
 
-      {!isTasksLoading && !isTasksError && tasks.length > 0 &&
+      {!isTasksLoading &&
+        !isTasksError &&
+        tasks.length > 0 &&
         (taskView === "board" ? (
           <TaskKanbanBoard
             tasks={tasks}

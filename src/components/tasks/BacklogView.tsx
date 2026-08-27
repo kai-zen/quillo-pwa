@@ -1,8 +1,8 @@
 "use client";
 
-import { ListFilter, Plus } from "lucide-react";
+import { Inbox, ListFilter, Plus } from "lucide-react";
 import { FC, useState } from "react";
-import { Button, Modal, Select } from "@/components/common";
+import { Button, Modal, PageHeader, Select } from "@/components/common";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Label, Task, TaskListQuery, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
@@ -59,20 +59,17 @@ const BacklogView: FC = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
-            Backlog
-          </h1>
-          <p className="mt-1.5 text-sm text-muted">
-            Capture, organize, and schedule your upcoming work.
-          </p>
-        </div>
-        <Button onClick={() => openCreate()} className="shadow-sm">
-          <Plus className="h-4 w-4" aria-hidden />
-          New task
-        </Button>
-      </div>
+      <PageHeader
+        title="Backlog"
+        description="Capture, organize, and schedule your upcoming work."
+        icon={Inbox}
+        actions={
+          <Button onClick={() => openCreate()} className="shadow-sm">
+            <Plus className="h-4 w-4" aria-hidden />
+            New task
+          </Button>
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-2.5 shadow-sm shadow-black/2">
         <span className="inline-flex items-center gap-2 pl-1 text-sm font-medium text-foreground">

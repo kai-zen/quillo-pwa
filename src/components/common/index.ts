@@ -6,6 +6,7 @@ export { default as Input } from "./Input";
 export { default as Markdown } from "./markdown/Markdown";
 export { default as MarkdownEditor } from "./markdown/MarkdownEditor";
 export { default as Modal } from "./Modal";
+export { default as PageHeader } from "./PageHeader";
 export { default as Select } from "./select-box/Select";
 export {
   Table,

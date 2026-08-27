@@ -1,15 +1,11 @@
-"use client";
-
-import { NextPage } from "next";
-import { use } from "react";
 import { SprintDetail } from "@/components/sprints";
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-const SprintDetailPage: NextPage<Props> = ({ params }) => {
-  const { slug } = use(params);
+const SprintDetailPage = async ({ params }: Props) => {
+  const { slug } = await params;
   return <SprintDetail sprintId={slug} />;
 };
 

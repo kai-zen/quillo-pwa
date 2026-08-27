@@ -1,8 +1,8 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { ListTodo, Plus } from "lucide-react";
 import { FC } from "react";
-import { Button, DatePicker, Modal } from "@/components/common";
+import { Button, DatePicker, Modal, PageHeader } from "@/components/common";
 import { ActiveSprintCard } from "@/components/sprints";
 import DayProgress from "./DayProgress";
 import DayStrip from "./DayStrip";
@@ -38,20 +38,17 @@ const TasksView: FC = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
-            Tasks
-          </h1>
-          <p className="mt-1.5 text-sm text-muted">
-            Pick a day and work through what you planned to do.
-          </p>
-        </div>
-        <Button onClick={() => openCreate()} className="shadow-sm">
-          <Plus className="h-4 w-4" aria-hidden />
-          New task
-        </Button>
-      </div>
+      <PageHeader
+        title="Tasks"
+        description="Pick a day and work through what you planned to do."
+        icon={ListTodo}
+        actions={
+          <Button onClick={() => openCreate()} className="shadow-sm">
+            <Plus className="h-4 w-4" aria-hidden />
+            New task
+          </Button>
+        }
+      />
 
       {!isLoading && (
         <ActiveSprintCard

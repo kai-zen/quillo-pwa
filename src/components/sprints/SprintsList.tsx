@@ -1,11 +1,12 @@
 "use client";
 
-import { ListFilter, Plus } from "lucide-react";
+import { Flag, ListFilter, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FC } from "react";
 import {
   Button,
   Modal,
+  PageHeader,
   Select,
   Table,
   TableBody,
@@ -53,20 +54,17 @@ const SprintsList: FC<Props> = ({ view }) => {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
-            Sprints
-          </h1>
-          <p className="mt-1.5 text-sm text-muted">
-            Group work into timed buckets and focus on one at a time.
-          </p>
-        </div>
-        <Button onClick={openCreateSprint} className="shadow-sm">
-          <Plus className="h-4 w-4" aria-hidden />
-          New sprint
-        </Button>
-      </div>
+      <PageHeader
+        title="Sprints"
+        description="Group work into timed buckets and focus on one at a time."
+        icon={Flag}
+        actions={
+          <Button onClick={openCreateSprint} className="shadow-sm">
+            <Plus className="h-4 w-4" aria-hidden />
+            New sprint
+          </Button>
+        }
+      />
 
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-2.5 shadow-sm shadow-black/2">
         <span className="inline-flex items-center gap-2 pl-1 text-sm font-medium text-foreground">
