@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, ChevronDown, Flag, ListPlus, Plus } from "lucide-react";
+import { ChevronDown, Flag, ListPlus, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 import { Button, cn } from "@/components/common";
@@ -142,20 +142,17 @@ const ActiveSprintCard: FC<Props> = ({
               {formatSprintRange(sprint.start_date, sprint.end_date)}
             </p>
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={openAddTasks}>
+              <Button size="sm" onClick={openAddTasks}>
                 <ListPlus className="h-4 w-4" aria-hidden />
                 Add tasks
               </Button>
-              <Button size="sm" onClick={() => onCreateTask(sprint._id)}>
-                <Plus className="h-4 w-4" aria-hidden />
-                New task
-              </Button>
               <Link
                 href={sprintHref(sprint)}
-                className="inline-flex items-center gap-1 px-1.5 text-sm font-medium text-muted transition-colors hover:text-foreground"
+                aria-label="Open sprint"
+                title="Open sprint"
+                className="inline-flex cursor-pointer rounded-md p-1.5 text-muted transition-colors hover:bg-accent-soft hover:text-foreground"
               >
-                Open
-                <ArrowRight className="h-4 w-4" aria-hidden />
+                <MoreHorizontal className="h-4 w-4" aria-hidden />
               </Link>
             </div>
           </div>
@@ -215,6 +212,10 @@ const ActiveSprintCard: FC<Props> = ({
         sprintId={sprint._id}
         sprints={sprints}
         onClose={closeAddTasks}
+        onCreateTask={() => {
+          closeAddTasks();
+          onCreateTask(sprint._id);
+        }}
       />
     </>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Search } from "lucide-react";
+import { Check, Plus, Search } from "lucide-react";
 import { FC, useId } from "react";
 import { Button, Input, Modal, cn } from "@/components/common";
 import {
@@ -16,6 +16,7 @@ interface Props {
   sprintId: RecordId;
   sprints: Sprint[];
   onClose: () => void;
+  onCreateTask?: () => void;
 }
 
 const AddTasksToSprintModal: FC<Props> = ({
@@ -23,6 +24,7 @@ const AddTasksToSprintModal: FC<Props> = ({
   sprintId,
   sprints,
   onClose,
+  onCreateTask,
 }) => (
   <Modal
     open={open}
@@ -35,6 +37,7 @@ const AddTasksToSprintModal: FC<Props> = ({
         sprintId={sprintId}
         sprints={sprints}
         onClose={onClose}
+        onCreateTask={onCreateTask}
       />
     )}
   </Modal>
@@ -44,6 +47,7 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
   sprintId,
   sprints,
   onClose,
+  onCreateTask,
 }) => {
   const searchId = useId();
   const view = useAddTasksToSprint(sprintId, sprints, onClose);
@@ -70,25 +74,39 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted">
-        Find existing tasks and add them to this sprint.
+        {onCreateTask
+          ? "Find existing tasks to add, or create a new one for this sprint."
+          : "Find existing tasks and add them to this sprint."}
       </p>
 
-      <div className="relative">
-        <label htmlFor={searchId} className="sr-only">
-          Search tasks
-        </label>
-        <Search
-          className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted"
-          aria-hidden
-        />
-        <Input
-          id={searchId}
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by title or #"
-          className="pl-9"
-          autoFocus
-        />
+      <div className="flex items-center gap-2">
+        <div className="relative min-w-0 flex-1">
+          <label htmlFor={searchId} className="sr-only">
+            Search tasks
+          </label>
+          <Search
+            className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted"
+            aria-hidden
+          />
+          <Input
+            id={searchId}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search by title or #"
+            className="pl-9"
+            autoFocus
+          />
+        </div>
+        {onCreateTask && (
+          <Button
+            variant="secondary"
+            onClick={onCreateTask}
+            disabled={pending}
+            startIcon={<Plus className="h-4 w-4" aria-hidden />}
+          >
+            New task
+          </Button>
+        )}
       </div>
 
       {visible.length > 0 && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { Columns3, ListPlus, Pencil, Plus, Table2 } from "lucide-react";
+import { Columns3, ListPlus, Pencil, Table2 } from "lucide-react";
 import { FC, useState } from "react";
 import {
   Button,
@@ -114,13 +114,9 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
             <IconButton label="Edit sprint" onClick={openEditSprint}>
               <Pencil className="h-4 w-4" aria-hidden />
             </IconButton>
-            <Button variant="secondary" onClick={openAddTasks}>
+            <Button onClick={openAddTasks} className="shadow-sm">
               <ListPlus className="h-4 w-4" aria-hidden />
               Add tasks
-            </Button>
-            <Button onClick={() => openCreateTask()} className="shadow-sm">
-              <Plus className="h-4 w-4" aria-hidden />
-              New task
             </Button>
           </>
         }
@@ -188,6 +184,10 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         sprintId={sprintId}
         sprints={catalog}
         onClose={closeAddTasks}
+        onCreateTask={() => {
+          closeAddTasks();
+          openCreateTask();
+        }}
       />
 
       <Modal
@@ -231,22 +231,14 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
           <p className="font-medium text-foreground">No tasks in this sprint</p>
           <p className="mt-1 text-sm text-muted">
-            Add a task here, or assign one from the backlog.
+            Add existing tasks from the backlog, or create a new one.
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <Button
-              variant="secondary"
               onClick={openAddTasks}
               startIcon={<ListPlus className="w-4" aria-hidden />}
             >
               Add tasks
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => openCreateTask()}
-              startIcon={<Plus className="w-4" aria-hidden />}
-            >
-              New task
             </Button>
           </div>
         </div>
