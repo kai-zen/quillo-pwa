@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useSprintsApi } from "@/shared/hooks";
 import type { Sprint, SprintListQuery, SprintStatus } from "@/shared/types";
-import type { SprintFormMode } from "./form/SprintForm";
+import type { SprintFormMode } from "../form/SprintForm";
 
 const PAGE_LIMIT = 50;
 

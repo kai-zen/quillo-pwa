@@ -15,7 +15,7 @@ import {
   SPRINT_STATUS_DOT_CLASS,
   SPRINT_STATUS_LABELS,
 } from "../helpers";
-import { useActiveSprint } from "../useActiveSprint";
+import { useActiveSprint } from "../hooks/useActiveSprint";
 import RemainingTaskRow from "./RemainingTaskRow";
 
 interface Props {

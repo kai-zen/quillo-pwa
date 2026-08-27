@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { TaskFormMode } from "@/components/tasks/form/TaskForm";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
 import type { Label, RecordId, Sprint, Task } from "@/shared/types";
-import type { SprintFormMode } from "./form/SprintForm";
+import type { SprintFormMode } from "../form/SprintForm";
 
 const PAGE_LIMIT = 50;
 

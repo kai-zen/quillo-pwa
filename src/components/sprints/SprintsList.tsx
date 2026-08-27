@@ -25,7 +25,7 @@ import {
   SPRINT_STATUS_DOT_CLASS,
   SPRINT_STATUS_LABELS,
 } from "./helpers";
-import type { SprintsListViewModel } from "./useSprintsListView";
+import type { SprintsListViewModel } from "./hooks/useSprintsListView";
 
 interface Props {
   view: SprintsListViewModel;

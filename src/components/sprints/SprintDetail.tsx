@@ -15,7 +15,7 @@ import {
   SPRINT_STATUS_DOT_CLASS,
   SPRINT_STATUS_LABELS,
 } from "./helpers";
-import { useSprintDetail } from "./useSprintDetail";
+import { useSprintDetail } from "./hooks/useSprintDetail";
 
 interface Props {
   sprintId: RecordId;

@@ -9,7 +9,7 @@ import {
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
 import type { RecordId, Sprint, Task } from "@/shared/types";
-import { pickActiveSprint } from "./helpers";
+import { pickActiveSprint } from "../helpers";
 
 const PAGE_LIMIT = 50;
 const REMAINING_LIMIT = 5;
