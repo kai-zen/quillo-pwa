@@ -8,6 +8,7 @@ export { default as MarkdownEditor } from "./markdown/MarkdownEditor";
 export { default as Modal } from "./Modal";
 export { default as PageHeader } from "./PageHeader";
 export { default as Select } from "./select-box/Select";
+export { default as Tabs } from "./Tabs";
 export {
   Table,
   TableBody,
