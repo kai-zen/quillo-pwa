@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowLeft, Pencil, Plus } from "lucide-react";
+import { ArrowLeft, ListPlus, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 import { Button, IconButton, Markdown, Modal, cn } from "@/components/common";
 import TaskForm, { taskFormTitle } from "@/components/tasks/form/TaskForm";
 import TaskSummaryTable from "@/components/tasks/TaskSummaryTable";
 import type { RecordId } from "@/shared/types";
+import AddTasksToSprintModal from "./AddTasksToSprintModal";
 import SprintForm, { sprintFormTitle } from "./form/SprintForm";
 import {
   formatSprintRange,
@@ -26,6 +27,7 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
     sprint,
     sprintFormMode,
     taskFormMode,
+    addTasksOpen,
     catalog,
     labels,
     tasks,
@@ -42,6 +44,8 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
     openCreateTask,
     openEditTask,
     closeTaskForm,
+    openAddTasks,
+    closeAddTasks,
   } = view;
 
   if (isSprintLoading)
@@ -119,6 +123,10 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
             <IconButton label="Edit sprint" onClick={openEditSprint}>
               <Pencil className="h-4 w-4" aria-hidden />
             </IconButton>
+            <Button variant="secondary" onClick={openAddTasks}>
+              <ListPlus className="h-4 w-4" aria-hidden />
+              Add tasks
+            </Button>
             <Button onClick={() => openCreateTask()} className="shadow-sm">
               <Plus className="h-4 w-4" aria-hidden />
               New task
@@ -153,6 +161,13 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
           />
         )}
       </Modal>
+
+      <AddTasksToSprintModal
+        open={addTasksOpen}
+        sprintId={sprintId}
+        sprints={catalog}
+        onClose={closeAddTasks}
+      />
 
       <Modal
         open={!!taskFormMode}
@@ -195,14 +210,22 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
           <p className="mt-1 text-sm text-muted">
             Add a task here, or assign one from the backlog.
           </p>
-          <Button
-            variant="secondary"
-            className="mt-4"
-            onClick={() => openCreateTask()}
-            startIcon={<Plus className="w-4" aria-hidden />}
-          >
-            New task
-          </Button>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={openAddTasks}
+              startIcon={<ListPlus className="w-4" aria-hidden />}
+            >
+              Add tasks
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => openCreateTask()}
+              startIcon={<Plus className="w-4" aria-hidden />}
+            >
+              New task
+            </Button>
+          </div>
         </div>
       )}
 

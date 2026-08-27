@@ -25,6 +25,7 @@ export const ROUTES = {
   tasks: {
     base: "/tasks",
     byId: ({ id }: IdParam) => `/tasks/${id}`,
+    assignToSprint: "/tasks/sprint",
   },
 } as const;
 

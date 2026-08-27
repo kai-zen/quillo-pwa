@@ -1,6 +1,7 @@
 import { defineEndpoint } from "../types";
 import { ROUTES } from "../routes";
 import type {
+  AssignToSprintBody,
   CreateTaskBody,
   IdParam,
   PaginatedResponse,
@@ -31,6 +32,12 @@ export const tasksModule = {
   update: defineEndpoint<Task, UpdateTaskBody, never, IdParam>({
     method: "PUT",
     path: ROUTES.tasks.byId,
+    auth: true,
+  }),
+
+  assignToSprint: defineEndpoint<void, AssignToSprintBody>({
+    method: "PUT",
+    path: ROUTES.tasks.assignToSprint,
     auth: true,
   }),
 

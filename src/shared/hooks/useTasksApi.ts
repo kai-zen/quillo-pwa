@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, tasksModule } from "@/shared/endpoints";
 import type {
+  AssignToSprintBody,
   CreateTaskBody,
   RecordId,
   TaskListQuery,
@@ -48,6 +49,12 @@ export const useTasksApi = () => {
     onSuccess: invalidateTasks,
   });
 
+  const assignToSprintMutation = useMutation({
+    mutationFn: (body: AssignToSprintBody) =>
+      request(tasksModule.assignToSprint, { body }),
+    onSuccess: invalidateTasks,
+  });
+
   return {
     useTasksList,
     useTask,
@@ -55,8 +62,10 @@ export const useTasksApi = () => {
     updateTask: (id: RecordId, body: UpdateTaskBody) =>
       updateTaskMutation.mutateAsync({ id, body }),
     deleteTask: deleteTaskMutation.mutateAsync,
+    assignToSprint: assignToSprintMutation.mutateAsync,
     isCreating: createTaskMutation.isPending,
     isUpdating: updateTaskMutation.isPending,
     isDeleting: deleteTaskMutation.isPending,
+    isAssigning: assignToSprintMutation.isPending,
   };
 };

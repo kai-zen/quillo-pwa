@@ -165,6 +165,11 @@ export interface CreateTaskBody {
 
 export type UpdateTaskBody = CreateTaskBody;
 
+export interface AssignToSprintBody {
+  task_ids: RecordId[];
+  sprint_id: RecordId;
+}
+
 export interface TaskListQuery extends PaginationQuery {
   doing_date?: string;
   sprint_id?: RecordId;

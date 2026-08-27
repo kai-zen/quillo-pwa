@@ -19,6 +19,7 @@ export function useSprintDetail(sprintId: RecordId) {
     null,
   );
   const [taskFormMode, setTaskFormMode] = useState<TaskFormMode | null>(null);
+  const [addTasksOpen, setAddTasksOpen] = useState(false);
 
   const sprintQuery = useSprint(sprintId);
   const catalogQuery = useSprintsList({ page: 1, limit: 100 });
@@ -64,12 +65,15 @@ export function useSprintDetail(sprintId: RecordId) {
 
   const openEditTask = (task: Task) => setTaskFormMode({ type: "edit", task });
   const closeTaskForm = () => setTaskFormMode(null);
+  const openAddTasks = () => setAddTasksOpen(true);
+  const closeAddTasks = () => setAddTasksOpen(false);
 
   return {
     sprintId,
     sprint,
     sprintFormMode,
     taskFormMode,
+    addTasksOpen,
     catalog,
     labels,
     tasks,
@@ -86,6 +90,8 @@ export function useSprintDetail(sprintId: RecordId) {
     openCreateTask,
     openEditTask,
     closeTaskForm,
+    openAddTasks,
+    closeAddTasks,
   };
 }
 
