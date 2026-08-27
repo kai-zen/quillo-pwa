@@ -1,10 +1,18 @@
 "use client";
 
-import { ArrowLeft, ListPlus, Pencil, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  Columns3,
+  ListPlus,
+  Pencil,
+  Plus,
+  Table2,
+} from "lucide-react";
 import Link from "next/link";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Button, IconButton, Markdown, Modal, cn } from "@/components/common";
 import TaskForm, { taskFormTitle } from "@/components/tasks/form/TaskForm";
+import TaskKanbanBoard from "@/components/tasks/TaskKanbanBoard";
 import TaskSummaryTable from "@/components/tasks/TaskSummaryTable";
 import type { RecordId } from "@/shared/types";
 import AddTasksToSprintModal from "./AddTasksToSprintModal";
@@ -38,6 +46,8 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
     isTasksLoading,
     isTasksError,
     isTasksEmpty,
+    pendingId,
+    actionError,
     openEditSprint,
     closeSprintForm,
     onSprintSaved,
@@ -46,7 +56,9 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
     closeTaskForm,
     openAddTasks,
     closeAddTasks,
+    changeTaskStatus,
   } = view;
+  const [taskView, setTaskView] = useState<"table" | "board">("table");
 
   if (isSprintLoading)
     return (
@@ -137,9 +149,35 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted">Tasks in this sprint</p>
-        <span className="text-xs font-medium tabular-nums text-muted">
-          {taskTotal} task{taskTotal === 1 ? "" : "s"}
-        </span>
+        <div className="flex items-center gap-3">
+          <div
+            className="inline-flex items-center rounded-lg border border-border bg-surface p-0.5"
+            role="group"
+            aria-label="Task list view"
+          >
+            <IconButton
+              label="Table view"
+              size="sm"
+              active={taskView === "table"}
+              aria-pressed={taskView === "table"}
+              onClick={() => setTaskView("table")}
+            >
+              <Table2 className="h-3.5 w-3.5" aria-hidden />
+            </IconButton>
+            <IconButton
+              label="Board view"
+              size="sm"
+              active={taskView === "board"}
+              aria-pressed={taskView === "board"}
+              onClick={() => setTaskView("board")}
+            >
+              <Columns3 className="h-3.5 w-3.5" aria-hidden />
+            </IconButton>
+          </div>
+          <span className="text-xs font-medium tabular-nums text-muted">
+            {taskTotal} task{taskTotal === 1 ? "" : "s"}
+          </span>
+        </div>
       </div>
 
       <Modal
@@ -204,6 +242,8 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         </p>
       )}
 
+      {actionError && <p className="text-sm text-foreground">{actionError}</p>}
+
       {isTasksEmpty && (
         <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
           <p className="font-medium text-foreground">No tasks in this sprint</p>
@@ -229,9 +269,22 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         </div>
       )}
 
-      {!isTasksLoading && !isTasksError && tasks.length > 0 && (
-        <TaskSummaryTable tasks={tasks} labels={labels} onEdit={openEditTask} />
-      )}
+      {!isTasksLoading && !isTasksError && tasks.length > 0 &&
+        (taskView === "board" ? (
+          <TaskKanbanBoard
+            tasks={tasks}
+            labels={labels}
+            pendingId={pendingId}
+            onEdit={openEditTask}
+            onStatusChange={changeTaskStatus}
+          />
+        ) : (
+          <TaskSummaryTable
+            tasks={tasks}
+            labels={labels}
+            onEdit={openEditTask}
+          />
+        ))}
     </div>
   );
 };

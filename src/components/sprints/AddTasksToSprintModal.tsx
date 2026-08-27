@@ -9,7 +9,7 @@ import {
   STATUS_LABELS,
 } from "@/components/tasks/helpers";
 import type { RecordId, Sprint, Task } from "@/shared/types";
-import { useAddTasksToSprint } from "./useAddTasksToSprint";
+import { useAddTasksToSprint } from "./hooks/useAddTasksToSprint";
 
 interface Props {
   open: boolean;
@@ -164,10 +164,7 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
         <Button variant="ghost" onClick={onClose} disabled={pending}>
           Cancel
         </Button>
-        <Button
-          onClick={onSubmit}
-          disabled={pending || selectedCount === 0}
-        >
+        <Button onClick={onSubmit} disabled={pending || selectedCount === 0}>
           {pending
             ? "Adding…"
             : selectedCount === 0

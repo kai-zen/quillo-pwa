@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { TaskFormMode } from "@/components/tasks/form/TaskForm";
+import { toUpdateBody } from "@/components/tasks/helpers";
+import { getErrorMessage } from "@/shared/errors";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
-import type { Label, RecordId, Sprint, Task } from "@/shared/types";
+import type { Label, RecordId, Sprint, Task, TaskStatus } from "@/shared/types";
 import type { SprintFormMode } from "../form/SprintForm";
 
 const PAGE_LIMIT = 50;
@@ -12,7 +14,7 @@ const PAGE_LIMIT = 50;
 export function useSprintDetail(sprintId: RecordId) {
   const router = useRouter();
   const { useSprint, useSprintsList } = useSprintsApi();
-  const { useTasksList } = useTasksApi();
+  const { useTasksList, updateTask } = useTasksApi();
   const { useLabelsList } = useLabelsApi();
 
   const [sprintFormMode, setSprintFormMode] = useState<SprintFormMode | null>(
@@ -20,6 +22,8 @@ export function useSprintDetail(sprintId: RecordId) {
   );
   const [taskFormMode, setTaskFormMode] = useState<TaskFormMode | null>(null);
   const [addTasksOpen, setAddTasksOpen] = useState(false);
+  const [pendingId, setPendingId] = useState<RecordId | null>(null);
+  const [actionError, setActionError] = useState("");
 
   const sprintQuery = useSprint(sprintId);
   const catalogQuery = useSprintsList({ page: 1, limit: 100 });
@@ -68,6 +72,22 @@ export function useSprintDetail(sprintId: RecordId) {
   const openAddTasks = () => setAddTasksOpen(true);
   const closeAddTasks = () => setAddTasksOpen(false);
 
+  const changeTaskStatus = async (task: Task, status: TaskStatus) => {
+    if (pendingId || task.status === status) return;
+    setActionError("");
+    setPendingId(task._id);
+    try {
+      await updateTask(task._id, {
+        ...toUpdateBody(task),
+        status,
+      });
+    } catch (err) {
+      setActionError(getErrorMessage(err, "Could not update task status."));
+    } finally {
+      setPendingId(null);
+    }
+  };
+
   return {
     sprintId,
     sprint,
@@ -84,6 +104,8 @@ export function useSprintDetail(sprintId: RecordId) {
     isTasksLoading,
     isTasksError,
     isTasksEmpty,
+    pendingId,
+    actionError,
     openEditSprint,
     closeSprintForm,
     onSprintSaved,
@@ -92,6 +114,7 @@ export function useSprintDetail(sprintId: RecordId) {
     closeTaskForm,
     openAddTasks,
     closeAddTasks,
+    changeTaskStatus,
   };
 }
 
