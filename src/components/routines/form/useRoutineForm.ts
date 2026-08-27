@@ -33,6 +33,12 @@ const newDraft = (): DraftFormItem => ({
   labelIds: [],
 });
 
+const isBlankDraft = (draft: DraftFormItem) =>
+  !draft.title.trim() &&
+  !draft.description.trim() &&
+  draft.labelIds.length === 0 &&
+  draft.priority === "unset";
+
 const draftsFromRoutine = (routine: Routine): DraftFormItem[] => {
   if (routine.drafts.length === 0) return [newDraft()];
   return routine.drafts.map((draft) => ({
@@ -86,7 +92,13 @@ export function useRoutineForm(
     );
   };
 
-  const addDraft = () => setDrafts((current) => [...current, newDraft()]);
+  const addDraft = () => {
+    const last = drafts[drafts.length - 1];
+    if (last && isBlankDraft(last)) return last.key;
+    const draft = newDraft();
+    setDrafts((current) => [...current, draft]);
+    return draft.key;
+  };
 
   const removeDraft = (key: string) => {
     setDrafts((current) => current.filter((draft) => draft.key !== key));
