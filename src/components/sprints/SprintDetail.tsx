@@ -23,6 +23,7 @@ import {
   SPRINT_STATUS_LABELS,
 } from "./helpers";
 import { useSprintDetail } from "./hooks/useSprintDetail";
+import SprintGoalLink from "./SprintGoalLink";
 
 interface Props {
   sprintId: RecordId;
@@ -32,6 +33,7 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
   const view = useSprintDetail(sprintId);
   const {
     sprint,
+    linkedGoal,
     sprintFormMode,
     taskFormMode,
     addTasksOpen,
@@ -107,6 +109,7 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
               />
               {SPRINT_STATUS_LABELS[sprint.status]}
             </span>
+            {linkedGoal ? <SprintGoalLink goal={linkedGoal} size="sm" /> : null}
           </>
         }
         actions={

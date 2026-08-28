@@ -12,6 +12,7 @@ import {
 import {
   SPRINT_STATUS_LABELS,
   SPRINT_STATUS_OPTIONS,
+  formatGoalOptionLabel,
 } from "../helpers";
 import { useSprintForm, type SprintFormMode } from "./useSprintForm";
 
@@ -78,6 +79,26 @@ const SprintForm: FC<Props> = ({ mode, onClose, onSaved }) => {
           />
         </Field>
       </div>
+
+      <Field label="Goal">
+        <Select
+          value={form.goalId}
+          onChange={(event) => form.setGoalId(event.target.value)}
+          disabled={form.pending || form.goalsLoading}
+          aria-label="Linked goal"
+        >
+          <option value="">No goal</option>
+          {form.goalId &&
+            !form.goals.some((goal) => goal._id === form.goalId) && (
+              <option value={form.goalId}>Unknown goal</option>
+            )}
+          {form.goals.map((goal) => (
+            <option key={goal._id} value={goal._id}>
+              {formatGoalOptionLabel(goal)}
+            </option>
+          ))}
+        </Select>
+      </Field>
 
       {form.editing && (
         <Field label="Status">

@@ -12,6 +12,7 @@ import {
   sprintHref,
 } from "../helpers";
 import { useActiveSprint } from "../hooks/useActiveSprint";
+import SprintGoalLink from "../SprintGoalLink";
 import RemainingTaskRow from "./RemainingTaskRow";
 import SprintProgressRing from "./SprintProgressRing";
 
@@ -28,6 +29,7 @@ const ActiveSprintCard: FC<Props> = ({
 }) => {
   const {
     sprint,
+    linkedGoal,
     progress,
     remaining,
     isLoading,
@@ -88,11 +90,16 @@ const ActiveSprintCard: FC<Props> = ({
                   <p className="mt-1 text-xs tabular-nums text-muted">
                     {formatSprintCountdown(sprint.end_date)}
                   </p>
-                  <div className="w-0.5 h-0.5 rounded-full bg-black/60 mt-1" />
+                  <div className="mt-1 h-0.5 w-0.5 rounded-full bg-black/60" />
                   <p className="mt-1 text-xs tabular-nums text-muted">
                     {progressLabel}
                   </p>
                 </div>
+                {linkedGoal ? (
+                  <div className="mt-1">
+                    <SprintGoalLink goal={linkedGoal} size="sm" />
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>

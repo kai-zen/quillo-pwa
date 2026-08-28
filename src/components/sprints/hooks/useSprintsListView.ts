@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useSprintsApi } from "@/shared/hooks";
-import type { Sprint, SprintListQuery, SprintStatus } from "@/shared/types";
+import { useGoalsApi, useSprintsApi } from "@/shared/hooks";
+import type { Goal, Sprint, SprintListQuery, SprintStatus } from "@/shared/types";
 import type { SprintFormMode } from "../form/SprintForm";
 
 const PAGE_LIMIT = 50;
 
 export function useSprintsListView() {
   const { useSprintsList } = useSprintsApi();
+  const { useGoalsList } = useGoalsApi();
 
   const [statusFilter, setStatusFilter] = useState<SprintStatus | "">("");
   const [page, setPage] = useState(1);
@@ -23,7 +24,9 @@ export function useSprintsListView() {
   };
 
   const sprintsQuery = useSprintsList(listQuery);
+  const goalsQuery = useGoalsList({ page: 1, limit: 100 });
   const sprints: Sprint[] = sprintsQuery.data?.items ?? [];
+  const goals: Goal[] = goalsQuery.data?.items ?? [];
   const total = sprintsQuery.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
@@ -48,6 +51,7 @@ export function useSprintsListView() {
     setPage,
     sprintFormMode,
     sprints,
+    goals,
     total,
     totalPages,
     isLoading,

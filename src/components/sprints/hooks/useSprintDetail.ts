@@ -5,15 +5,17 @@ import { useState } from "react";
 import type { TaskFormMode } from "@/components/tasks/form/TaskForm";
 import { toUpdateBody } from "@/components/tasks/helpers";
 import { getErrorMessage } from "@/shared/errors";
-import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
-import type { Label, RecordId, Sprint, Task, TaskStatus } from "@/shared/types";
+import { useGoalsApi, useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
+import type { Goal, Label, RecordId, Sprint, Task, TaskStatus } from "@/shared/types";
 import type { SprintFormMode } from "../form/SprintForm";
+import { findGoal } from "../helpers";
 
 const PAGE_LIMIT = 50;
 
 export function useSprintDetail(sprintId: RecordId) {
   const router = useRouter();
   const { useSprint, useSprintsList } = useSprintsApi();
+  const { useGoalsList } = useGoalsApi();
   const { useTasksList, updateTask } = useTasksApi();
   const { useLabelsList } = useLabelsApi();
 
@@ -27,6 +29,7 @@ export function useSprintDetail(sprintId: RecordId) {
 
   const sprintQuery = useSprint(sprintId);
   const catalogQuery = useSprintsList({ page: 1, limit: 100 });
+  const goalsQuery = useGoalsList({ page: 1, limit: 100 });
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const tasksQuery = useTasksList(
     { page: 1, limit: PAGE_LIMIT, sprint_id: sprintId },
@@ -35,6 +38,8 @@ export function useSprintDetail(sprintId: RecordId) {
 
   const sprint: Sprint | null = sprintQuery.data ?? null;
   const catalog: Sprint[] = catalogQuery.data?.items ?? [];
+  const goals: Goal[] = goalsQuery.data?.items ?? [];
+  const linkedGoal = sprint ? findGoal(sprint.goal_id, goals) : null;
   const labels: Label[] = labelsQuery.data?.items ?? [];
   const tasks = tasksQuery.data?.items ?? [];
   const taskTotal = tasksQuery.data?.total ?? 0;
@@ -91,6 +96,7 @@ export function useSprintDetail(sprintId: RecordId) {
   return {
     sprintId,
     sprint,
+    linkedGoal,
     sprintFormMode,
     taskFormMode,
     addTasksOpen,

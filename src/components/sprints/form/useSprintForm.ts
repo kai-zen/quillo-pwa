@@ -2,8 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
-import { useSprintsApi } from "@/shared/hooks";
-import type { CreateSprintBody, Sprint, SprintStatus } from "@/shared/types";
+import { useGoalsApi, useSprintsApi } from "@/shared/hooks";
+import type { CreateSprintBody, Goal, RecordId, Sprint, SprintStatus } from "@/shared/types";
 import { toDateInputValue, toUpdateBody } from "../helpers";
 
 export type SprintFormMode =
@@ -16,8 +16,11 @@ export function useSprintForm(
 ) {
   const { createSprint, updateSprint, deleteSprint, isCreating, isUpdating, isDeleting } =
     useSprintsApi();
+  const { useGoalsList } = useGoalsApi();
+  const goalsQuery = useGoalsList({ page: 1, limit: 100 });
 
   const editing = mode.type === "edit" ? mode.sprint : null;
+  const goals: Goal[] = goalsQuery.data?.items ?? [];
 
   const [name, setName] = useState(editing?.name ?? "");
   const [description, setDescription] = useState(editing?.description ?? "");
@@ -25,12 +28,14 @@ export function useSprintForm(
     toDateInputValue(editing?.start_date),
   );
   const [endDate, setEndDate] = useState(toDateInputValue(editing?.end_date));
+  const [goalId, setGoalId] = useState<RecordId | "">(editing?.goal_id ?? "");
   const [status, setStatus] = useState<SprintStatus>(
     editing?.status ?? "planned",
   );
   const [error, setError] = useState("");
 
   const pending = isCreating || isUpdating || isDeleting;
+  const goalsLoading = goalsQuery.isLoading;
 
   const buildBody = (): CreateSprintBody => ({
     name: name.trim(),
@@ -38,6 +43,7 @@ export function useSprintForm(
     start_date: startDate,
     end_date: endDate,
     status,
+    goal_id: goalId || null,
   });
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -103,6 +109,10 @@ export function useSprintForm(
     setStartDate,
     endDate,
     setEndDate,
+    goalId,
+    setGoalId,
+    goals,
+    goalsLoading,
     status,
     setStatus,
     error,

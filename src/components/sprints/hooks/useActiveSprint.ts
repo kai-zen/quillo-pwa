@@ -8,9 +8,9 @@ import {
   toUpdateBody,
 } from "@/components/tasks/helpers";
 import { getErrorMessage } from "@/shared/errors";
-import { useTasksApi } from "@/shared/hooks";
-import type { RecordId, Sprint, Task } from "@/shared/types";
-import { pickActiveSprint } from "../helpers";
+import { useGoalsApi, useTasksApi } from "@/shared/hooks";
+import type { Goal, RecordId, Sprint, Task } from "@/shared/types";
+import { findGoal, pickActiveSprint } from "../helpers";
 
 const PAGE_LIMIT = 50;
 const REMAINING_LIMIT = 5;
@@ -20,7 +20,11 @@ const flattenTasks = (tasks: Task[]): Task[] =>
 
 export function useActiveSprint(sprints: Sprint[]) {
   const { useTasksList, updateTask } = useTasksApi();
+  const { useGoalsList } = useGoalsApi();
   const sprint = pickActiveSprint(sprints);
+  const goalsQuery = useGoalsList({ page: 1, limit: 100 });
+  const goals: Goal[] = goalsQuery.data?.items ?? [];
+  const linkedGoal = sprint ? findGoal(sprint.goal_id, goals) : null;
   const today = todayIso();
 
   const [addTasksOpen, setAddTasksOpen] = useState(false);
@@ -85,6 +89,7 @@ export function useActiveSprint(sprints: Sprint[]) {
 
   return {
     sprint,
+    linkedGoal,
     progress,
     remaining,
     isLoading,

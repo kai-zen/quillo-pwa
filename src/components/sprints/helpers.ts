@@ -1,4 +1,5 @@
-import type { RecordId, Sprint, SprintStatus, UpdateSprintBody } from "@/shared/types";
+import type { Goal, RecordId, Sprint, SprintStatus, UpdateSprintBody } from "@/shared/types";
+import { GOAL_STATUS_LABELS } from "@/components/goals/helpers";
 import { SPRINT_STATUSES } from "@/shared/types";
 
 export const SPRINT_STATUS_LABELS: Record<SprintStatus, string> = {
@@ -92,4 +93,18 @@ export const toUpdateBody = (sprint: Sprint): UpdateSprintBody => ({
   start_date: toDateInputValue(sprint.start_date),
   end_date: toDateInputValue(sprint.end_date),
   status: sprint.status,
+  goal_id: sprint.goal_id,
 });
+
+export const findGoal = (
+  goalId: RecordId | null,
+  goals: Goal[],
+): Goal | null => {
+  if (!goalId) return null;
+  return goals.find((goal) => goal._id === goalId) ?? null;
+};
+
+export const formatGoalOptionLabel = (goal: Goal): string => {
+  if (goal.status === "active") return goal.title;
+  return `${goal.title} (${GOAL_STATUS_LABELS[goal.status]})`;
+};
