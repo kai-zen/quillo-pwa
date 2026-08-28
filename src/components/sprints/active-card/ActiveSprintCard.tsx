@@ -22,11 +22,7 @@ interface Props {
   onEditTask: (task: Task) => void;
 }
 
-const ActiveSprintCard: FC<Props> = ({
-  sprints,
-  onCreateTask,
-  onEditTask,
-}) => {
+const ActiveSprintCard: FC<Props> = ({ sprints, onCreateTask, onEditTask }) => {
   const {
     sprint,
     linkedGoal,
@@ -79,15 +75,12 @@ const ActiveSprintCard: FC<Props> = ({
                   <span className="font-mono tabular-nums text-muted">
                     #{sprint.sprint_number}
                   </span>
-                  <h2
+                  <p
                     id="active-sprint-heading"
                     className="min-w-0 truncate font-semibold tracking-tight text-foreground"
                   >
                     {sprint.name}
-                  </h2>
-                  {linkedGoal ? (
-                    <SprintGoalLink goal={linkedGoal} size="sm" />
-                  ) : null}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="mt-1 text-xs tabular-nums text-muted">
