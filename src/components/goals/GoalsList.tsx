@@ -60,7 +60,7 @@ const GoalsList: FC<Props> = ({ view }) => {
         description="Track longer-term outcomes and the steps that get you there."
         icon={Target}
         actions={
-          <Button onClick={openCreateGoal} className="shadow-sm">
+          <Button onClick={openCreateGoal} size="sm">
             <Plus className="h-4 w-4" aria-hidden />
             New goal
           </Button>
@@ -80,12 +80,9 @@ const GoalsList: FC<Props> = ({ view }) => {
           id="goals-status-filter"
           value={statusFilter}
           onChange={(event) => {
-            setStatusFilterAndResetPage(
-              event.target.value as GoalStatus | "",
-            );
+            setStatusFilterAndResetPage(event.target.value as GoalStatus | "");
           }}
           sizeVariant="sm"
-          className="w-36"
         >
           <option value="">All statuses</option>
           {GOAL_STATUSES.map((status) => (

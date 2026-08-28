@@ -48,8 +48,11 @@ const TasksViewContent: FC = () => {
         description="Pick a day and work through what you planned to do."
         icon={ListTodo}
         actions={
-          <Button onClick={() => openCreate()} className="shadow-sm">
-            <Plus className="h-4 w-4" aria-hidden />
+          <Button
+            onClick={() => openCreate()}
+            size="sm"
+            startIcon={<Plus className="h-4 w-4" aria-hidden />}
+          >
             Add tasks
           </Button>
         }

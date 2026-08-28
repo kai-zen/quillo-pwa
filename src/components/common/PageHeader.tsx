@@ -40,17 +40,17 @@ const PageHeader: FC<Props> = ({
 
       <div
         className={cn(
-          "flex flex-col gap-4 sm:flex-row sm:justify-between",
-          alignStart ? "sm:items-start" : "sm:items-center",
+          "flex items-start justify-between gap-3 sm:gap-4",
+          !alignStart && "sm:items-center",
         )}
       >
-        <div className="flex min-w-0 items-start gap-3.5">
+        <div className="flex min-w-0 flex-1 items-start gap-3.5">
           {Icon ? (
             <div
-              className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-foreground"
+              className="mt-0.5 flex w-8 h-8 lg:h-10 lg:w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-foreground"
               aria-hidden
             >
-              <Icon className="h-5 w-5" strokeWidth={2} />
+              <Icon className="h-4 w-4 lg:h-5 lg:w-5" strokeWidth={2} />
             </div>
           ) : null}
 
@@ -60,9 +60,11 @@ const PageHeader: FC<Props> = ({
                 {eyebrow}
               </div>
             ) : null}
-            <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+            <h1 className="text-xl lg:text-2xl font-semibold text-foreground">
+              {title}
+            </h1>
             {description ? (
-              <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
+              <p className="mt-1 lg:mt-1.5 max-w-xl text-xs lg:text-sm leading-relaxed text-muted">
                 {description}
               </p>
             ) : null}
@@ -71,7 +73,7 @@ const PageHeader: FC<Props> = ({
         </div>
 
         {actions ? (
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:pt-0.5">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pt-0.5">
             {actions}
           </div>
         ) : null}

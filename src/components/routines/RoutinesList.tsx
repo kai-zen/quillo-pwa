@@ -52,7 +52,7 @@ const RoutinesList: FC<Props> = ({ view }) => {
         description="Save repeating drafts, then drop them onto a day as tasks."
         icon={Repeat}
         actions={
-          <Button onClick={openCreateRoutine} className="shadow-sm">
+          <Button onClick={openCreateRoutine} size="sm">
             <Plus className="h-4 w-4" aria-hidden />
             New routine
           </Button>
@@ -75,7 +75,6 @@ const RoutinesList: FC<Props> = ({ view }) => {
             setDayFilterAndResetPage(event.target.value as DayOfWeek | "");
           }}
           sizeVariant="sm"
-          className="w-40"
         >
           <option value="">All days</option>
           {DAYS_OF_WEEK.map((day) => (

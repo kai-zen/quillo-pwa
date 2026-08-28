@@ -62,7 +62,7 @@ const SprintsList: FC<Props> = ({ view }) => {
         description="Group work into timed buckets and focus on one at a time."
         icon={Flag}
         actions={
-          <Button onClick={openCreateSprint} className="shadow-sm">
+          <Button onClick={openCreateSprint} size="sm">
             <Plus className="h-4 w-4" aria-hidden />
             New sprint
           </Button>
@@ -87,7 +87,6 @@ const SprintsList: FC<Props> = ({ view }) => {
             );
           }}
           sizeVariant="sm"
-          className="w-36"
         >
           <option value="">All statuses</option>
           {SPRINT_STATUSES.map((status) => (
@@ -162,55 +161,55 @@ const SprintsList: FC<Props> = ({ view }) => {
               const linkedGoal = findGoal(sprint.goal_id, goals);
 
               return (
-              <TableRow
-                key={sprint._id}
-                onClick={() => router.push(sprintHref(sprint))}
-                aria-label={`Open sprint ${sprint.sprint_number}: ${sprint.name}`}
-              >
-                <TableCell>
-                  <span className="font-mono text-xs font-semibold tabular-nums text-muted">
-                    #{sprint.sprint_number}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="block truncate font-medium text-foreground">
-                    {sprint.name}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  {linkedGoal ? (
-                    <SprintGoalLink
-                      goal={linkedGoal}
-                      size="sm"
-                      onClick={(event) => event.stopPropagation()}
-                    />
-                  ) : (
-                    <span className="text-sm text-muted">—</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm text-muted">
-                    {formatSprintRange(sprint.start_date, sprint.end_date)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
-                      SPRINT_STATUS_BADGE_CLASS[sprint.status],
+                <TableRow
+                  key={sprint._id}
+                  onClick={() => router.push(sprintHref(sprint))}
+                  aria-label={`Open sprint ${sprint.sprint_number}: ${sprint.name}`}
+                >
+                  <TableCell>
+                    <span className="font-mono text-xs font-semibold tabular-nums text-muted">
+                      #{sprint.sprint_number}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="block truncate font-medium text-foreground">
+                      {sprint.name}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {linkedGoal ? (
+                      <SprintGoalLink
+                        goal={linkedGoal}
+                        size="sm"
+                        onClick={(event) => event.stopPropagation()}
+                      />
+                    ) : (
+                      <span className="text-sm text-muted">—</span>
                     )}
-                  >
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted">
+                      {formatSprintRange(sprint.start_date, sprint.end_date)}
+                    </span>
+                  </TableCell>
+                  <TableCell>
                     <span
                       className={cn(
-                        "h-1.5 w-1.5 rounded-full",
-                        SPRINT_STATUS_DOT_CLASS[sprint.status],
+                        "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
+                        SPRINT_STATUS_BADGE_CLASS[sprint.status],
                       )}
-                      aria-hidden
-                    />
-                    {SPRINT_STATUS_LABELS[sprint.status]}
-                  </span>
-                </TableCell>
-              </TableRow>
+                    >
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          SPRINT_STATUS_DOT_CLASS[sprint.status],
+                        )}
+                        aria-hidden
+                      />
+                      {SPRINT_STATUS_LABELS[sprint.status]}
+                    </span>
+                  </TableCell>
+                </TableRow>
               );
             })}
           </TableBody>

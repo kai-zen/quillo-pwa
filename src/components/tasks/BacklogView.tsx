@@ -66,7 +66,7 @@ const BacklogView: FC = () => {
         description="Capture, organize, and schedule your upcoming work."
         icon={Inbox}
         actions={
-          <Button onClick={() => openCreate()} className="shadow-sm">
+          <Button onClick={() => openCreate()} size="sm">
             <Plus className="h-4 w-4" aria-hidden />
             New task
           </Button>
@@ -90,7 +90,6 @@ const BacklogView: FC = () => {
             setPage(1);
           }}
           sizeVariant="sm"
-          className="w-36"
         >
           <option value="">All statuses</option>
           {TASK_STATUSES.map((status) => (
@@ -110,7 +109,6 @@ const BacklogView: FC = () => {
             setPage(1);
           }}
           sizeVariant="sm"
-          className="w-40"
         >
           <option value="">All labels</option>
           {labels.map((label: Label) => (

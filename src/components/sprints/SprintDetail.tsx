@@ -116,7 +116,7 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
             <IconButton label="Edit sprint" onClick={openEditSprint}>
               <Pencil className="h-4 w-4" aria-hidden />
             </IconButton>
-            <Button onClick={openAddTasks} className="shadow-sm">
+            <Button onClick={openAddTasks} size="sm">
               <ListPlus className="h-4 w-4" aria-hidden />
               Add tasks
             </Button>
@@ -124,10 +124,9 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         }
       >
         {linkedGoal ? (
-          <p className="flex flex-wrap items-center gap-1.5">
-            <span className="text-sm text-muted">Linked to</span>
+          <div className="mb-2">
             <SprintGoalLink goal={linkedGoal} size="sm" />
-          </p>
+          </div>
         ) : null}
         {sprint.description ? (
           <Markdown compact>{sprint.description}</Markdown>
