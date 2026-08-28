@@ -60,9 +60,7 @@ const PageHeader: FC<Props> = ({
                 {eyebrow}
               </div>
             ) : null}
-            <h1 className="text-3xl font-semibold tracking-[-0.03em] text-foreground">
-              {title}
-            </h1>
+            <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
             {description ? (
               <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
                 {description}
@@ -73,7 +71,7 @@ const PageHeader: FC<Props> = ({
         </div>
 
         {actions ? (
-          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:pt-0.5">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 sm:pt-0.5">
             {actions}
           </div>
         ) : null}
