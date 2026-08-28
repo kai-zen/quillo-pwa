@@ -1,7 +1,8 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import {
   queryKeys,
@@ -19,11 +20,22 @@ import type {
   TaskStatus,
 } from "@/shared/types";
 import type { TaskFormMode } from "./form/TaskForm";
-import { buildDayStrip, toUpdateBody, todayIso } from "./helpers";
+import { buildDayStrip, parseIsoDate, toUpdateBody, todayIso } from "./helpers";
+
+export const TASKS_DATE_PARAM = "date";
 
 const PAGE_LIMIT = 50;
 
+function selectedDateFromParams(searchParams: URLSearchParams): string {
+  const raw = searchParams.get(TASKS_DATE_PARAM);
+  if (raw && parseIsoDate(raw)) return raw;
+  return todayIso();
+}
+
 export function useTasksDayView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { useTasksList, updateTask, deleteTask, sortDailyTasks } =
     useTasksApi();
@@ -31,8 +43,18 @@ export function useTasksDayView() {
   const { useSprintsList } = useSprintsApi();
   const reorderGen = useRef(0);
 
-  const [selectedDate, setSelectedDate] = useState(todayIso);
-  const [stripCenter, setStripCenter] = useState(todayIso);
+  const selectedDate = useMemo(
+    () => selectedDateFromParams(searchParams),
+    [searchParams],
+  );
+  const [stripAnchor, setStripAnchor] = useState(selectedDate);
+  const stripCenter = useMemo(
+    () =>
+      buildDayStrip(stripAnchor).includes(selectedDate)
+        ? stripAnchor
+        : selectedDate,
+    [stripAnchor, selectedDate],
+  );
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
   const [applyOpen, setApplyOpen] = useState(false);
   const [pendingId, setPendingId] = useState<RecordId | null>(null);
@@ -56,17 +78,30 @@ export function useTasksDayView() {
   const isError = tasksQuery.isError;
   const isEmpty = !isLoading && !isError && tasks.length === 0;
 
+  const setDateInUrl = useCallback(
+    (iso: string) => {
+      if (!iso || !parseIsoDate(iso)) return;
+      const params = new URLSearchParams(searchParams.toString());
+      if (iso === todayIso()) {
+        params.delete(TASKS_DATE_PARAM);
+      } else {
+        params.set(TASKS_DATE_PARAM, iso);
+      }
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
   const selectDate = (iso: string) => {
-    if (!iso) return;
-    setSelectedDate(iso);
+    setDateInUrl(iso);
   };
 
   const jumpToDate = (iso: string) => {
-    if (!iso) return;
-    setSelectedDate(iso);
-    if (!buildDayStrip(stripCenter).includes(iso)) {
-      setStripCenter(iso);
-    }
+    setDateInUrl(iso);
+    setStripAnchor((center) =>
+      buildDayStrip(center).includes(iso) ? center : iso,
+    );
   };
 
   const openCreate = (parent?: Task, sprintId?: RecordId | null) => {
@@ -129,19 +164,22 @@ export function useTasksDayView() {
       const key = queryKeys.tasks.list(query);
       const gen = ++reorderGen.current;
 
-      queryClient.setQueryData(key, (current: PaginatedResponse<Task> | undefined) => {
-        if (!current) return current;
-        const orderById = new Map(
-          orderedIds.map((id, sort_order) => [id, sort_order]),
-        );
-        return {
-          ...current,
-          items: current.items.map((task) => {
-            const sort_order = orderById.get(task._id);
-            return sort_order === undefined ? task : { ...task, sort_order };
-          }),
-        };
-      });
+      queryClient.setQueryData(
+        key,
+        (current: PaginatedResponse<Task> | undefined) => {
+          if (!current) return current;
+          const orderById = new Map(
+            orderedIds.map((id, sort_order) => [id, sort_order]),
+          );
+          return {
+            ...current,
+            items: current.items.map((task) => {
+              const sort_order = orderById.get(task._id);
+              return sort_order === undefined ? task : { ...task, sort_order };
+            }),
+          };
+        },
+      );
 
       setActionError("");
       try {

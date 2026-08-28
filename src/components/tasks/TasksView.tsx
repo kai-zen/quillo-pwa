@@ -1,7 +1,7 @@
 "use client";
 
 import { ListTodo, Plus } from "lucide-react";
-import { FC } from "react";
+import { FC, Suspense } from "react";
 import { Button, DatePicker, Modal, PageHeader } from "@/components/common";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
@@ -12,7 +12,7 @@ import { formatDayHeading } from "./helpers";
 import TaskDayCards from "./TaskDayCards";
 import { useTasksDayView } from "./useTasksDayView";
 
-const TasksView: FC = () => {
+const TasksViewContent: FC = () => {
   const {
     selectedDate,
     stripCenter,
@@ -55,14 +55,11 @@ const TasksView: FC = () => {
         }
       />
 
-      {!isLoading && (
-        <ActiveSprintCard
-          sprints={sprints}
-          selectedDate={selectedDate}
-          onCreateTask={(sprintId) => openCreate(undefined, sprintId)}
-          onEditTask={openEdit}
-        />
-      )}
+      <ActiveSprintCard
+        sprints={sprints}
+        onCreateTask={(sprintId) => openCreate(undefined, sprintId)}
+        onEditTask={openEdit}
+      />
 
       <div>
         <DayStrip
@@ -170,5 +167,11 @@ const TasksView: FC = () => {
     </div>
   );
 };
+
+const TasksView: FC = () => (
+  <Suspense fallback={<p className="text-sm text-muted">Loading tasks…</p>}>
+    <TasksViewContent />
+  </Suspense>
+);
 
 export default TasksView;

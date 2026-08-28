@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   groupTasks,
+  todayIso,
   toDateInputValue,
   toUpdateBody,
 } from "@/components/tasks/helpers";
@@ -17,9 +18,10 @@ const REMAINING_LIMIT = 5;
 const flattenTasks = (tasks: Task[]): Task[] =>
   groupTasks(tasks).flatMap(({ task, children }) => [task, ...children]);
 
-export function useActiveSprint(sprints: Sprint[], selectedDate: string) {
+export function useActiveSprint(sprints: Sprint[]) {
   const { useTasksList, updateTask } = useTasksApi();
   const sprint = pickActiveSprint(sprints);
+  const today = todayIso();
 
   const [addTasksOpen, setAddTasksOpen] = useState(false);
   const [pendingId, setPendingId] = useState<RecordId | null>(null);
@@ -51,13 +53,13 @@ export function useActiveSprint(sprints: Sprint[], selectedDate: string) {
   const remaining = useMemo(() => {
     const items = flatTasks.filter((task) => {
       if (task.status === "done" || task.status === "cancelled") return false;
-      return toDateInputValue(task.doing_date) !== selectedDate;
+      return toDateInputValue(task.doing_date) !== today;
     });
     return {
       items: items.slice(0, REMAINING_LIMIT),
       extra: Math.max(0, items.length - REMAINING_LIMIT),
     };
-  }, [flatTasks, selectedDate]);
+  }, [flatTasks, today]);
 
   const isLoading = !!sprint && tasksQuery.isLoading;
   const isError = !!sprint && tasksQuery.isError;
@@ -72,7 +74,7 @@ export function useActiveSprint(sprints: Sprint[], selectedDate: string) {
     try {
       await updateTask(task._id, {
         ...toUpdateBody(task),
-        doing_date: selectedDate,
+        doing_date: today,
       });
     } catch (err) {
       setActionError(getErrorMessage(err, "Could not schedule this task."));

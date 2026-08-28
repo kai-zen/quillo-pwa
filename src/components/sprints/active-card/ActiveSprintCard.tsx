@@ -4,7 +4,6 @@ import { ChevronDown, ListPlus, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 import { Button, cn } from "@/components/common";
-import { todayIso } from "@/components/tasks/helpers";
 import type { RecordId, Sprint, Task } from "@/shared/types";
 import AddTasksToSprintModal from "../AddTasksToSprintModal";
 import {
@@ -18,14 +17,12 @@ import SprintProgressRing from "./SprintProgressRing";
 
 interface Props {
   sprints: Sprint[];
-  selectedDate: string;
   onCreateTask: (sprintId: RecordId) => void;
   onEditTask: (task: Task) => void;
 }
 
 const ActiveSprintCard: FC<Props> = ({
   sprints,
-  selectedDate,
   onCreateTask,
   onEditTask,
 }) => {
@@ -41,11 +38,9 @@ const ActiveSprintCard: FC<Props> = ({
     openAddTasks,
     closeAddTasks,
     scheduleForDay,
-  } = useActiveSprint(sprints, selectedDate);
+  } = useActiveSprint(sprints);
 
   if (!sprint) return null;
-
-  const scheduleLabel = selectedDate === todayIso() ? "Today" : "This day";
   const progressLabel = isLoading
     ? "Loading…"
     : isError
@@ -147,7 +142,7 @@ const ActiveSprintCard: FC<Props> = ({
           {remaining.items.length > 0 && (
             <div>
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
-                Not on this day
+                Not on today
               </p>
               <ul className="overflow-hidden rounded-lg border border-border">
                 {remaining.items.map((task) => (
@@ -155,7 +150,7 @@ const ActiveSprintCard: FC<Props> = ({
                     key={task._id}
                     task={task}
                     pending={pendingId === task._id}
-                    scheduleLabel={scheduleLabel}
+                    scheduleLabel="Today"
                     onSchedule={() => scheduleForDay(task)}
                     onEdit={() => onEditTask(task)}
                   />
