@@ -77,13 +77,13 @@ const TaskSummaryTable: FC<Props> = ({ tasks, labels, onEdit }) => {
               <TableCell>
                 <span
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
+                    "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold whitespace-nowrap",
                     STATUS_BADGE_CLASS[task.status],
                   )}
                 >
                   <span
                     className={cn(
-                      "h-1.5 w-1.5 rounded-full whitespace-nowrap",
+                      "h-1.5 w-1.5 rounded-full",
                       STATUS_DOT_CLASS[task.status],
                     )}
                     aria-hidden

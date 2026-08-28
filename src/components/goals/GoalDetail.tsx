@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, Pencil } from "lucide-react";
+import { Check, Pencil, Plus } from "lucide-react";
 import { FC } from "react";
 import {
+  Button,
   IconButton,
   Markdown,
   Modal,
@@ -10,8 +11,10 @@ import {
   Select,
   cn,
 } from "@/components/common";
+import { SprintForm, sprintFormTitle } from "@/components/sprints";
 import type { GoalObjective, GoalStatus } from "@/shared/types";
 import GoalForm, { goalFormTitle } from "./form/GoalForm";
+import GoalSprintsTable from "./GoalSprintsTable";
 import {
   formatGoalRange,
   GOAL_STATUS_LABELS,
@@ -76,7 +79,9 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
   const view = useGoalDetail(goalId);
   const {
     goal,
+    sprints,
     goalFormMode,
+    sprintFormMode,
     pendingObjectiveId,
     pendingStatus,
     actionError,
@@ -85,6 +90,9 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
     isGoalMissing,
     openEditGoal,
     closeGoalForm,
+    openCreateSprint,
+    closeSprintForm,
+    onSprintSaved,
     onGoalSaved,
     onToggleObjective,
     onChangeStatus,
@@ -181,6 +189,26 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
         )}
       </Modal>
 
+      <Modal
+        open={!!sprintFormMode}
+        onClose={closeSprintForm}
+        title={sprintFormMode ? sprintFormTitle(sprintFormMode) : ""}
+        className="max-w-3xl"
+      >
+        {sprintFormMode && (
+          <SprintForm
+            key={
+              sprintFormMode.type === "edit"
+                ? sprintFormMode.sprint._id
+                : `create-${goal._id}`
+            }
+            mode={sprintFormMode}
+            onClose={closeSprintForm}
+            onSaved={onSprintSaved}
+          />
+        )}
+      </Modal>
+
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <p className="text-sm font-medium text-foreground">Objectives</p>
@@ -232,6 +260,40 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
               />
             ))}
           </ul>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-3 mt-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-medium text-foreground">Sprints</p>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-medium tabular-nums text-muted">
+              {sprints.length} sprint{sprints.length === 1 ? "" : "s"}
+            </span>
+            <Button size="sm" variant="secondary" onClick={openCreateSprint}>
+              <Plus className="h-4 w-4" aria-hidden />
+              New sprint
+            </Button>
+          </div>
+        </div>
+
+        {sprints.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-10 text-center">
+            <p className="font-medium text-foreground">No sprints yet</p>
+            <p className="mt-1 text-sm text-muted">
+              Create a sprint to plan work toward this goal.
+            </p>
+            <Button
+              variant="secondary"
+              className="mt-4"
+              onClick={openCreateSprint}
+              startIcon={<Plus className="w-4" aria-hidden />}
+            >
+              New sprint
+            </Button>
+          </div>
+        ) : (
+          <GoalSprintsTable sprints={sprints} />
         )}
       </div>
     </div>

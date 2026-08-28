@@ -7,7 +7,7 @@ import type { CreateSprintBody, Goal, RecordId, Sprint, SprintStatus } from "@/s
 import { toDateInputValue, toUpdateBody } from "../helpers";
 
 export type SprintFormMode =
-  | { type: "create" }
+  | { type: "create"; goalId?: RecordId }
   | { type: "edit"; sprint: Sprint };
 
 export function useSprintForm(
@@ -28,7 +28,9 @@ export function useSprintForm(
     toDateInputValue(editing?.start_date),
   );
   const [endDate, setEndDate] = useState(toDateInputValue(editing?.end_date));
-  const [goalId, setGoalId] = useState<RecordId | "">(editing?.goal_id ?? "");
+  const [goalId, setGoalId] = useState<RecordId | "">(
+    editing?.goal_id ?? (mode.type === "create" ? (mode.goalId ?? "") : ""),
+  );
   const [status, setStatus] = useState<SprintStatus>(
     editing?.status ?? "planned",
   );

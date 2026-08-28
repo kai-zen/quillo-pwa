@@ -149,5 +149,7 @@ const SprintForm: FC<Props> = ({ mode, onClose, onSaved }) => {
 export default SprintForm;
 
 export function sprintFormTitle(mode: SprintFormMode): string {
-  return mode.type === "edit" ? "Edit sprint" : "New sprint";
+  if (mode.type === "edit") return "Edit sprint";
+  if (mode.goalId) return "New sprint for this goal";
+  return "New sprint";
 }

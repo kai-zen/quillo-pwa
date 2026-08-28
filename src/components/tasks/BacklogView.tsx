@@ -25,6 +25,8 @@ const BacklogView: FC = () => {
   const listQuery: TaskListQuery = {
     page,
     limit: PAGE_LIMIT,
+    doing_date: "null",
+    sprint_id: "null",
     ...(statusFilter ? { status: statusFilter } : {}),
     ...(labelFilter ? { label_ids: labelFilter } : {}),
   };

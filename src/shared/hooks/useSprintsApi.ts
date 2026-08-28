@@ -17,6 +17,7 @@ export const useSprintsApi = () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: queryKeys.sprints.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.goals.all }),
     ]);
   };
 
