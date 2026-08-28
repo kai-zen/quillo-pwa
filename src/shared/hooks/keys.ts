@@ -1,4 +1,5 @@
 import type {
+  GoalListQuery,
   LabelListQuery,
   RecordId,
   RoutineListQuery,
@@ -15,6 +16,11 @@ export const queryKeys = {
     all: ["labels"] as const,
     list: (query?: LabelListQuery) => ["labels", "list", query] as const,
     detail: (id: RecordId) => ["labels", "detail", id] as const,
+  },
+  goals: {
+    all: ["goals"] as const,
+    list: (query?: GoalListQuery) => ["goals", "list", query] as const,
+    detail: (id: RecordId) => ["goals", "detail", id] as const,
   },
   sprints: {
     all: ["sprints"] as const,
