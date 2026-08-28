@@ -5,6 +5,7 @@ import type {
   CreateTaskBody,
   IdParam,
   PaginatedResponse,
+  SortDailyTasksBody,
   Task,
   TaskListQuery,
   UpdateTaskBody,
@@ -38,6 +39,12 @@ export const tasksModule = {
   assignToSprint: defineEndpoint<void, AssignToSprintBody>({
     method: "PUT",
     path: ROUTES.tasks.assignToSprint,
+    auth: true,
+  }),
+
+  sortDailyTasks: defineEndpoint<void, SortDailyTasksBody>({
+    method: "PUT",
+    path: ROUTES.tasks.sort,
     auth: true,
   }),
 

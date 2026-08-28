@@ -121,6 +121,7 @@ export interface Task extends Timestamps {
   parent_id: RecordId | null;
   task_number: number;
   children: Task[];
+  sort_order: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -231,6 +232,10 @@ export type UpdateTaskBody = CreateTaskBody;
 export interface AssignToSprintBody {
   task_ids: RecordId[];
   sprint_id: RecordId;
+}
+
+export interface SortDailyTasksBody {
+  items: { id: RecordId; sort_order: number }[];
 }
 
 export interface TaskListQuery extends PaginationQuery {

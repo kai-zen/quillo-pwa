@@ -32,6 +32,7 @@ export const ROUTES = {
     base: "/tasks",
     byId: ({ id }: IdParam) => `/tasks/${id}`,
     assignToSprint: "/tasks/sprint",
+    sort: "/tasks/sort",
   },
 } as const;
 
