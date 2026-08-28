@@ -7,15 +7,15 @@ import {
   Markdown,
   Modal,
   PageHeader,
+  Select,
   cn,
 } from "@/components/common";
-import type { GoalObjective } from "@/shared/types";
+import type { GoalObjective, GoalStatus } from "@/shared/types";
 import GoalForm, { goalFormTitle } from "./form/GoalForm";
 import {
   formatGoalRange,
-  GOAL_STATUS_BADGE_CLASS,
-  GOAL_STATUS_DOT_CLASS,
   GOAL_STATUS_LABELS,
+  GOAL_STATUS_OPTIONS,
   objectiveProgress,
 } from "./helpers";
 import { useGoalDetail } from "./hooks/useGoalDetail";
@@ -78,6 +78,7 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
     goal,
     goalFormMode,
     pendingObjectiveId,
+    pendingStatus,
     actionError,
     isGoalLoading,
     isGoalError,
@@ -86,6 +87,7 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
     closeGoalForm,
     onGoalSaved,
     onToggleObjective,
+    onChangeStatus,
   } = view;
 
   if (isGoalLoading) {
@@ -112,12 +114,16 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
     );
   }
 
-  const completedCount = goal.objectives.filter((item) => item.completed).length;
+  const completedCount = goal.objectives.filter(
+    (item) => item.completed,
+  ).length;
   const totalObjectives = goal.objectives.length;
   const progressPercent =
     totalObjectives > 0
       ? Math.round((completedCount / totalObjectives) * 100)
       : 0;
+  const progressComplete =
+    totalObjectives > 0 && completedCount === totalObjectives;
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
@@ -125,23 +131,6 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
         title={goal.title}
         description={formatGoalRange(goal.start_date, goal.target_date)}
         back={{ href: "/goals", label: "All goals" }}
-        eyebrow={
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
-              GOAL_STATUS_BADGE_CLASS[goal.status],
-            )}
-          >
-            <span
-              className={cn(
-                "h-1.5 w-1.5 rounded-full",
-                GOAL_STATUS_DOT_CLASS[goal.status],
-              )}
-              aria-hidden
-            />
-            {GOAL_STATUS_LABELS[goal.status]}
-          </span>
-        }
         actions={
           <IconButton label="Edit goal" onClick={openEditGoal}>
             <Pencil className="h-4 w-4" aria-hidden />
@@ -152,6 +141,27 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
           <Markdown compact>{goal.description}</Markdown>
         ) : null}
       </PageHeader>
+
+      <div className="flex flex-wrap items-center gap-3 bg-surface shadow-sm shadow-black/2">
+        <label className="pl-1 text-sm text-foreground" htmlFor="goal-status">
+          Status:
+        </label>
+        <Select
+          id="goal-status"
+          value={goal.status}
+          onChange={(event) => onChangeStatus(event.target.value as GoalStatus)}
+          disabled={pendingStatus}
+          sizeVariant="sm"
+          className="w-40"
+          aria-label="Goal status"
+        >
+          {GOAL_STATUS_OPTIONS.map((status) => (
+            <option key={status} value={status}>
+              {GOAL_STATUS_LABELS[status]}
+            </option>
+          ))}
+        </Select>
+      </div>
 
       <Modal
         open={!!goalFormMode}
@@ -182,7 +192,14 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
         {totalObjectives > 0 && (
           <div className="h-2 overflow-hidden rounded-full bg-accent-soft">
             <div
-              className="h-full rounded-full bg-emerald-500 transition-[width]"
+              className={cn(
+                "h-full rounded-full transition-[width,background-color] duration-500 ease-out",
+                progressComplete
+                  ? "bg-emerald-500"
+                  : progressPercent === 0
+                    ? "bg-transparent"
+                    : "bg-foreground",
+              )}
               style={{ width: `${progressPercent}%` }}
               role="progressbar"
               aria-valuenow={completedCount}
