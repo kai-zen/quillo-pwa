@@ -82,7 +82,7 @@ await createTask({ title: "Ship v1" });
 
 ### Providers
 
-`app/providers.tsx` wraps the tree with `QueryClientProvider`. Root layout uses it.
+`src/components/providers.tsx` wraps the tree with `QueryClientProvider`. Root layout uses it.
 
 ## Modules (v1)
 
@@ -155,7 +155,7 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 
 ```
 src/
-  app/                 # Next.js routes, layout, providers
+  app/                 # Next.js routes and layout
   shared/
     types.ts           # Domain + request/response types
     endpoints/         # Routes, Axios client, module endpoint defs

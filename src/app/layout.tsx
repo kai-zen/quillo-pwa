@@ -3,8 +3,8 @@ import { Manrope } from "next/font/google";
 import { FC, ReactNode } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { InstallPrompt, SerwistProvider } from "@/components/pwa";
-import "./globals.css";
-import Providers from "./providers";
+import Providers from "@/components/providers";
+import "@/styles/globals.css";
 
 const manrope = Manrope({
   subsets: ["latin"],
