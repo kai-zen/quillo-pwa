@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronDown, Pencil, Plus, Trash2 } from "lucide-react";
-import { FC } from "react";
+import { ChevronDown, GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { ButtonHTMLAttributes, FC } from "react";
 import { Button, Markdown, cn } from "@/components/common";
 import type { Label, RecordId, Task } from "@/shared/types";
 import {
@@ -23,6 +23,9 @@ interface Props {
   onCreateSubtask: (parent: Task) => void;
   onToggleDone: (task: Task) => void;
   onDelete: (task: Task) => void;
+  reorderHandle?: ButtonHTMLAttributes<HTMLButtonElement> & {
+    dragging?: boolean;
+  };
 }
 
 const TaskAccordion: FC<Props> = ({
@@ -34,6 +37,7 @@ const TaskAccordion: FC<Props> = ({
   onCreateSubtask,
   onToggleDone,
   onDelete,
+  reorderHandle,
 }) => {
   const done = task.status === "done";
   const pending = pendingId === task._id;
@@ -42,9 +46,16 @@ const TaskAccordion: FC<Props> = ({
   const subtasksDone = childrenTasks.filter(
     (child) => child.status === "done",
   ).length;
+  const { dragging: reorderDragging, ...reorderHandleProps } =
+    reorderHandle ?? {};
 
   return (
-    <details className="group/card rounded-xl border border-border bg-surface shadow-sm shadow-black/2">
+    <details
+      className={cn(
+        "group/card rounded-xl border border-border bg-surface shadow-sm shadow-black/2",
+        reorderDragging && "opacity-40",
+      )}
+    >
       <summary
         className={cn(
           "flex cursor-pointer list-none items-start gap-2.5 px-3 py-2.5",
@@ -52,6 +63,26 @@ const TaskAccordion: FC<Props> = ({
           "hover:bg-foreground/3",
         )}
       >
+        {reorderHandle ? (
+          <button
+            {...reorderHandleProps}
+            type="button"
+            draggable={false}
+            aria-label={`Reorder task ${task.task_number}`}
+            aria-pressed={reorderDragging}
+            title="Drag to reorder, or use arrow keys"
+            className={cn(
+              "-ml-1 mt-0 flex h-8 w-7 shrink-0 touch-none items-center justify-center rounded-md text-muted",
+              "hover:bg-foreground/3 hover:text-foreground",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30",
+              "disabled:cursor-not-allowed disabled:opacity-40",
+              reorderDragging ? "cursor-grabbing" : "cursor-grab",
+            )}
+          >
+            <GripVertical className="h-4 w-4" aria-hidden />
+          </button>
+        ) : null}
+
         <DoneCheckbox
           task={task}
           pending={pending}

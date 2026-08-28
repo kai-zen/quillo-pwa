@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useRef, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
-import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
+import {
+  queryKeys,
+  useLabelsApi,
+  useSprintsApi,
+  useTasksApi,
+} from "@/shared/hooks";
 import type {
   Label,
+  PaginatedResponse,
   RecordId,
   Sprint,
   Task,
+  TaskListQuery,
   TaskStatus,
 } from "@/shared/types";
 import type { TaskFormMode } from "./form/TaskForm";
@@ -16,9 +24,12 @@ import { buildDayStrip, toUpdateBody, todayIso } from "./helpers";
 const PAGE_LIMIT = 50;
 
 export function useTasksDayView() {
-  const { useTasksList, updateTask, deleteTask } = useTasksApi();
+  const queryClient = useQueryClient();
+  const { useTasksList, updateTask, deleteTask, sortDailyTasks } =
+    useTasksApi();
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
+  const reorderGen = useRef(0);
 
   const [selectedDate, setSelectedDate] = useState(todayIso);
   const [stripCenter, setStripCenter] = useState(todayIso);
@@ -106,6 +117,46 @@ export function useTasksDayView() {
     }
   };
 
+  const reorderTasks = useCallback(
+    async (orderedIds: RecordId[]) => {
+      if (orderedIds.length < 2) return;
+
+      const query: TaskListQuery = {
+        page: 1,
+        limit: PAGE_LIMIT,
+        doing_date: selectedDate,
+      };
+      const key = queryKeys.tasks.list(query);
+      const gen = ++reorderGen.current;
+
+      queryClient.setQueryData(key, (current: PaginatedResponse<Task> | undefined) => {
+        if (!current) return current;
+        const orderById = new Map(
+          orderedIds.map((id, sort_order) => [id, sort_order]),
+        );
+        return {
+          ...current,
+          items: current.items.map((task) => {
+            const sort_order = orderById.get(task._id);
+            return sort_order === undefined ? task : { ...task, sort_order };
+          }),
+        };
+      });
+
+      setActionError("");
+      try {
+        await sortDailyTasks({
+          items: orderedIds.map((id, sort_order) => ({ id, sort_order })),
+        });
+      } catch (err) {
+        if (gen !== reorderGen.current) return;
+        await queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+        setActionError(getErrorMessage(err, "Could not save task order."));
+      }
+    },
+    [queryClient, selectedDate, sortDailyTasks],
+  );
+
   return {
     selectedDate,
     stripCenter,
@@ -129,6 +180,7 @@ export function useTasksDayView() {
     closeApply,
     toggleDone,
     removeTask,
+    reorderTasks,
   };
 }
 

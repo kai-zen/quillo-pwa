@@ -6,6 +6,7 @@ import type {
   AssignToSprintBody,
   CreateTaskBody,
   RecordId,
+  SortDailyTasksBody,
   TaskListQuery,
   UpdateTaskBody,
 } from "@/shared/types";
@@ -55,6 +56,12 @@ export const useTasksApi = () => {
     onSuccess: invalidateTasks,
   });
 
+  const sortDailyTasksMutation = useMutation({
+    mutationFn: (body: SortDailyTasksBody) =>
+      request(tasksModule.sortDailyTasks, { body }),
+    onSuccess: invalidateTasks,
+  });
+
   return {
     useTasksList,
     useTask,
@@ -63,9 +70,11 @@ export const useTasksApi = () => {
       updateTaskMutation.mutateAsync({ id, body }),
     deleteTask: deleteTaskMutation.mutateAsync,
     assignToSprint: assignToSprintMutation.mutateAsync,
+    sortDailyTasks: sortDailyTasksMutation.mutateAsync,
     isCreating: createTaskMutation.isPending,
     isUpdating: updateTaskMutation.isPending,
     isDeleting: deleteTaskMutation.isPending,
     isAssigning: assignToSprintMutation.isPending,
+    isSorting: sortDailyTasksMutation.isPending,
   };
 };

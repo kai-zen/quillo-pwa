@@ -36,6 +36,7 @@ const TasksView: FC = () => {
     closeApply,
     toggleDone,
     removeTask,
+    reorderTasks,
   } = useTasksDayView();
 
   const heading = formatDayHeading(selectedDate);
@@ -163,6 +164,7 @@ const TasksView: FC = () => {
           onCreateSubtask={openCreate}
           onToggleDone={toggleDone}
           onDelete={removeTask}
+          onReorder={reorderTasks}
         />
       )}
     </div>

@@ -1,9 +1,16 @@
 "use client";
 
 import { FC } from "react";
+import { cn } from "@/components/common";
 import type { Label, RecordId, Task } from "@/shared/types";
-import { compareDoneLast, groupTasks, labelsById } from "../helpers";
+import {
+  compareDoneLast,
+  compareSortOrder,
+  groupTasks,
+  labelsById,
+} from "../helpers";
 import TaskAccordion from "./TaskAccordion";
+import { useTaskListReorder } from "./useTaskListReorder";
 
 interface Props {
   tasks: Task[];
@@ -13,6 +20,7 @@ interface Props {
   onCreateSubtask: (parent: Task) => void;
   onToggleDone: (task: Task) => void;
   onDelete: (task: Task) => void;
+  onReorder: (orderedIds: RecordId[]) => void;
 }
 
 const TaskDayCards: FC<Props> = ({
@@ -23,6 +31,7 @@ const TaskDayCards: FC<Props> = ({
   onCreateSubtask,
   onToggleDone,
   onDelete,
+  onReorder,
 }) => {
   const labelMap = labelsById(labels);
   const groups = groupTasks(tasks)
@@ -30,7 +39,14 @@ const TaskDayCards: FC<Props> = ({
       ...group,
       children: [...group.children].sort(compareDoneLast),
     }))
-    .sort((a, b) => compareDoneLast(a.task, b.task));
+    .sort((a, b) => compareSortOrder(a.task, b.task));
+
+  const ids = groups.map((group) => group.task._id);
+  const { listRef, activeId, dropSlot, bindHandle } = useTaskListReorder({
+    ids,
+    enabled: ids.length > 1,
+    onReorder,
+  });
 
   if (groups.length === 0) return null;
 
@@ -40,9 +56,18 @@ const TaskDayCards: FC<Props> = ({
       .filter((label): label is Label => !!label);
 
   return (
-    <ul className="flex flex-col gap-2">
-      {groups.map(({ task, children }) => (
-        <li key={task._id}>
+    <ul
+      ref={listRef}
+      className={cn("flex flex-col gap-2", activeId && "select-none")}
+    >
+      {groups.map(({ task, children }, index) => (
+        <li key={task._id} data-task-id={task._id} className="relative">
+          {dropSlot === index ? (
+            <div
+              className="pointer-events-none absolute -top-1 right-2 left-2 z-10 h-0.5 rounded-full bg-foreground"
+              aria-hidden
+            />
+          ) : null}
           <TaskAccordion
             task={task}
             childrenTasks={children}
@@ -52,7 +77,18 @@ const TaskDayCards: FC<Props> = ({
             onCreateSubtask={onCreateSubtask}
             onToggleDone={onToggleDone}
             onDelete={onDelete}
+            reorderHandle={{
+              ...bindHandle(task._id),
+              disabled: ids.length < 2,
+              dragging: activeId === task._id,
+            }}
           />
+          {index === groups.length - 1 && dropSlot === groups.length ? (
+            <div
+              className="pointer-events-none absolute -bottom-1 right-2 left-2 z-10 h-0.5 rounded-full bg-foreground"
+              aria-hidden
+            />
+          ) : null}
         </li>
       ))}
     </ul>

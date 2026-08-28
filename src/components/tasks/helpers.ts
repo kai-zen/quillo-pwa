@@ -104,6 +104,9 @@ export const groupTasks = (tasks: Task[]): TaskGroup[] => {
 export const compareDoneLast = (a: Task, b: Task) =>
   Number(a.status === "done") - Number(b.status === "done");
 
+export const compareSortOrder = (a: Task, b: Task) =>
+  (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.task_number - b.task_number;
+
 export const labelsById = (labels: Label[]): Map<RecordId, Label> =>
   new Map(labels.map((label) => [label._id, label]));
 
