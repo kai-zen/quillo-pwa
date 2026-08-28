@@ -8,6 +8,7 @@ export {
   subscribeAuth,
 } from "./client";
 export {
+  goalsModule,
   labelsModule,
   sprintsModule,
   routinesModule,
@@ -15,6 +16,7 @@ export {
   usersModule,
 } from "./modules";
 export type {
+  GoalsModule,
   LabelsModule,
   SprintsModule,
   RoutinesModule,

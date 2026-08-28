@@ -6,7 +6,7 @@ This is version 1. Keep the product small. The API contract lives in the sibling
 
 ## Goal
 
-Let one person keep tasks, group them with labels, optionally put them in a sprint, and optionally schedule them for a day.
+Let one person keep tasks, group them with labels, optionally put them in a sprint, optionally tie sprints to a goal, and optionally schedule tasks for a day.
 
 Three ways to look at the same tasks:
 
@@ -20,7 +20,7 @@ These are filters on `GET /tasks`, not separate screens with separate data store
 
 Stay minimal. Do not add UI surface, state, or shared helpers unless a v1 screen needs them.
 
-Four domain modules only: users, labels, sprints, tasks. Match the API. Prefer shared types and one data-access path so components stay thin.
+Six domain modules: users, labels, goals, sprints, routines, tasks. Match the API. Prefer shared types and one data-access path so components stay thin.
 
 ## Stack
 
@@ -35,7 +35,7 @@ Components do not call Axios directly. Flow is:
 
 ```
 component
-  → module hook (useUsersApi / useLabelsApi / useSprintsApi / useTasksApi)
+  → module hook (useUsersApi / useLabelsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi)
     → request() + module endpoint def
       → apiClient (Axios)
         → Quillo API
@@ -58,7 +58,7 @@ Each module entry is a static definition. Example:
 
 ```ts
 labelsModule.list; // GET /labels → PaginatedResponse<Label>
-labelsModule.get; // GET /labels/:id → Label
+goalsModule.toggleObjective; // PATCH /goals/:id/objectives/:objectiveId/toggle → Goal
 ```
 
 Call them through `request(endpoint, { body, query, params })`.
@@ -99,9 +99,28 @@ Auth and the current account.
 
 Categories on tasks (`name`, `color`). Unique name per user.
 
+### Goals
+
+Longer-term outcomes with embedded objectives (checklist items).
+
+- `title`, `description`, `status` (`active` | `completed` | `cancelled`)
+- optional `start_date`, `target_date`
+- `objectives[]` — embedded (`_id`, `title`, `description`, `completed`)
+- toggle one objective’s `completed` via `PATCH /goals/:id/objectives/:objectiveId/toggle` (no body)
+
 ### Sprints
 
 Named work buckets with dates and status: `planned` | `active` | `completed` | `archived`.
+
+Optional `goal_id` — link this sprint to a goal. Send `null` on update to clear.
+
+### Routines
+
+Named lists of task drafts. Applying routines for a day creates normal tasks with that `doing_date`.
+
+- `repeat` — `everyday` | `weekly`
+- `days_of_week[]` when weekly
+- `drafts[]` — templates, not tasks
 
 ### Tasks
 
@@ -137,13 +156,26 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 ### Labels
 
 - Name unique per user.
-- Deleting a label does not delete tasks; label ids are cleared from tasks.
+- Deleting a label does not delete tasks; label ids are cleared from tasks and routine drafts.
+
+### Goals
+
+- Objectives are embedded. Create, update, and remove them through goal create/update, except toggling `completed` (dedicated PATCH route).
+- `start_date` must be before or equal to `target_date` when both are set.
+- Deleting a goal clears `goal_id` on sprints that pointed at it. Sprints stay.
 
 ### Sprints
 
+- A sprint may belong to zero or one goal.
 - `start_date` ≤ `end_date`.
 - Deleting a sprint clears `sprint_id` on tasks; tasks stay.
 - Archive keeps task associations.
+
+### Routines
+
+- Name unique per user.
+- Applying a routine creates new tasks; it does not update existing ones.
+- Deleting a routine does not delete tasks created from it.
 
 ### Tasks
 
@@ -156,10 +188,11 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 ```
 src/
   app/                 # Next.js routes and layout
+  components/          # Feature UI (tasks, sprints, routines, …)
   shared/
     types.ts           # Domain + request/response types
     endpoints/         # Routes, Axios client, module endpoint defs
     hooks/             # One React Query hook per module
 ```
 
-UI feature folders can grow under `src` later. Keep API access in `shared` only.
+Keep API access in `shared` only. Feature folders own screens and forms.

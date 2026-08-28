@@ -51,6 +51,9 @@ export const SPRINT_STATUSES = [
 ] as const;
 export type SprintStatus = (typeof SPRINT_STATUSES)[number];
 
+export const GOAL_STATUSES = ["active", "completed", "cancelled"] as const;
+export type GoalStatus = (typeof GOAL_STATUSES)[number];
+
 export const ROUTINE_REPEATS = ["everyday", "weekly"] as const;
 export type RoutineRepeat = (typeof ROUTINE_REPEATS)[number];
 
@@ -81,6 +84,24 @@ export interface Label extends Timestamps {
   color: string;
 }
 
+export interface GoalObjective {
+  _id: RecordId;
+  title: string;
+  description: string;
+  completed: boolean;
+}
+
+export interface Goal extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  title: string;
+  description: string;
+  status: GoalStatus;
+  start_date: string | null;
+  target_date: string | null;
+  objectives: GoalObjective[];
+}
+
 export interface Sprint extends Timestamps {
   _id: RecordId;
   user_id: RecordId;
@@ -90,6 +111,7 @@ export interface Sprint extends Timestamps {
   end_date: string;
   status: SprintStatus;
   sprint_number: number;
+  goal_id: RecordId | null;
 }
 
 export interface RoutineDraft {
@@ -162,6 +184,32 @@ export type UpdateLabelBody = CreateLabelBody;
 export type LabelListQuery = PaginationQuery;
 
 // ---------------------------------------------------------------------------
+// Goals — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface GoalObjectiveBody {
+  _id?: RecordId;
+  title: string;
+  description?: string;
+  completed?: boolean;
+}
+
+export interface CreateGoalBody {
+  title: string;
+  description?: string;
+  status?: GoalStatus;
+  start_date?: string | null;
+  target_date?: string | null;
+  objectives?: GoalObjectiveBody[];
+}
+
+export type UpdateGoalBody = CreateGoalBody;
+
+export interface GoalListQuery extends PaginationQuery {
+  status?: GoalStatus;
+}
+
+// ---------------------------------------------------------------------------
 // Sprints — request bodies & queries
 // ---------------------------------------------------------------------------
 
@@ -171,6 +219,7 @@ export interface CreateSprintBody {
   end_date: string;
   description?: string;
   status?: SprintStatus;
+  goal_id?: RecordId | null;
 }
 
 export type UpdateSprintBody = CreateSprintBody;
@@ -253,4 +302,9 @@ export interface TaskListQuery extends PaginationQuery {
 
 export interface IdParam {
   id: RecordId;
+}
+
+export interface GoalObjectiveParam {
+  id: RecordId;
+  objectiveId: RecordId;
 }

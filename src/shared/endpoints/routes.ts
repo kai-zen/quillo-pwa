@@ -1,4 +1,4 @@
-import type { IdParam } from "@/shared/types";
+import type { GoalObjectiveParam, IdParam } from "@/shared/types";
 
 /**
  * All API route paths. Dynamic segments use builder functions.
@@ -15,6 +15,13 @@ export const ROUTES = {
   labels: {
     base: "/labels",
     byId: ({ id }: IdParam) => `/labels/${id}`,
+  },
+
+  goals: {
+    base: "/goals",
+    byId: ({ id }: IdParam) => `/goals/${id}`,
+    toggleObjective: ({ id, objectiveId }: GoalObjectiveParam) =>
+      `/goals/${id}/objectives/${objectiveId}/toggle`,
   },
 
   sprints: {
