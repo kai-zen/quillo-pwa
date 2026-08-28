@@ -107,6 +107,7 @@ Longer-term outcomes with embedded objectives (checklist items).
 - optional `start_date`, `target_date`
 - `objectives[]` — embedded (`_id`, `title`, `description`, `completed`)
 - toggle one objective’s `completed` via `PATCH /goals/:id/objectives/:objectiveId/toggle` (no body)
+- `GET /goals/:id` also returns `sprints[]` for sprints linked via `goal_id`
 
 ### Sprints
 

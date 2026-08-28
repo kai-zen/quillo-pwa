@@ -109,7 +109,6 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
               />
               {SPRINT_STATUS_LABELS[sprint.status]}
             </span>
-            {linkedGoal ? <SprintGoalLink goal={linkedGoal} size="sm" /> : null}
           </>
         }
         actions={
@@ -124,6 +123,12 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
           </>
         }
       >
+        {linkedGoal ? (
+          <p className="flex flex-wrap items-center gap-1.5">
+            <span className="text-sm text-muted">Linked to</span>
+            <SprintGoalLink goal={linkedGoal} size="sm" />
+          </p>
+        ) : null}
         {sprint.description ? (
           <Markdown compact>{sprint.description}</Markdown>
         ) : null}

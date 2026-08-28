@@ -3,6 +3,7 @@ import { ROUTES } from "../routes";
 import type {
   CreateGoalBody,
   Goal,
+  GoalDetail,
   GoalListQuery,
   GoalObjectiveParam,
   IdParam,
@@ -23,7 +24,7 @@ export const goalsModule = {
     auth: true,
   }),
 
-  get: defineEndpoint<Goal, never, never, IdParam>({
+  get: defineEndpoint<GoalDetail, never, never, IdParam>({
     method: "GET",
     path: ROUTES.goals.byId,
     auth: true,

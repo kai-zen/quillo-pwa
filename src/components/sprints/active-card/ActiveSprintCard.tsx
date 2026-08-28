@@ -85,6 +85,9 @@ const ActiveSprintCard: FC<Props> = ({
                   >
                     {sprint.name}
                   </h2>
+                  {linkedGoal ? (
+                    <SprintGoalLink goal={linkedGoal} size="sm" />
+                  ) : null}
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="mt-1 text-xs tabular-nums text-muted">
@@ -95,11 +98,6 @@ const ActiveSprintCard: FC<Props> = ({
                     {progressLabel}
                   </p>
                 </div>
-                {linkedGoal ? (
-                  <div className="mt-1">
-                    <SprintGoalLink goal={linkedGoal} size="sm" />
-                  </div>
-                ) : null}
               </div>
             </div>
           </div>

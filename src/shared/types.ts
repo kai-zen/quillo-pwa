@@ -102,6 +102,10 @@ export interface Goal extends Timestamps {
   objectives: GoalObjective[];
 }
 
+export interface GoalDetail extends Goal {
+  sprints: Sprint[];
+}
+
 export interface Sprint extends Timestamps {
   _id: RecordId;
   user_id: RecordId;
