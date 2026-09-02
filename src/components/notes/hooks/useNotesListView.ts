@@ -32,6 +32,7 @@ export function useNotesListView() {
   const { useLabelsList } = useLabelsApi();
 
   const [folderFilter, setFolderFilter] = useState<FolderFilter>(ALL_NOTES);
+  const [folderOpen, setFolderOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [page, setPage] = useState(1);
   const [noteFormMode, setNoteFormMode] = useState<NoteFormMode | null>(null);
@@ -79,6 +80,12 @@ export function useNotesListView() {
   const setFolderFilterAndResetPage = (filter: FolderFilter) => {
     setFolderFilter(filter);
     setPage(1);
+    setFolderOpen(true);
+  };
+
+  const closeFolder = () => {
+    setFolderOpen(false);
+    setPage(1);
   };
 
   const setShowArchivedAndResetPage = (archived: boolean) => {
@@ -97,7 +104,9 @@ export function useNotesListView() {
 
   return {
     folderFilter,
+    folderOpen,
     setFolderFilterAndResetPage,
+    closeFolder,
     showArchived,
     setShowArchivedAndResetPage,
     page,

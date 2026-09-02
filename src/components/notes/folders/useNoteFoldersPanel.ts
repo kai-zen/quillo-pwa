@@ -16,7 +16,7 @@ type Editor =
   | { type: "rename"; folder: NoteFolder };
 
 export function useNoteFoldersPanel(
-  selected: FolderFilter,
+  selected: FolderFilter | null,
   onSelect: (filter: FolderFilter) => void,
 ) {
   const {
@@ -95,7 +95,7 @@ export function useNoteFoldersPanel(
     setError("");
     try {
       await deleteNoteFolder(folder._id);
-      if (isNamedFolder(selected) && selected === folder._id) {
+      if (selected && isNamedFolder(selected) && selected === folder._id) {
         onSelect(ALL_NOTES);
       }
       if (editor.type === "rename" && editor.folder._id === folder._id) {

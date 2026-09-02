@@ -1,17 +1,11 @@
 "use client";
 
-import { Archive, Pin, Plus, StickyNote } from "lucide-react";
+import { Archive, ArrowLeft, Pin, Plus, StickyNote } from "lucide-react";
 import { FC, MouseEvent } from "react";
 import {
   Button,
   IconButton,
   PageHeader,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   cn,
 } from "@/components/common";
 import type { Label, Note } from "@/shared/types";
@@ -92,7 +86,9 @@ const NoteLabels: FC<{ note: Note; labelMap: Map<string, Label> }> = ({
 const NotesList: FC<Props> = ({ view }) => {
   const {
     folderFilter,
+    folderOpen,
     setFolderFilterAndResetPage,
+    closeFolder,
     showArchived,
     setShowArchivedAndResetPage,
     page,
@@ -138,14 +134,21 @@ const NotesList: FC<Props> = ({ view }) => {
       />
 
       <div className="flex flex-col gap-5">
-        <NoteFoldersPanel
-          folders={folders}
-          selected={folderFilter}
-          onSelect={setFolderFilterAndResetPage}
-        />
+        {!folderOpen && (
+          <NoteFoldersPanel
+            folders={folders}
+            selected={null}
+            onSelect={setFolderFilterAndResetPage}
+          />
+        )}
 
+        {folderOpen && (
         <div className="flex min-w-0 flex-col gap-5">
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-2.5 shadow-sm shadow-black/2">
+            <Button variant="ghost" size="sm" onClick={closeFolder}>
+              <ArrowLeft className="h-4 w-4" aria-hidden />
+              Folders
+            </Button>
             <IconButton
               label={showArchived ? "Show active notes" : "Show archived notes"}
               active={showArchived}
@@ -194,69 +197,64 @@ const NotesList: FC<Props> = ({ view }) => {
           )}
 
           {!isLoading && !isError && notes.length > 0 && (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <span className="sr-only">Pinned</span>
-                  </TableHead>
-                  <TableHead>Title</TableHead>
-                  <TableHead className="w-40">Folder</TableHead>
-                  <TableHead className="w-48">Labels</TableHead>
-                  <TableHead className="w-32">Updated</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {notes.map((note) => (
-                  <TableRow
-                    key={note._id}
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {notes.map((note) => (
+                <article
+                  key={note._id}
+                  className={cn(
+                    "group relative min-h-44 rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
+                    note.archived && "opacity-70",
+                  )}
+                >
+                  <button
+                    type="button"
                     onClick={() => openEditNote(note)}
                     aria-label={`Open note ${note.title}`}
-                    className={note.archived ? "opacity-70" : undefined}
+                    className="flex h-full w-full cursor-pointer flex-col items-start pr-8 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
                   >
-                    <TableCell>
-                      <IconButton
-                        label={
-                          note.pinned
-                            ? `Unpin ${note.title}`
-                            : `Pin ${note.title}`
-                        }
-                        size="sm"
-                        active={note.pinned}
-                        onClick={(event) => onPinClick(event, note)}
-                        onKeyDown={(event) => event.stopPropagation()}
-                      >
-                        <Pin
-                          className={cn(
-                            "h-3.5 w-3.5",
-                            note.pinned && "fill-current",
-                          )}
-                          aria-hidden
-                        />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell>
-                      <span className="block truncate font-medium text-foreground">
-                        {note.title}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-muted">
+                    <span className="line-clamp-2 font-medium text-foreground">
+                      {note.title}
+                    </span>
+                    <span className="mt-2 line-clamp-3 text-sm leading-6 text-muted">
+                      {note.content.replace(/\s+/g, " ").trim() || "No content"}
+                    </span>
+                    <span className="mt-auto pt-4 text-xs text-muted">
+                      Updated {formatNoteDate(note.updated_at)}
+                    </span>
+                  </button>
+
+                  <div className="absolute right-3 top-3">
+                    <IconButton
+                      label={
+                        note.pinned
+                          ? `Unpin ${note.title}`
+                          : `Pin ${note.title}`
+                      }
+                      size="sm"
+                      active={note.pinned}
+                      onClick={(event) => onPinClick(event, note)}
+                    >
+                      <Pin
+                        className={cn(
+                          "h-3.5 w-3.5",
+                          note.pinned && "fill-current",
+                        )}
+                        aria-hidden
+                      />
+                    </IconButton>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {folderFilter === ALL_NOTES && (
+                      <span className="rounded-md bg-background px-2 py-0.5 text-[11px] font-medium text-muted">
                         {folderLabel(note.folder_id, folders)}
                       </span>
-                    </TableCell>
-                    <TableCell>
-                      <NoteLabels note={note} labelMap={labelMap} />
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-muted">
-                        {formatNoteDate(note.updated_at)}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    )}
+                    <NoteLabels note={note} labelMap={labelMap} />
+                  </div>
+                </article>
+              ))}
+            </div>
           )}
 
           {totalPages > 1 && (
@@ -285,6 +283,7 @@ const NotesList: FC<Props> = ({ view }) => {
             </div>
           )}
         </div>
+        )}
       </div>
 
       <NoteEditorModal

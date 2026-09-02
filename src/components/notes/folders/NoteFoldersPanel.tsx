@@ -9,7 +9,7 @@ import { useNoteFoldersPanel } from "./useNoteFoldersPanel";
 
 interface Props {
   folders: NoteFolder[];
-  selected: FolderFilter;
+  selected: FolderFilter | null;
   onSelect: (filter: FolderFilter) => void;
 }
 
