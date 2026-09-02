@@ -17,6 +17,7 @@ export const useLabelsApi = () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: queryKeys.labels.all }),
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.notes.all }),
     ]);
   };
 

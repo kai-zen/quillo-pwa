@@ -150,6 +150,26 @@ export interface Task extends Timestamps {
   sort_order: number;
 }
 
+export interface NoteFolder extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  name: string;
+}
+
+export interface Note extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  title: string;
+  content: string;
+  folder_id: RecordId | null;
+  label_ids: RecordId[];
+  goal_id: RecordId | null;
+  sprint_id: RecordId | null;
+  date: string | null;
+  pinned: boolean;
+  archived: boolean;
+}
+
 // ---------------------------------------------------------------------------
 // Users — request bodies
 // ---------------------------------------------------------------------------
@@ -296,6 +316,47 @@ export interface TaskListQuery extends PaginationQuery {
   sprint_id?: RecordId;
   parent_id?: RecordId;
   status?: TaskStatus;
+  /** Comma-separated label ids */
+  label_ids?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Note folders — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateNoteFolderBody {
+  name: string;
+}
+
+export type UpdateNoteFolderBody = CreateNoteFolderBody;
+
+export type NoteFolderListQuery = PaginationQuery;
+
+// ---------------------------------------------------------------------------
+// Notes — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateNoteBody {
+  title: string;
+  content?: string;
+  folder_id?: RecordId | null;
+  label_ids?: RecordId[];
+  goal_id?: RecordId | null;
+  sprint_id?: RecordId | null;
+  date?: string | null;
+  pinned?: boolean;
+  archived?: boolean;
+}
+
+export type UpdateNoteBody = CreateNoteBody;
+
+export interface NoteListQuery extends PaginationQuery {
+  folder_id?: RecordId;
+  goal_id?: RecordId;
+  sprint_id?: RecordId;
+  date?: string;
+  archived?: boolean;
+  pinned?: boolean;
   /** Comma-separated label ids */
   label_ids?: string;
 }

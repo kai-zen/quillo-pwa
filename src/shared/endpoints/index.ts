@@ -10,6 +10,8 @@ export {
 export {
   goalsModule,
   labelsModule,
+  noteFoldersModule,
+  notesModule,
   sprintsModule,
   routinesModule,
   tasksModule,
@@ -18,6 +20,8 @@ export {
 export type {
   GoalsModule,
   LabelsModule,
+  NoteFoldersModule,
+  NotesModule,
   SprintsModule,
   RoutinesModule,
   TasksModule,

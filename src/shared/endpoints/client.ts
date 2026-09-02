@@ -13,13 +13,11 @@ export const subscribeAuth = (onStoreChange: () => void) => {
   return () => window.removeEventListener(AUTH_CHANGED_EVENT, onStoreChange);
 };
 
-export const API_BASE_URL = "https://quillo-api.sofre.app";
+export const API_BASE_URL = "https://api.quillo.ir";
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 export const getAuthToken = (): string | null => {
@@ -38,18 +36,16 @@ export const setAuthToken = (token: string | null): void => {
 
 apiClient.interceptors.request.use((config) => {
   const token = getAuthToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+
   return config;
 });
 
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && getAuthToken()) {
-      setAuthToken(null);
-    }
+    if (error.response?.status === 401 && getAuthToken()) setAuthToken(null);
+
     return Promise.reject(error);
   },
 );
@@ -59,9 +55,8 @@ const resolvePath = <TParams>(
   params?: TParams,
 ): string => {
   if (typeof path === "function") {
-    if (!params) {
-      throw new Error("Path params are required for this endpoint.");
-    }
+    if (!params) throw new Error("Path params are required for this endpoint.");
+
     return path(params);
   }
   return path;

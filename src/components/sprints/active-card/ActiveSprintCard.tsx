@@ -12,7 +12,6 @@ import {
   sprintHref,
 } from "../helpers";
 import { useActiveSprint } from "../hooks/useActiveSprint";
-import SprintGoalLink from "../SprintGoalLink";
 import RemainingTaskRow from "./RemainingTaskRow";
 import SprintProgressRing from "./SprintProgressRing";
 
@@ -25,7 +24,6 @@ interface Props {
 const ActiveSprintCard: FC<Props> = ({ sprints, onCreateTask, onEditTask }) => {
   const {
     sprint,
-    linkedGoal,
     progress,
     remaining,
     isLoading,

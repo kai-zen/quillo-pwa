@@ -20,7 +20,7 @@ These are filters on `GET /tasks`, not separate screens with separate data store
 
 Stay minimal. Do not add UI surface, state, or shared helpers unless a v1 screen needs them.
 
-Six domain modules: users, labels, goals, sprints, routines, tasks. Match the API. Prefer shared types and one data-access path so components stay thin.
+Eight domain modules: users, labels, goals, sprints, routines, tasks, note folders, notes. Match the API. Prefer shared types and one data-access path so components stay thin.
 
 ## Stack
 
@@ -35,7 +35,7 @@ Components do not call Axios directly. Flow is:
 
 ```
 component
-  → module hook (useUsersApi / useLabelsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi)
+  → module hook (useUsersApi / useLabelsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi / useNoteFoldersApi / useNotesApi)
     → request() + module endpoint def
       → apiClient (Axios)
         → Quillo API
@@ -59,6 +59,7 @@ Each module entry is a static definition. Example:
 ```ts
 labelsModule.list; // GET /labels → PaginatedResponse<Label>
 goalsModule.toggleObjective; // PATCH /goals/:id/objectives/:objectiveId/toggle → Goal
+notesModule.togglePinned; // PATCH /notes/:id/pinned/toggle → Note
 ```
 
 Call them through `request(endpoint, { body, query, params })`.
@@ -97,7 +98,7 @@ Auth and the current account.
 
 ### Labels
 
-Categories on tasks (`name`, `color`). Unique name per user.
+Categories on tasks and notes (`name`, `color`). Unique name per user.
 
 ### Goals
 
@@ -130,6 +131,20 @@ The work item. Optional `label_ids`, `sprint_id`, `doing_date`, `parent_id`.
 Priorities: `unset` | `low` | `medium` | `high` | `urgent`  
 Statuses: `todo` | `doing` | `done` | `paused` | `cancelled`
 
+### Note folders
+
+Named buckets for organizing notes (`name`). Unique name per user. A note may belong to one folder, or to none.
+
+### Notes
+
+Independent from the Goal → Sprint → Daily Task hierarchy. Optional links to a folder, labels, a goal, a sprint, and a date.
+
+- `title`, `content`
+- `pinned`, `archived`
+- optional `folder_id`, `label_ids[]`, `goal_id`, `sprint_id`, `date`
+- toggle `pinned` via `PATCH /notes/:id/pinned/toggle` (no body)
+- list filters: `folder_id`, `goal_id`, `sprint_id`, `date`, `archived`, `pinned`, `label_ids` (send `"null"` for none)
+
 ### Subtasks
 
 One nesting level only. Parent/child `done` is linked on the API; the UI just sends status updates.
@@ -157,19 +172,19 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 ### Labels
 
 - Name unique per user.
-- Deleting a label does not delete tasks; label ids are cleared from tasks and routine drafts.
+- Deleting a label does not delete tasks or notes; label ids are cleared from tasks, routine drafts, and notes.
 
 ### Goals
 
 - Objectives are embedded. Create, update, and remove them through goal create/update, except toggling `completed` (dedicated PATCH route).
 - `start_date` must be before or equal to `target_date` when both are set.
-- Deleting a goal clears `goal_id` on sprints that pointed at it. Sprints stay.
+- Deleting a goal clears `goal_id` on sprints and notes that pointed at it. Sprints and notes stay.
 
 ### Sprints
 
 - A sprint may belong to zero or one goal.
 - `start_date` ≤ `end_date`.
-- Deleting a sprint clears `sprint_id` on tasks; tasks stay.
+- Deleting a sprint clears `sprint_id` on tasks and notes; tasks and notes stay.
 - Archive keeps task associations.
 
 ### Routines
@@ -183,6 +198,17 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 - Updates use full resource bodies (`PUT`), including `null` to clear `sprint_id`, `doing_date`, or `parent_id`.
 - Subtasks cannot have subtasks.
 - Deleting a task clears `parent_id` on its children; children stay.
+
+### Note folders
+
+- Name unique per user.
+- Deleting a folder clears `folder_id` on notes; notes stay.
+
+### Notes
+
+- Updates use full resource bodies (`PUT`), including `null` to clear `folder_id`, `goal_id`, `sprint_id`, or `date`.
+- Toggle pin with `PATCH /notes/:id/pinned/toggle` (no body); it only flips `pinned`.
+- A note does not need a folder, label, or relationship to any other entity.
 
 ## Folder map (v1)
 

@@ -1,6 +1,8 @@
 import type {
   GoalListQuery,
   LabelListQuery,
+  NoteFolderListQuery,
+  NoteListQuery,
   RecordId,
   RoutineListQuery,
   SprintListQuery,
@@ -36,5 +38,16 @@ export const queryKeys = {
     all: ["tasks"] as const,
     list: (query?: TaskListQuery) => ["tasks", "list", query] as const,
     detail: (id: RecordId) => ["tasks", "detail", id] as const,
+  },
+  noteFolders: {
+    all: ["noteFolders"] as const,
+    list: (query?: NoteFolderListQuery) =>
+      ["noteFolders", "list", query] as const,
+    detail: (id: RecordId) => ["noteFolders", "detail", id] as const,
+  },
+  notes: {
+    all: ["notes"] as const,
+    list: (query?: NoteListQuery) => ["notes", "list", query] as const,
+    detail: (id: RecordId) => ["notes", "detail", id] as const,
   },
 };

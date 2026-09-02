@@ -41,6 +41,17 @@ export const ROUTES = {
     assignToSprint: "/tasks/sprint",
     sort: "/tasks/sort",
   },
+
+  noteFolders: {
+    base: "/note-folders",
+    byId: ({ id }: IdParam) => `/note-folders/${id}`,
+  },
+
+  notes: {
+    base: "/notes",
+    byId: ({ id }: IdParam) => `/notes/${id}`,
+    togglePinned: ({ id }: IdParam) => `/notes/${id}/pinned/toggle`,
+  },
 } as const;
 
 export type Routes = typeof ROUTES;
