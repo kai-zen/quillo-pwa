@@ -6,6 +6,7 @@ import { useNotesListView } from "./hooks/useNotesListView";
 
 const NotesView: FC = () => {
   const view = useNotesListView();
+
   return <NotesList view={view} />;
 };
 

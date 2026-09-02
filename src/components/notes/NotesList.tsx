@@ -1,6 +1,6 @@
 "use client";
 
-import { Pin, Plus, StickyNote } from "lucide-react";
+import { Archive, Pin, Plus, StickyNote } from "lucide-react";
 import { FC, MouseEvent } from "react";
 import {
   Button,
@@ -12,7 +12,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  Tabs,
   cn,
 } from "@/components/common";
 import type { Label, Note } from "@/shared/types";
@@ -138,27 +137,30 @@ const NotesList: FC<Props> = ({ view }) => {
         }
       />
 
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+      <div className="flex flex-col gap-5">
         <NoteFoldersPanel
           folders={folders}
           selected={folderFilter}
           onSelect={setFolderFilterAndResetPage}
         />
 
-        <div className="flex min-w-0 flex-1 flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5">
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-2.5 shadow-sm shadow-black/2">
-            <Tabs
-              value={showArchived ? "archived" : "active"}
-              onChange={(value) =>
-                setShowArchivedAndResetPage(value === "archived")
-              }
-              options={[
-                { value: "active", label: "Active" },
-                { value: "archived", label: "Archived" },
-              ]}
-              aria-label="Filter archived notes"
-              className="w-full sm:w-auto"
-            />
+            <IconButton
+              label={showArchived ? "Show active notes" : "Show archived notes"}
+              active={showArchived}
+              onClick={() => setShowArchivedAndResetPage(!showArchived)}
+            >
+              <Archive className="h-4 w-4" aria-hidden />
+            </IconButton>
+            <span className="text-sm font-medium text-foreground sm:ml-1">
+              {folderFilter === ALL_NOTES
+                ? "All notes"
+                : folderFilter === UNFILED_NOTES
+                  ? "Unfiled"
+                  : folders.find((folder) => folder._id === folderFilter)
+                      ?.name ?? "Folder"}
+            </span>
             <span className="ml-auto pr-1 text-xs font-medium tabular-nums text-muted">
               {total} note{total === 1 ? "" : "s"}
             </span>

@@ -52,14 +52,6 @@ const TasksViewContent: FC = () => {
         actions={
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Button
-              onClick={dayNotes.openCreate}
-              size="sm"
-              variant="secondary"
-              startIcon={<StickyNote className="h-4 w-4" aria-hidden />}
-            >
-              Add note
-            </Button>
-            <Button
               onClick={() => openCreate()}
               size="sm"
               startIcon={<Plus className="h-4 w-4" aria-hidden />}

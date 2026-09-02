@@ -1,19 +1,10 @@
 "use client";
 
-import { FolderPlus, Pencil, Trash2 } from "lucide-react";
+import { FilePlus2, Folder, FolderOpen, Pencil, Trash2 } from "lucide-react";
 import { FC } from "react";
-import {
-  Button,
-  IconButton,
-  Input,
-  cn,
-} from "@/components/common";
+import { Button, IconButton, Input, cn } from "@/components/common";
 import type { NoteFolder } from "@/shared/types";
-import {
-  ALL_NOTES,
-  UNFILED_NOTES,
-  type FolderFilter,
-} from "../helpers";
+import { ALL_NOTES, UNFILED_NOTES, type FolderFilter } from "../helpers";
 import { useNoteFoldersPanel } from "./useNoteFoldersPanel";
 
 interface Props {
@@ -22,23 +13,38 @@ interface Props {
   onSelect: (filter: FolderFilter) => void;
 }
 
-const FolderButton: FC<{
+const SystemFolderCard: FC<{
+  icon: typeof Folder;
   selected: boolean;
   onClick: () => void;
-  children: string;
-}> = ({ selected, onClick, children }) => (
+  title: string;
+  description: string;
+}> = ({ icon: Icon, selected, onClick, title, description }) => (
   <button
     type="button"
     onClick={onClick}
     aria-current={selected ? "true" : undefined}
     className={cn(
-      "flex min-w-0 flex-1 cursor-pointer items-center rounded-md px-2.5 py-1.5 text-left text-sm transition-colors",
+      "group flex min-h-28 cursor-pointer flex-col items-start justify-between rounded-xl border p-3.5 text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
       selected
-        ? "bg-accent-soft font-medium text-foreground"
-        : "text-muted hover:bg-background hover:text-foreground",
+        ? "border-accent bg-accent-soft text-foreground shadow-sm"
+        : "border-border bg-surface text-muted hover:-translate-y-0.5 hover:border-accent/50 hover:bg-background hover:text-foreground hover:shadow-sm",
     )}
   >
-    <span className="truncate">{children}</span>
+    <Icon
+      className={cn(
+        "h-6 w-6 transition-transform",
+        selected && "fill-current",
+        !selected && "group-hover:scale-110",
+      )}
+      aria-hidden
+    />
+    <span>
+      <span className="block font-medium">{title}</span>
+      <span className="mt-0.5 block text-xs font-normal text-muted">
+        {description}
+      </span>
+    </span>
   </button>
 );
 
@@ -46,32 +52,25 @@ const NoteFoldersPanel: FC<Props> = ({ folders, selected, onSelect }) => {
   const panel = useNoteFoldersPanel(selected, onSelect);
 
   return (
-    <aside className="flex w-full shrink-0 flex-col gap-2 rounded-xl border border-border bg-surface p-2.5 shadow-sm shadow-black/2 lg:w-56">
-      <div className="flex items-center justify-between gap-2 px-1">
-        <h2 className="text-sm font-medium text-foreground">Folders</h2>
-        <IconButton
-          label="New folder"
-          size="sm"
-          onClick={panel.startCreate}
-          disabled={panel.pending}
-        >
-          <FolderPlus className="h-4 w-4" aria-hidden />
-        </IconButton>
-      </div>
-
-      <nav className="flex flex-col gap-0.5" aria-label="Note folders">
-        <FolderButton
+    <section aria-labelledby="folders-heading">
+      <nav
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+        aria-label="Note folders"
+      >
+        <SystemFolderCard
+          icon={FolderOpen}
           selected={selected === ALL_NOTES}
           onClick={() => onSelect(ALL_NOTES)}
-        >
-          All notes
-        </FolderButton>
-        <FolderButton
+          title="All notes"
+          description="Everything you’ve written"
+        />
+        <SystemFolderCard
+          icon={Folder}
           selected={selected === UNFILED_NOTES}
           onClick={() => onSelect(UNFILED_NOTES)}
-        >
-          Unfiled
-        </FolderButton>
+          title="Unfiled"
+          description="Notes to organize"
+        />
 
         {folders.map((folder) => {
           const active = selected === folder._id;
@@ -82,7 +81,7 @@ const NoteFoldersPanel: FC<Props> = ({ folders, selected, onSelect }) => {
               <form
                 key={folder._id}
                 onSubmit={panel.onSubmit}
-                className="flex flex-col gap-1.5 rounded-md bg-accent-soft p-1.5"
+                className="flex min-h-28 flex-col justify-between rounded-xl border border-accent bg-accent-soft p-3"
               >
                 <Input
                   value={panel.name}
@@ -91,7 +90,7 @@ const NoteFoldersPanel: FC<Props> = ({ folders, selected, onSelect }) => {
                   required
                   autoFocus
                   aria-label="Folder name"
-                  className="px-2 py-1.5"
+                  className="px-2 py-1.5 text-sm"
                 />
                 <div className="flex justify-end gap-1">
                   <Button
@@ -118,80 +117,104 @@ const NoteFoldersPanel: FC<Props> = ({ folders, selected, onSelect }) => {
             <div
               key={folder._id}
               className={cn(
-                "flex items-center gap-0.5 rounded-md",
-                active && "bg-accent-soft",
+                "group relative flex min-h-28 overflow-hidden rounded-xl border transition-all",
+                active
+                  ? "border-accent bg-accent-soft shadow-sm"
+                  : "border-border bg-surface hover:-translate-y-0.5 hover:border-accent/50 hover:bg-background hover:shadow-sm",
               )}
             >
-              <FolderButton
-                selected={active}
+              <button
+                type="button"
                 onClick={() => onSelect(folder._id)}
+                aria-current={active ? "true" : undefined}
+                className="flex flex-1 cursor-pointer flex-col items-start justify-between p-3.5 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
               >
-                {folder.name}
-              </FolderButton>
-              {active && (
-                <>
-                  <IconButton
-                    label={`Rename ${folder.name}`}
-                    size="sm"
-                    onClick={() => panel.startRename(folder)}
-                    disabled={panel.pending}
-                  >
-                    <Pencil className="h-3.5 w-3.5" aria-hidden />
-                  </IconButton>
-                  <IconButton
-                    label={`Delete ${folder.name}`}
-                    size="sm"
-                    onClick={() => panel.onDelete(folder)}
-                    disabled={panel.pending}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden />
-                  </IconButton>
-                </>
-              )}
+                <Folder
+                  className={cn(
+                    "h-6 w-6 transition-transform",
+                    active && "fill-current",
+                    !active && "group-hover:scale-110",
+                  )}
+                  aria-hidden
+                />
+                <span className="block w-full truncate font-medium text-foreground">
+                  {folder.name}
+                </span>
+              </button>
+              <div className="absolute right-1.5 top-1.5 flex gap-0.5 rounded-md bg-surface/90 p-0.5 opacity-0 shadow-sm transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+                <IconButton
+                  label={`Rename ${folder.name}`}
+                  size="sm"
+                  onClick={() => panel.startRename(folder)}
+                  disabled={panel.pending}
+                >
+                  <Pencil className="h-3.5 w-3.5" aria-hidden />
+                </IconButton>
+                <IconButton
+                  label={`Delete ${folder.name}`}
+                  size="sm"
+                  onClick={() => panel.onDelete(folder)}
+                  disabled={panel.pending}
+                >
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden />
+                </IconButton>
+              </div>
             </div>
           );
         })}
+
+        {panel.creating && (
+          <form
+            onSubmit={panel.onSubmit}
+            className="flex min-h-28 flex-col justify-between rounded-xl border border-dashed border-accent bg-accent-soft p-3"
+          >
+            <Input
+              value={panel.name}
+              onChange={(event) => panel.setName(event.target.value)}
+              placeholder="Folder name"
+              maxLength={200}
+              required
+              autoFocus
+              aria-label="New folder name"
+              className="px-2 py-1.5 text-sm"
+            />
+            <div className="flex justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={panel.cancelEditor}
+                disabled={panel.pending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={panel.pending || !panel.name.trim()}
+              >
+                Create
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {!panel.creating && (
+          <button
+            type="button"
+            onClick={panel.startCreate}
+            disabled={panel.pending}
+            className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-surface p-3 text-sm font-medium text-muted transition-colors hover:border-accent hover:bg-accent-soft hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            <FilePlus2 className="h-5 w-5" aria-hidden />
+            New folder
+          </button>
+        )}
       </nav>
 
-      {panel.creating && (
-        <form
-          onSubmit={panel.onSubmit}
-          className="flex flex-col gap-1.5 rounded-md border border-border p-1.5"
-        >
-          <Input
-            value={panel.name}
-            onChange={(event) => panel.setName(event.target.value)}
-            placeholder="Folder name"
-            maxLength={200}
-            required
-            autoFocus
-            aria-label="New folder name"
-            className="px-2 py-1.5"
-          />
-          <div className="flex justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={panel.cancelEditor}
-              disabled={panel.pending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={panel.pending || !panel.name.trim()}
-            >
-              Create
-            </Button>
-          </div>
-        </form>
-      )}
-
       {panel.error && (
-        <p className="px-1 text-sm text-rose-500">{panel.error}</p>
+        <p className="mt-2 text-sm text-rose-500">{panel.error}</p>
       )}
-    </aside>
+    </section>
   );
 };
 
