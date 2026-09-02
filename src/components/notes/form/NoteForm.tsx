@@ -1,65 +1,115 @@
 "use client";
 
+import { Archive, Pin, X } from "lucide-react";
 import { FC, useId } from "react";
 import {
   Button,
-  DatePicker,
-  Field,
+  IconButton,
   Input,
   MarkdownEditor,
-  Select,
-  cn,
+  Modal,
 } from "@/components/common";
 import { LabelField, LabelManagerModal } from "@/components/labels";
-import type { Label, NoteFolder } from "@/shared/types";
+import { formatNoteDate } from "../helpers";
 import { useNoteForm, type NoteFormMode } from "./useNoteForm";
 
-export type { NoteFormMode };
+export type { NoteCreateContext, NoteFormMode } from "./useNoteForm";
 
 interface Props {
   mode: NoteFormMode;
-  folders: NoteFolder[];
-  labels: Label[];
   onClose: () => void;
   onSaved: (result?: { deleted?: boolean }) => void;
 }
 
-const Toggle: FC<{
-  pressed: boolean;
-  onClick: () => void;
-  disabled?: boolean;
-  children: string;
-}> = ({ pressed, onClick, disabled, children }) => (
-  <button
-    type="button"
-    aria-pressed={pressed}
-    onClick={onClick}
-    disabled={disabled}
-    className={cn(
-      "cursor-pointer rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-      pressed
-        ? "border-foreground bg-foreground text-background"
-        : "border-border text-muted hover:text-foreground",
-    )}
-  >
-    {children}
-  </button>
+const Chip: FC<{
+  label: string;
+  onRemove: () => void;
+  removeLabel: string;
+}> = ({ label, onRemove, removeLabel }) => (
+  <span className="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-foreground">
+    {label}
+    <button
+      type="button"
+      aria-label={removeLabel}
+      onClick={onRemove}
+      className="cursor-pointer text-muted hover:text-foreground"
+    >
+      <X className="h-3 w-3" aria-hidden />
+    </button>
+  </span>
 );
 
-const NoteForm: FC<Props> = ({ mode, folders, labels, onClose, onSaved }) => {
+const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
   const titleId = useId();
   const form = useNoteForm(mode, onSaved);
 
   return (
     <>
       <form onSubmit={form.onSubmit} className="flex w-full flex-col gap-3">
-        <p className="text-sm text-muted">
-          {form.editing
-            ? "Update this note and where it belongs."
-            : "Capture something outside the task board."}
-        </p>
+        {(form.folderId || form.date || form.goalId || form.sprintId) && (
+          <div className="flex flex-wrap items-center gap-1.5">
+            {form.folderId && (
+              <Chip
+                label={form.folderName || "Folder"}
+                onRemove={form.clearFolder}
+                removeLabel="Remove folder"
+              />
+            )}
+            {form.date && (
+              <Chip
+                label={formatNoteDate(form.date)}
+                onRemove={form.clearDate}
+                removeLabel="Remove date"
+              />
+            )}
+            {form.goalId && (
+              <Chip
+                label={form.goalTitle || "Goal"}
+                onRemove={form.clearGoal}
+                removeLabel="Remove goal"
+              />
+            )}
+            {form.sprintId && (
+              <Chip
+                label={form.sprintName || "Sprint"}
+                onRemove={form.clearSprint}
+                removeLabel="Remove sprint"
+              />
+            )}
+          </div>
+        )}
 
-        <Field label="Title" htmlFor={titleId}>
+        <div>
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            <label htmlFor={titleId} className="text-sm text-muted">
+              Title
+            </label>
+            <div className="flex items-center">
+              <IconButton
+                label={form.pinned ? "Unpin note" : "Pin note"}
+                size="sm"
+                active={form.pinned}
+                onClick={() => form.setPinned(!form.pinned)}
+                disabled={form.pending}
+              >
+                <Pin
+                  className={form.pinned ? "h-4 w-4 fill-current" : "h-4 w-4"}
+                  aria-hidden
+                />
+              </IconButton>
+              {form.editing && (
+                <IconButton
+                  label={form.archived ? "Unarchive note" : "Archive note"}
+                  size="sm"
+                  active={form.archived}
+                  onClick={() => form.setArchived(!form.archived)}
+                  disabled={form.pending}
+                >
+                  <Archive className="h-4 w-4" aria-hidden />
+                </IconButton>
+              )}
+            </div>
+          </div>
           <Input
             id={titleId}
             value={form.title}
@@ -69,114 +119,22 @@ const NoteForm: FC<Props> = ({ mode, folders, labels, onClose, onSaved }) => {
             autoFocus
             placeholder="Note title"
           />
-        </Field>
+        </div>
 
-        <Field label="Content">
-          <MarkdownEditor
-            value={form.content}
-            onChange={form.setContent}
-            rows={8}
-            placeholder="Write markdown…"
-          />
-        </Field>
+        <MarkdownEditor
+          value={form.content}
+          onChange={form.setContent}
+          rows={14}
+          maxRows={28}
+          placeholder="Start writing…"
+        />
 
         <LabelField
-          labels={labels}
+          labels={form.labels}
           selectedIds={form.labelIds}
           onChange={form.setLabelIds}
           onCreate={form.openLabelCreate}
         />
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Folder">
-            <Select
-              value={form.folderId}
-              onChange={(event) => form.setFolderId(event.target.value)}
-              aria-label="Folder"
-            >
-              <option value="">Unfiled</option>
-              {form.folderId &&
-                !folders.some((folder) => folder._id === form.folderId) && (
-                  <option value={form.folderId}>Unknown folder</option>
-                )}
-              {folders.map((folder) => (
-                <option key={folder._id} value={folder._id}>
-                  {folder.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
-
-          <Field label="Date">
-            <DatePicker
-              value={form.date}
-              onChange={form.setDate}
-              clearable
-              aria-label="Note date"
-            />
-          </Field>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Goal">
-            <Select
-              value={form.goalId}
-              onChange={(event) => form.setGoalId(event.target.value)}
-              disabled={form.pending || form.goalsLoading}
-              aria-label="Linked goal"
-            >
-              <option value="">No goal</option>
-              {form.goalId &&
-                !form.goals.some((goal) => goal._id === form.goalId) && (
-                  <option value={form.goalId}>Unknown goal</option>
-                )}
-              {form.goals.map((goal) => (
-                <option key={goal._id} value={goal._id}>
-                  {goal.title}
-                </option>
-              ))}
-            </Select>
-          </Field>
-
-          <Field label="Sprint">
-            <Select
-              value={form.sprintId}
-              onChange={(event) => form.setSprintId(event.target.value)}
-              disabled={form.pending || form.sprintsLoading}
-              aria-label="Linked sprint"
-            >
-              <option value="">No sprint</option>
-              {form.sprintId &&
-                !form.sprints.some((sprint) => sprint._id === form.sprintId) && (
-                  <option value={form.sprintId}>Unknown sprint</option>
-                )}
-              {form.sprints.map((sprint) => (
-                <option key={sprint._id} value={sprint._id}>
-                  {sprint.name}
-                </option>
-              ))}
-            </Select>
-          </Field>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          <Toggle
-            pressed={form.pinned}
-            onClick={() => form.setPinned(!form.pinned)}
-            disabled={form.pending}
-          >
-            Pinned
-          </Toggle>
-          {form.editing && (
-            <Toggle
-              pressed={form.archived}
-              onClick={() => form.setArchived(!form.archived)}
-              disabled={form.pending}
-            >
-              Archived
-            </Toggle>
-          )}
-        </div>
 
         {form.error && <p className="text-sm text-rose-500">{form.error}</p>}
 
@@ -198,15 +156,15 @@ const NoteForm: FC<Props> = ({ mode, folders, labels, onClose, onSaved }) => {
             {form.pending
               ? "Saving…"
               : form.editing
-                ? "Save changes"
-                : "Create note"}
+                ? "Save"
+                : "Save note"}
           </Button>
         </div>
       </form>
 
       <LabelManagerModal
         open={form.labelManagerOpen}
-        labels={labels}
+        labels={form.labels}
         initialName={form.labelDraftName}
         onClose={form.closeLabelManager}
         onCreated={(label) => form.onLabelCreated(label._id)}
@@ -218,6 +176,33 @@ const NoteForm: FC<Props> = ({ mode, folders, labels, onClose, onSaved }) => {
 
 export default NoteForm;
 
-export const noteFormTitle = (mode: NoteFormMode): string => {
-  return mode.type === "edit" ? "Edit note" : "New note";
+export const noteFormTitle = (mode: NoteFormMode): string =>
+  mode.type === "edit" ? "Edit note" : "New note";
+
+interface NoteEditorModalProps {
+  mode: NoteFormMode | null;
+  onClose: () => void;
+  onSaved: (result?: { deleted?: boolean }) => void;
 }
+
+export const NoteEditorModal: FC<NoteEditorModalProps> = ({
+  mode,
+  onClose,
+  onSaved,
+}) => (
+  <Modal
+    open={!!mode}
+    onClose={onClose}
+    title={mode ? noteFormTitle(mode) : ""}
+    className="max-w-3xl sm:max-h-[90vh]"
+  >
+    {mode && (
+      <NoteForm
+        key={mode.type === "edit" ? mode.note._id : "create"}
+        mode={mode}
+        onClose={onClose}
+        onSaved={onSaved}
+      />
+    )}
+  </Modal>
+);

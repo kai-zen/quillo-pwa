@@ -12,6 +12,7 @@ interface Props {
   onChange: (value: string) => void;
   placeholder?: string;
   rows?: number;
+  maxRows?: number;
   disabled?: boolean;
   id?: string;
   className?: string;
@@ -23,6 +24,7 @@ const MarkdownEditor: FC<Props> = ({
   onChange,
   placeholder = "Write markdown…",
   rows = 6,
+  maxRows,
   disabled,
   id,
   className,
@@ -66,6 +68,7 @@ const MarkdownEditor: FC<Props> = ({
           onClick={syncActive}
           onFocus={syncActive}
           rows={rows}
+          maxRows={maxRows}
           disabled={disabled}
           placeholder={placeholder}
           className="rounded-none border-0 focus:border-transparent"

@@ -5,7 +5,6 @@ import { FC, MouseEvent } from "react";
 import {
   Button,
   IconButton,
-  Modal,
   PageHeader,
   Table,
   TableBody,
@@ -18,7 +17,7 @@ import {
 } from "@/components/common";
 import type { Label, Note } from "@/shared/types";
 import NoteFoldersPanel from "./folders/NoteFoldersPanel";
-import NoteForm, { noteFormTitle } from "./form/NoteForm";
+import { NoteEditorModal } from "./form/NoteForm";
 import {
   ALL_NOTES,
   UNFILED_NOTES,
@@ -286,25 +285,11 @@ const NotesList: FC<Props> = ({ view }) => {
         </div>
       </div>
 
-      <Modal
-        open={!!noteFormMode}
+      <NoteEditorModal
+        mode={noteFormMode}
         onClose={closeNoteForm}
-        title={noteFormMode ? noteFormTitle(noteFormMode) : ""}
-        className="max-w-3xl"
-      >
-        {noteFormMode && (
-          <NoteForm
-            key={
-              noteFormMode.type === "edit" ? noteFormMode.note._id : "create"
-            }
-            mode={noteFormMode}
-            folders={folders}
-            labels={labels}
-            onClose={closeNoteForm}
-            onSaved={onNoteSaved}
-          />
-        )}
-      </Modal>
+        onSaved={onNoteSaved}
+      />
     </div>
   );
 };

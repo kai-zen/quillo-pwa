@@ -2,18 +2,25 @@
 
 import { FormEvent, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
-import { useGoalsApi, useNotesApi, useSprintsApi } from "@/shared/hooks";
-import type {
-  CreateNoteBody,
-  Goal,
-  Note,
-  RecordId,
-  Sprint,
-} from "@/shared/types";
+import {
+  useGoalsApi,
+  useLabelsApi,
+  useNoteFoldersApi,
+  useNotesApi,
+  useSprintsApi,
+} from "@/shared/hooks";
+import type { CreateNoteBody, Note, RecordId } from "@/shared/types";
 import { toDateInputValue, toUpdateBody } from "../helpers";
 
+export type NoteCreateContext = {
+  folderId?: RecordId | null;
+  date?: string | null;
+  goalId?: RecordId | null;
+  sprintId?: RecordId | null;
+};
+
 export type NoteFormMode =
-  | { type: "create"; folderId?: RecordId | null }
+  | ({ type: "create" } & NoteCreateContext)
   | { type: "edit"; note: Note };
 
 export function useNoteForm(
@@ -28,19 +35,20 @@ export function useNoteForm(
     isUpdating,
     isDeleting,
   } = useNotesApi();
-  const { useGoalsList } = useGoalsApi();
-  const { useSprintsList } = useSprintsApi();
-
-  const goalsQuery = useGoalsList({ page: 1, limit: 100 });
-  const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
+  const { useLabelsList } = useLabelsApi();
+  const { useNoteFoldersList } = useNoteFoldersApi();
+  const { useGoal } = useGoalsApi();
+  const { useSprint } = useSprintsApi();
 
   const editing = mode.type === "edit" ? mode.note : null;
-  const goals: Goal[] = goalsQuery.data?.items ?? [];
-  const sprints: Sprint[] = sprintsQuery.data?.items ?? [];
+  const create = mode.type === "create" ? mode : null;
 
-  const initialFolderId =
-    editing?.folder_id ??
-    (mode.type === "create" ? (mode.folderId ?? null) : null);
+  const initialFolderId = editing?.folder_id ?? create?.folderId ?? null;
+  const initialGoalId = editing?.goal_id ?? create?.goalId ?? null;
+  const initialSprintId = editing?.sprint_id ?? create?.sprintId ?? null;
+  const initialDate = toDateInputValue(
+    editing?.date ?? create?.date ?? null,
+  );
 
   const [title, setTitle] = useState(editing?.title ?? "");
   const [content, setContent] = useState(editing?.content ?? "");
@@ -50,18 +58,29 @@ export function useNoteForm(
   const [labelIds, setLabelIds] = useState<RecordId[]>(
     editing?.label_ids ?? [],
   );
-  const [goalId, setGoalId] = useState<RecordId | "">(editing?.goal_id ?? "");
+  const [goalId, setGoalId] = useState<RecordId | "">(initialGoalId ?? "");
   const [sprintId, setSprintId] = useState<RecordId | "">(
-    editing?.sprint_id ?? "",
+    initialSprintId ?? "",
   );
-  const [date, setDate] = useState(toDateInputValue(editing?.date));
+  const [date, setDate] = useState(initialDate);
   const [pinned, setPinned] = useState(editing?.pinned ?? false);
   const [archived, setArchived] = useState(editing?.archived ?? false);
   const [labelManagerOpen, setLabelManagerOpen] = useState(false);
   const [labelDraftName, setLabelDraftName] = useState("");
   const [error, setError] = useState("");
 
+  const labelsQuery = useLabelsList({ page: 1, limit: 100 });
+  const foldersQuery = useNoteFoldersList({ page: 1, limit: 100 });
+  const goalQuery = useGoal(goalId, !!goalId);
+  const sprintQuery = useSprint(sprintId, !!sprintId);
+
   const pending = isCreating || isUpdating || isDeleting;
+  const labels = labelsQuery.data?.items ?? [];
+  const folders = foldersQuery.data?.items ?? [];
+  const folderName =
+    folders.find((folder) => folder._id === folderId)?.name ?? "";
+  const goalTitle = goalQuery.data?.title ?? "";
+  const sprintName = sprintQuery.data?.name ?? "";
 
   const openLabelCreate = (draftName: string) => {
     setLabelDraftName(draftName);
@@ -82,7 +101,7 @@ export function useNoteForm(
 
   const buildBody = (): CreateNoteBody => ({
     title: title.trim(),
-    content: content.trim(),
+    content,
     folder_id: folderId || null,
     label_ids: labelIds,
     goal_id: goalId || null,
@@ -142,23 +161,23 @@ export function useNoteForm(
     content,
     setContent,
     folderId,
-    setFolderId,
+    folderName,
+    clearFolder: () => setFolderId(""),
     labelIds,
     setLabelIds,
+    labels,
     goalId,
-    setGoalId,
+    goalTitle,
+    clearGoal: () => setGoalId(""),
     sprintId,
-    setSprintId,
+    sprintName,
+    clearSprint: () => setSprintId(""),
     date,
-    setDate,
+    clearDate: () => setDate(""),
     pinned,
     setPinned,
     archived,
     setArchived,
-    goals,
-    sprints,
-    goalsLoading: goalsQuery.isLoading,
-    sprintsLoading: sprintsQuery.isLoading,
     labelManagerOpen,
     labelDraftName,
     error,

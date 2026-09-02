@@ -1,8 +1,9 @@
 "use client";
 
-import { ListTodo, Plus } from "lucide-react";
+import { ListTodo, Plus, StickyNote } from "lucide-react";
 import { FC, Suspense } from "react";
 import { Button, DatePicker, Modal, PageHeader } from "@/components/common";
+import { LinkedNotes, useLinkedNotes } from "@/components/notes";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
 import DayProgress from "./DayProgress";
@@ -38,6 +39,7 @@ const TasksViewContent: FC = () => {
     removeTask,
     reorderTasks,
   } = useTasksDayView();
+  const dayNotes = useLinkedNotes({ date: selectedDate });
 
   const heading = formatDayHeading(selectedDate);
 
@@ -48,13 +50,23 @@ const TasksViewContent: FC = () => {
         description="Pick a day and work through what you planned to do."
         icon={ListTodo}
         actions={
-          <Button
-            onClick={() => openCreate()}
-            size="sm"
-            startIcon={<Plus className="h-4 w-4" aria-hidden />}
-          >
-            Add tasks
-          </Button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              onClick={dayNotes.openCreate}
+              size="sm"
+              variant="secondary"
+              startIcon={<StickyNote className="h-4 w-4" aria-hidden />}
+            >
+              Add note
+            </Button>
+            <Button
+              onClick={() => openCreate()}
+              size="sm"
+              startIcon={<Plus className="h-4 w-4" aria-hidden />}
+            >
+              Add tasks
+            </Button>
+          </div>
         }
       />
 
@@ -149,6 +161,13 @@ const TasksViewContent: FC = () => {
             >
               Add tasks
             </Button>
+            <Button
+              variant="secondary"
+              onClick={dayNotes.openCreate}
+              startIcon={<StickyNote className="w-4" aria-hidden />}
+            >
+              Add note
+            </Button>
           </div>
         </div>
       )}
@@ -167,6 +186,8 @@ const TasksViewContent: FC = () => {
           onReorder={reorderTasks}
         />
       )}
+
+      <LinkedNotes view={dayNotes} empty="hidden" />
     </div>
   );
 };
