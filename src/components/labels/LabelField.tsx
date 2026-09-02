@@ -6,11 +6,16 @@ import {
   KeyboardEvent,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import { Button, cn } from "@/components/common";
+import {
+  resolvePopoverPlacement,
+  type PopoverPlacement,
+} from "@/components/common/placement";
 import type { Label, RecordId } from "@/shared/types";
 
 interface Props {
@@ -24,8 +29,11 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
   const inputId = useId();
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [placement, setPlacement] = useState<PopoverPlacement>("bottom");
   const [activeIndex, setActiveIndex] = useState(0);
 
   const selected = labels.filter((label) => selectedIds.includes(label._id));
@@ -39,15 +47,47 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
     });
   }, [labels, selectedIds, query]);
 
+  const close = () => setOpen(false);
+
+  const updatePlacement = () => {
+    const trigger = triggerRef.current;
+    const list = listRef.current;
+    if (!trigger || !list) return;
+    setPlacement(resolvePopoverPlacement(trigger, list));
+  };
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePlacement();
+  }, [open, available.length]);
+
   useEffect(() => {
     if (!open) return;
 
     const onPointerDown = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!rootRef.current?.contains(event.target as Node)) close();
     };
 
+    const onKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        close();
+      }
+    };
+
+    const onReposition = () => updatePlacement();
+
     document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown, true);
+    window.addEventListener("resize", onReposition);
+    document.addEventListener("scroll", onReposition, true);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown, true);
+      window.removeEventListener("resize", onReposition);
+      document.removeEventListener("scroll", onReposition, true);
+    };
   }, [open]);
 
   const add = (id: RecordId) => {
@@ -70,6 +110,7 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
+      setPlacement("bottom");
       setOpen(true);
       setActiveIndex((current) =>
         available.length === 0
@@ -94,17 +135,17 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
       }
       onCreate(query);
       setQuery("");
-      setOpen(false);
+      close();
       return;
     }
 
     if (event.key === "Escape") {
-      setOpen(false);
+      close();
     }
   };
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef}>
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <label htmlFor={inputId} className="block text-sm text-muted">
           Labels
@@ -113,7 +154,7 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
           variant="ghost"
           size="sm"
           onClick={() => {
-            setOpen(false);
+            close();
             onCreate(query);
             setQuery("");
           }}
@@ -124,8 +165,9 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
       </div>
 
       <div
+        ref={triggerRef}
         className={cn(
-          "flex min-h-10 flex-wrap items-center gap-1.5 rounded-lg border border-border bg-transparent px-2 py-1.5",
+          "relative flex min-h-10 flex-wrap items-center gap-1.5 rounded-lg border border-border bg-transparent px-2 py-1.5",
           "focus-within:border-foreground",
         )}
       >
@@ -155,10 +197,14 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
+            setPlacement("bottom");
             setOpen(true);
             setActiveIndex(0);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => {
+            setPlacement("bottom");
+            setOpen(true);
+          }}
           onKeyDown={onKeyDown}
           placeholder={
             selected.length > 0 ? "Add another label…" : "Search labels"
@@ -170,52 +216,56 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
           aria-autocomplete="list"
           autoComplete="off"
         />
-      </div>
 
-      {open && (
-        <ul
-          id={listId}
-          role="listbox"
-          className="absolute z-50 mt-1.5 max-h-48 w-full overflow-auto rounded-lg border border-border bg-surface py-1 shadow-lg shadow-black/10"
-        >
-          {available.length === 0 ? (
-            <li className="px-3 py-2 text-sm text-muted">
-              {query.trim()
-                ? `No label named “${query.trim()}”. Create one instead.`
-                : "No labels yet. Create a label to get started."}
-            </li>
-          ) : (
-            available.map((label, index) => (
-              <li
-                key={label._id}
-                role="option"
-                aria-selected={index === activeIndex}
-              >
-                <button
-                  type="button"
-                  className={cn(
-                    "flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm text-foreground",
-                    index === activeIndex && "bg-accent-soft",
-                  )}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => {
-                    add(label._id);
-                    setOpen(false);
-                  }}
-                >
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: label.color }}
-                    aria-hidden
-                  />
-                  {label.name}
-                </button>
+        {open && (
+          <ul
+            ref={listRef}
+            id={listId}
+            role="listbox"
+            className={cn(
+              "absolute left-0 z-50 max-h-48 w-full overflow-auto rounded-lg border border-border bg-surface py-1 shadow-lg shadow-black/10 dark:shadow-black/50",
+              placement === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5",
+            )}
+          >
+            {available.length === 0 ? (
+              <li className="px-3 py-2 text-sm text-muted">
+                {query.trim()
+                  ? `No label named “${query.trim()}”. Create one instead.`
+                  : "No labels yet. Create a label to get started."}
               </li>
-            ))
-          )}
-        </ul>
-      )}
+            ) : (
+              available.map((label, index) => (
+                <li
+                  key={label._id}
+                  role="option"
+                  aria-selected={index === activeIndex}
+                >
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm text-foreground",
+                      index === activeIndex && "bg-accent-soft",
+                    )}
+                    onMouseEnter={() => setActiveIndex(index)}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      add(label._id);
+                      close();
+                    }}
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: label.color }}
+                      aria-hidden
+                    />
+                    {label.name}
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
