@@ -12,13 +12,18 @@ export interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
+  is_primary: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Tasks", icon: ListTodo },
-  { href: "/backlog", label: "Backlog", icon: Inbox },
-  { href: "/goals", label: "Goals", icon: Target },
-  { href: "/sprints", label: "Sprints", icon: Flag },
-  { href: "/routines", label: "Routines", icon: Repeat },
-  { href: "/notes", label: "Notes", icon: StickyNote },
+  { is_primary: true, href: "/", label: "Tasks", icon: ListTodo },
+  { is_primary: true, href: "/backlog", label: "Backlog", icon: Inbox },
+  { is_primary: false, href: "/goals", label: "Goals", icon: Target },
+  { is_primary: false, href: "/sprints", label: "Sprints", icon: Flag },
+  { is_primary: false, href: "/routines", label: "Routines", icon: Repeat },
+  { is_primary: true, href: "/notes", label: "Notes", icon: StickyNote },
 ];
+
+export const MOBILE_PRIMARY_NAV_ITEMS = NAV_ITEMS.filter(
+  (item) => item.is_primary,
+);

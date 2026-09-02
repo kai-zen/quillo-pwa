@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FC, ReactNode } from "react";
+import { Menu, X } from "lucide-react";
+import { FC, ReactNode, useState } from "react";
 import LogoutButton from "@/components/auth/LogoutButton";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import AppBrand from "./AppBrand";
-import { NAV_ITEMS } from "./constants";
+import { MOBILE_PRIMARY_NAV_ITEMS, NAV_ITEMS } from "./constants";
 
 interface Props {
   children: ReactNode;
@@ -19,6 +20,7 @@ const isActive = (pathname: string, href: string) => {
 
 const AppShell: FC<Props> = ({ children }) => {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
@@ -57,8 +59,18 @@ const AppShell: FC<Props> = ({ children }) => {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:justify-end md:px-8">
-          <div className="md:hidden">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface px-4 py-3 md:justify-end md:px-8">
+          <div className="flex items-center gap-3 md:hidden">
+            <button
+              type="button"
+              className="rounded-md p-2 text-muted transition-colors hover:bg-background hover:text-foreground"
+              aria-label="Open navigation menu"
+              aria-controls="mobile-navigation"
+              aria-expanded={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="h-5 w-5" aria-hidden />
+            </button>
             <AppBrand />
           </div>
           <div className="flex items-center gap-1">
@@ -72,11 +84,68 @@ const AppShell: FC<Props> = ({ children }) => {
         </main>
       </div>
 
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-20 md:hidden">
+          <button
+            type="button"
+            className="absolute inset-0 cursor-default bg-foreground/20"
+            aria-label="Close navigation menu"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <nav
+            id="mobile-navigation"
+            className="relative flex h-full w-72 flex-col border-r border-border bg-surface px-4 py-5 shadow-xl motion-safe:animate-[drawer-slide-in_150ms_ease-out]"
+            aria-label="Main"
+          >
+            <div className="mb-8 flex items-center justify-between">
+              <AppBrand />
+              <button
+                type="button"
+                className="rounded-md p-2 text-muted transition-colors hover:bg-background hover:text-foreground"
+                aria-label="Close navigation menu"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <X className="h-5 w-5" aria-hidden />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              {NAV_ITEMS.map((item) => {
+                const active = isActive(pathname, item.href);
+                const Icon = item.icon;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={[
+                      "flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm transition-colors",
+                      active
+                        ? "bg-accent-soft font-medium text-nav-active"
+                        : "text-muted hover:bg-background hover:text-foreground",
+                    ].join(" ")}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Icon
+                      className="h-4 w-4 shrink-0"
+                      strokeWidth={active ? 2.25 : 2}
+                      aria-hidden
+                    />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        </div>
+      )}
+
       <nav
         className="fixed inset-x-0 bottom-0 z-10 flex border-t border-border bg-surface md:hidden"
         aria-label="Main"
       >
-        {NAV_ITEMS.map((item) => {
+        {MOBILE_PRIMARY_NAV_ITEMS.map((item) => {
           const active = isActive(pathname, item.href);
           const Icon = item.icon;
 

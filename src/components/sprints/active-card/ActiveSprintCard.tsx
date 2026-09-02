@@ -70,9 +70,6 @@ const ActiveSprintCard: FC<Props> = ({ sprints, onCreateTask, onEditTask }) => {
               />
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono tabular-nums text-muted">
-                    #{sprint.sprint_number}
-                  </span>
                   <p
                     id="active-sprint-heading"
                     className="min-w-0 truncate font-semibold tracking-tight text-foreground"
