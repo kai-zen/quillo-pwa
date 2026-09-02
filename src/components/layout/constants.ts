@@ -1,4 +1,12 @@
-import { Flag, Inbox, ListTodo, Repeat, Target, type LucideIcon } from "lucide-react";
+import {
+  Flag,
+  Inbox,
+  ListTodo,
+  Repeat,
+  StickyNote,
+  Target,
+  type LucideIcon,
+} from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -12,4 +20,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/goals", label: "Goals", icon: Target },
   { href: "/sprints", label: "Sprints", icon: Flag },
   { href: "/routines", label: "Routines", icon: Repeat },
+  { href: "/notes", label: "Notes", icon: StickyNote },
 ];
