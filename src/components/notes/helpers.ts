@@ -5,6 +5,7 @@ import type {
   RecordId,
   UpdateNoteBody,
 } from "@/shared/types";
+import { NotesListViewModel } from "./hooks/useNotesListView";
 
 export const ALL_NOTES = "all";
 export const UNFILED_NOTES = "unfiled";
@@ -65,3 +66,31 @@ export const toUpdateBody = (note: Note): UpdateNoteBody => ({
   pinned: note.pinned,
   archived: note.archived,
 });
+
+export const notesEmptyCopy = (
+  folderFilter: NotesListViewModel["folderFilter"],
+  showArchived: boolean,
+): { title: string; description: string } => {
+  if (showArchived) {
+    return {
+      title: "No archived notes",
+      description: "Archived notes will show up here.",
+    };
+  }
+  if (folderFilter === UNFILED_NOTES) {
+    return {
+      title: "No unfiled notes",
+      description: "Notes without a folder will show up here.",
+    };
+  }
+  if (folderFilter !== ALL_NOTES) {
+    return {
+      title: "No notes in this folder",
+      description: "Create a note, or pick another folder.",
+    };
+  }
+  return {
+    title: "No notes yet",
+    description: "Capture ideas, meeting notes, or anything outside a task.",
+  };
+};
