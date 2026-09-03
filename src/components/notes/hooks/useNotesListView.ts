@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import {
   useLabelsApi,
@@ -18,12 +19,18 @@ import type { NoteFormMode } from "../form/useNoteForm";
 import {
   UNFILED_QUERY_VALUE,
   comparePinnedFirst,
+  readNotesUrlFilters,
   toUpdateBody,
+  writeNotesUrlFilters,
+  type NotesUrlFilters,
 } from "../helpers";
 
 const PAGE_LIMIT = 50;
 
 export function useNotesListView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { useNotesList, togglePinned, updateNote, isUpdating } = useNotesApi();
   const {
     useNoteFoldersList,
@@ -32,11 +39,37 @@ export function useNotesListView() {
   } = useNoteFoldersApi();
   const { useLabelsList } = useLabelsApi();
 
-  const [openFolder, setOpenFolder] = useState<RecordId | null>(null);
-  const [showArchived, setShowArchived] = useState(false);
-  const [page, setPage] = useState(1);
+  const { folder: openFolder, archived: showArchived, page } = useMemo(
+    () => readNotesUrlFilters(searchParams),
+    [searchParams],
+  );
   const [noteFormMode, setNoteFormMode] = useState<NoteFormMode | null>(null);
   const [actionError, setActionError] = useState("");
+
+  const applyFilters = useCallback(
+    (
+      patch: Partial<NotesUrlFilters>,
+      history: "push" | "replace" = "replace",
+    ) => {
+      const folder = patch.folder !== undefined ? patch.folder : openFolder;
+      const archived =
+        patch.archived !== undefined ? patch.archived : showArchived;
+      const resetsPage =
+        patch.folder !== undefined || patch.archived !== undefined;
+      const nextPage =
+        patch.page !== undefined ? patch.page : resetsPage ? 1 : page;
+
+      const qs = writeNotesUrlFilters(searchParams, {
+        folder,
+        archived,
+        page: nextPage,
+      });
+      const href = qs ? `${pathname}?${qs}` : pathname;
+      if (history === "push") router.push(href, { scroll: false });
+      else router.replace(href, { scroll: false });
+    },
+    [openFolder, page, pathname, router, searchParams, showArchived],
+  );
 
   const listQuery: NoteListQuery = {
     page,
@@ -74,20 +107,12 @@ export function useNotesListView() {
   const closeNoteForm = () => setNoteFormMode(null);
   const onNoteSaved = () => setNoteFormMode(null);
 
-  const openFolderAndResetPage = (id: RecordId) => {
-    setOpenFolder(id);
-    setPage(1);
-  };
-
-  const closeFolder = () => {
-    setOpenFolder(null);
-    setPage(1);
-  };
-
-  const setShowArchivedAndResetPage = (archived: boolean) => {
-    setShowArchived(archived);
-    setPage(1);
-  };
+  const openFolderAndResetPage = (id: RecordId) =>
+    applyFilters({ folder: id }, "push");
+  const closeFolder = () => applyFilters({ folder: null }, "replace");
+  const setShowArchivedAndResetPage = (archived: boolean) =>
+    applyFilters({ archived });
+  const setPage = (nextPage: number) => applyFilters({ page: nextPage });
 
   const onTogglePinned = async (id: RecordId) => {
     setActionError("");

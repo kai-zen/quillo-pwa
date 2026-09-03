@@ -146,7 +146,7 @@ const NotesList: FC<Props> = ({ view }) => {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              onClick={() => setPage(Math.max(1, page - 1))}
               disabled={page <= 1 || isFetching}
             >
               Previous
@@ -157,9 +157,7 @@ const NotesList: FC<Props> = ({ view }) => {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() =>
-                setPage((current) => Math.min(totalPages, current + 1))
-              }
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages || isFetching}
             >
               Next
