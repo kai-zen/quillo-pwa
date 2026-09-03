@@ -52,7 +52,7 @@ const NotesList: FC<Props> = ({ view }) => {
   const showEmptyCard = isEmpty && (inFolder || folders.length === 0);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+    <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-col gap-5">
       <PageHeader
         title={showArchived ? "Archived notes" : "Notes"}
         description={
@@ -87,7 +87,7 @@ const NotesList: FC<Props> = ({ view }) => {
         }
       />
 
-      <div className="flex flex-col gap-5">
+      <div className="flex min-w-0 flex-col gap-5">
         {inFolder ? (
           <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-surface p-2.5 shadow-sm shadow-black/2">
             <Button variant="ghost" size="sm" onClick={closeFolder}>
@@ -133,7 +133,7 @@ const NotesList: FC<Props> = ({ view }) => {
         )}
 
         {!isLoading && !isError && notes.length > 0 && (
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {notes.map((note) => (
               <NoteCard
                 key={note._id}

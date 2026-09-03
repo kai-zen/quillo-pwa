@@ -47,7 +47,7 @@ const NoteCard: FC<Props> = ({
   return (
     <article
       className={cn(
-        "group relative flex min-h-48 flex-col rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md focus-within:z-20 has-aria-expanded:z-20",
+        "group relative flex min-h-48 min-w-0 w-full flex-col rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md focus-within:z-20 has-aria-expanded:z-20",
         note.archived && "opacity-70",
       )}
     >
@@ -55,12 +55,12 @@ const NoteCard: FC<Props> = ({
         type="button"
         onClick={() => onOpen(note)}
         aria-label={`Open note ${note.title}`}
-        className="flex min-h-0 flex-1 cursor-pointer flex-col items-start pr-16 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+        className="flex min-h-0 min-w-0 w-full flex-1 cursor-pointer flex-col items-start pr-16 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
       >
-        <span className="line-clamp-2 font-medium text-foreground">
+        <span className="line-clamp-2 w-full min-w-0 wrap-anywhere font-medium text-foreground">
           {note.title}
         </span>
-        <span className="mt-2 line-clamp-3 text-sm leading-6 text-muted">
+        <span className="mt-2 line-clamp-3 w-full min-w-0 wrap-anywhere text-sm leading-6 text-muted">
           {note.content.replace(/\s+/g, " ").trim() || "No content"}
         </span>
       </button>
@@ -98,12 +98,7 @@ const NoteCard: FC<Props> = ({
         <span className="block text-xs text-muted">
           Updated {formatNoteDate(note.updated_at)}
         </span>
-        <div
-          className={cn(
-            "mt-2 grid min-w-0 items-center gap-1.5",
-            labels.length > 0 && "grid-cols-[minmax(0,auto)_minmax(0,1fr)]",
-          )}
-        >
+        <div className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5">
           <NoteFolderPicker
             noteTitle={note.title}
             folderId={note.folder_id}
@@ -113,7 +108,7 @@ const NoteCard: FC<Props> = ({
             onCreateAndMove={(name) => onCreateFolderAndMove(note, name)}
           />
           {labels.length > 0 && (
-            <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+            <div className="flex min-w-0 max-w-full items-center gap-1 overflow-hidden">
               {visibleLabels.map((label) => (
                 <span
                   key={label._id}

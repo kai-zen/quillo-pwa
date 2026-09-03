@@ -2,7 +2,7 @@
 
 import { Check, Folder, FolderMinus, FolderPlus, Plus } from "lucide-react";
 import { FC, MouseEvent } from "react";
-import { cn } from "@/components/common";
+import { Button, cn } from "@/components/common";
 import type { NoteFolder, RecordId } from "@/shared/types";
 import {
   useNoteFolderPicker,
@@ -74,9 +74,10 @@ const NoteFolderPicker: FC<Props> = ({
 
   return (
     <div ref={rootRef} className="relative min-w-0" onClick={stopCardOpen}>
-      <button
+      <Button
         id={triggerId}
-        type="button"
+        variant="secondary"
+        size="sm"
         disabled={busy}
         aria-label={label}
         aria-haspopup="listbox"
@@ -84,30 +85,28 @@ const NoteFolderPicker: FC<Props> = ({
         aria-controls={listboxId}
         onClick={toggleOpen}
         onKeyDown={onTriggerKeyDown}
+        startIcon={
+          filed ? (
+            <Folder className="h-3.5 w-3.5" />
+          ) : (
+            <FolderPlus className="h-3.5 w-3.5" />
+          )
+        }
         className={cn(
-          "inline-flex max-w-full cursor-pointer items-center gap-1 rounded-md bg-background px-2 py-1 text-[11px] font-medium transition-colors",
-          "hover:bg-accent-soft hover:text-foreground",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
-          filed ? "text-muted" : "text-foreground",
+          "min-w-0 max-w-full justify-start",
           open && "bg-accent-soft text-foreground",
-          busy && "cursor-not-allowed opacity-50",
         )}
       >
-        {filed ? (
-          <Folder className="h-3 w-3 shrink-0" aria-hidden />
-        ) : (
-          <FolderPlus className="h-3 w-3 shrink-0" aria-hidden />
-        )}
-        <span className="truncate">
+        <span className="min-w-0 truncate">
           {filed ? folderName : "Add to folder"}
         </span>
-      </button>
+      </Button>
 
       {open && (
         <div
           ref={popoverRef}
           className={cn(
-            "absolute left-0 z-50 w-56 rounded-lg border border-border bg-surface shadow-lg shadow-black/10 dark:shadow-black/50",
+            "absolute left-0 z-50 w-56 max-w-[calc(100vw-2rem)] rounded-lg border border-border bg-surface shadow-lg shadow-black/10 dark:shadow-black/50",
             placement === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5",
           )}
         >
@@ -177,10 +176,7 @@ const NoteFolderPicker: FC<Props> = ({
                         {option.label}
                       </span>
                       {selected && (
-                        <Check
-                          className="h-3.5 w-3.5 shrink-0"
-                          aria-hidden
-                        />
+                        <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
                       )}
                     </button>
                   </li>
