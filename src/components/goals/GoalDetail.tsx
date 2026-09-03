@@ -99,13 +99,12 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
     onChangeStatus,
   } = view;
 
-  if (isGoalLoading) {
+  if (isGoalLoading)
     return (
       <div className="mx-auto w-full max-w-5xl">
         <p className="text-sm text-muted">Loading goal…</p>
       </div>
     );
-  }
 
   if (isGoalError || isGoalMissing || !goal) {
     return (
@@ -151,7 +150,7 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
         ) : null}
       </PageHeader>
 
-      <div className="flex flex-wrap items-center gap-3 bg-surface shadow-sm shadow-black/2">
+      <div className="flex flex-wrap items-center gap-3 bg-surface shadow-sm shadow-black/2 pb-4">
         <label className="pl-1 text-sm text-foreground" htmlFor="goal-status">
           Status:
         </label>

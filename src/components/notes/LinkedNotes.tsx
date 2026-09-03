@@ -1,14 +1,53 @@
 "use client";
 
-import { Pin, Plus, StickyNote } from "lucide-react";
+import { Pin, Plus } from "lucide-react";
 import { FC } from "react";
 import { Button, cn } from "@/components/common";
+import type { Note } from "@/shared/types";
 import { NoteEditorModal } from "./form/NoteForm";
 import { formatNoteDate } from "./helpers";
 import { useLinkedNotes, type LinkedNotesFilter } from "./hooks/useLinkedNotes";
 
 type Props = LinkedNotesFilter & {
   of?: string;
+};
+
+const LinkedNoteCard: FC<{
+  note: Note;
+  onOpen: (note: Note) => void;
+}> = ({ note, onOpen }) => {
+  const preview = note.content.replace(/\s+/g, " ").trim() || "No content";
+
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(note)}
+      aria-label={`Open note ${note.title}${note.pinned ? ", pinned" : ""}`}
+      className={cn(
+        "flex h-full min-w-0 w-full cursor-pointer flex-col rounded-xl border border-border bg-surface p-4 text-left shadow-sm",
+        "transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+      )}
+    >
+      <span className="flex w-full min-w-0 items-start gap-2">
+        <span className="line-clamp-2 min-w-0 flex-1 wrap-anywhere font-medium text-foreground">
+          {note.title}
+        </span>
+        {note.pinned ? (
+          <Pin
+            className="mt-0.5 h-3.5 w-3.5 shrink-0 fill-current text-foreground"
+            aria-hidden
+          />
+        ) : null}
+      </span>
+      <span className="mt-2 line-clamp-3 min-w-0 w-full flex-1 wrap-anywhere text-sm leading-6 text-muted">
+        {preview}
+      </span>
+      <span className="mt-3 block border-t border-border/70 pt-2.5 text-xs text-muted">
+        Updated {formatNoteDate(note.updated_at)}
+      </span>
+    </button>
+  );
 };
 
 const LinkedNotes: FC<Props> = ({ of, ...filter }) => {
@@ -28,7 +67,7 @@ const LinkedNotes: FC<Props> = ({ of, ...filter }) => {
 
   return (
     <>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 mt-4">
         <div className="flex min-w-0 items-center justify-between gap-3">
           <p
             className="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
@@ -73,33 +112,10 @@ const LinkedNotes: FC<Props> = ({ of, ...filter }) => {
         )}
 
         {!isLoading && !isError && notes.length > 0 && (
-          <ul className="flex flex-col gap-2">
+          <ul className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {notes.map((note) => (
-              <li key={note._id}>
-                <button
-                  type="button"
-                  onClick={() => openNote(note)}
-                  aria-label={`Open note ${note.title}`}
-                  className={cn(
-                    "flex w-full cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-surface px-3 py-2.5 text-left",
-                    "hover:bg-foreground/3",
-                  )}
-                >
-                  {note.pinned ? (
-                    <Pin
-                      className="h-3.5 w-3.5 shrink-0 fill-current text-foreground"
-                      aria-hidden
-                    />
-                  ) : (
-                    <StickyNote
-                      className="h-3.5 w-3.5 shrink-0 text-muted"
-                      aria-hidden
-                    />
-                  )}
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                    {note.title}
-                  </span>
-                </button>
+              <li key={note._id} className="min-w-0">
+                <LinkedNoteCard note={note} onOpen={openNote} />
               </li>
             ))}
           </ul>
