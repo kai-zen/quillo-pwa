@@ -46,15 +46,8 @@ const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
   return (
     <>
       <form onSubmit={form.onSubmit} className="flex w-full flex-col gap-3">
-        {(form.folderId || form.date || form.goalId || form.sprintId) && (
+        {(form.date || form.goalId || form.sprintId) && (
           <div className="flex flex-wrap items-center gap-1.5">
-            {form.folderId && (
-              <Chip
-                label={form.folderName || "Folder"}
-                onRemove={form.clearFolder}
-                removeLabel="Remove folder"
-              />
-            )}
             {form.date && (
               <Chip
                 label={formatNoteDate(form.date)}
@@ -153,11 +146,7 @@ const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
             Cancel
           </Button>
           <Button type="submit" disabled={form.pending}>
-            {form.pending
-              ? "Saving…"
-              : form.editing
-                ? "Save"
-                : "Save note"}
+            {form.pending ? "Saving…" : form.editing ? "Save" : "Save note"}
           </Button>
         </div>
       </form>

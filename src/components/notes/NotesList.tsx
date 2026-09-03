@@ -8,7 +8,6 @@ import { NoteEditorModal } from "./form/NoteForm";
 import {
   ALL_NOTES,
   UNFILED_NOTES,
-  folderLabel,
   labelsById,
   notesEmptyCopy,
 } from "./helpers";
@@ -39,12 +38,15 @@ const NotesList: FC<Props> = ({ view }) => {
     isError,
     isEmpty,
     isFetching,
-    pinError,
+    actionError,
     openCreateNote,
     openEditNote,
     closeNoteForm,
     onNoteSaved,
     onTogglePinned,
+    onMoveToFolder,
+    onCreateFolderAndMove,
+    folderBusy,
   } = view;
 
   const empty = notesEmptyCopy(folderFilter, showArchived);
@@ -102,7 +104,9 @@ const NotesList: FC<Props> = ({ view }) => {
               </span>
             </div>
 
-            {pinError && <p className="text-sm text-rose-500">{pinError}</p>}
+            {actionError && (
+              <p className="text-sm text-rose-500">{actionError}</p>
+            )}
 
             {isLoading && <p className="text-sm text-muted">Loading notes…</p>}
 
@@ -135,14 +139,13 @@ const NotesList: FC<Props> = ({ view }) => {
                   <NoteCard
                     key={note._id}
                     note={note}
+                    folders={folders}
                     labelMap={labelMap}
-                    folderName={
-                      folderFilter === ALL_NOTES
-                        ? folderLabel(note.folder_id, folders)
-                        : undefined
-                    }
                     onOpen={openEditNote}
                     onTogglePinned={onTogglePinned}
+                    onMoveToFolder={onMoveToFolder}
+                    onCreateFolderAndMove={onCreateFolderAndMove}
+                    folderBusy={folderBusy}
                   />
                 ))}
               </div>

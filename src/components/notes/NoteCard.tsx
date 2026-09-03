@@ -3,23 +3,33 @@
 import { Pin } from "lucide-react";
 import { FC, MouseEvent } from "react";
 import { cn, IconButton } from "@/components/common";
-import type { Label, Note } from "@/shared/types";
+import type { Label, Note, NoteFolder, RecordId } from "@/shared/types";
 import { formatNoteDate } from "./helpers";
+import NoteFolderPicker from "./NoteFolderPicker";
 
 interface Props {
   note: Note;
+  folders: NoteFolder[];
   labelMap: Map<string, Label>;
-  folderName?: string;
   onOpen: (note: Note) => void;
   onTogglePinned: (id: string) => void | Promise<void>;
+  onMoveToFolder: (
+    note: Note,
+    folderId: RecordId | null,
+  ) => void | Promise<void>;
+  onCreateFolderAndMove: (note: Note, name: string) => void | Promise<void>;
+  folderBusy?: boolean;
 }
 
 const NoteCard: FC<Props> = ({
   note,
+  folders,
   labelMap,
-  folderName,
   onOpen,
   onTogglePinned,
+  onMoveToFolder,
+  onCreateFolderAndMove,
+  folderBusy,
 }) => {
   const labels = note.label_ids
     .map((id) => labelMap.get(id))
@@ -34,7 +44,7 @@ const NoteCard: FC<Props> = ({
   return (
     <article
       className={cn(
-        "group relative flex min-h-48 flex-col overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
+        "group relative flex min-h-48 flex-col rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md focus-within:z-20 has-aria-expanded:z-20",
         note.archived && "opacity-70",
       )}
     >
@@ -70,52 +80,50 @@ const NoteCard: FC<Props> = ({
         <span className="block text-xs text-muted">
           Updated {formatNoteDate(note.updated_at)}
         </span>
-        {(folderName || labels.length > 0) && (
-          <div
-            className={cn(
-              "mt-2 grid min-w-0 items-center gap-1.5",
-              folderName && "grid-cols-[minmax(0,auto)_minmax(0,1fr)]",
-            )}
-          >
-            {folderName && (
-              <span
-                title={folderName}
-                className="truncate rounded-md bg-background px-2 py-1 text-[11px] font-medium text-muted"
-              >
-                {folderName}
-              </span>
-            )}
-            {labels.length > 0 && (
-              <div className="flex min-w-0 items-center gap-1 overflow-hidden">
-                {visibleLabels.map((label) => (
+        <div
+          className={cn(
+            "mt-2 grid min-w-0 items-center gap-1.5",
+            labels.length > 0 && "grid-cols-[minmax(0,auto)_minmax(0,1fr)]",
+          )}
+        >
+          <NoteFolderPicker
+            noteTitle={note.title}
+            folderId={note.folder_id}
+            folders={folders}
+            disabled={folderBusy}
+            onMove={(folderId) => onMoveToFolder(note, folderId)}
+            onCreateAndMove={(name) => onCreateFolderAndMove(note, name)}
+          />
+          {labels.length > 0 && (
+            <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+              {visibleLabels.map((label) => (
+                <span
+                  key={label._id}
+                  title={label.name}
+                  className="inline-flex min-w-0 shrink items-center gap-1.5 truncate rounded-md bg-accent-soft px-2 py-1 text-[11px] font-medium text-foreground"
+                >
                   <span
-                    key={label._id}
-                    title={label.name}
-                    className="inline-flex min-w-0 shrink items-center gap-1.5 truncate rounded-md bg-accent-soft px-2 py-1 text-[11px] font-medium text-foreground"
-                  >
-                    <span
-                      className="h-1.5 w-1.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: label.color }}
-                      aria-hidden
-                    />
-                    <span className="truncate">{label.name}</span>
-                  </span>
-                ))}
-                {labels.length > visibleLabels.length && (
-                  <span
-                    title={labels
-                      .slice(visibleLabels.length)
-                      .map((label) => label.name)
-                      .join(", ")}
-                    className="shrink-0 rounded-md bg-background px-2 py-1 text-[11px] font-medium text-muted"
-                  >
-                    +{labels.length - visibleLabels.length}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+                    className="h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: label.color }}
+                    aria-hidden
+                  />
+                  <span className="truncate">{label.name}</span>
+                </span>
+              ))}
+              {labels.length > visibleLabels.length && (
+                <span
+                  title={labels
+                    .slice(visibleLabels.length)
+                    .map((label) => label.name)
+                    .join(", ")}
+                  className="shrink-0 rounded-md bg-background px-2 py-1 text-[11px] font-medium text-muted"
+                >
+                  +{labels.length - visibleLabels.length}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </footer>
     </article>
   );

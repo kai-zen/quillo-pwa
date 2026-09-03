@@ -21,14 +21,19 @@ import {
   UNFILED_QUERY_VALUE,
   comparePinnedFirst,
   isNamedFolder,
+  toUpdateBody,
   type FolderFilter,
 } from "../helpers";
 
 const PAGE_LIMIT = 50;
 
 export function useNotesListView() {
-  const { useNotesList, togglePinned } = useNotesApi();
-  const { useNoteFoldersList } = useNoteFoldersApi();
+  const { useNotesList, togglePinned, updateNote, isUpdating } = useNotesApi();
+  const {
+    useNoteFoldersList,
+    createNoteFolder,
+    isCreating: isCreatingFolder,
+  } = useNoteFoldersApi();
   const { useLabelsList } = useLabelsApi();
 
   const [folderFilter, setFolderFilter] = useState<FolderFilter>(ALL_NOTES);
@@ -36,7 +41,7 @@ export function useNotesListView() {
   const [showArchived, setShowArchived] = useState(false);
   const [page, setPage] = useState(1);
   const [noteFormMode, setNoteFormMode] = useState<NoteFormMode | null>(null);
-  const [pinError, setPinError] = useState("");
+  const [actionError, setActionError] = useState("");
 
   const listQuery: NoteListQuery = {
     page,
@@ -94,11 +99,38 @@ export function useNotesListView() {
   };
 
   const onTogglePinned = async (id: RecordId) => {
-    setPinError("");
+    setActionError("");
     try {
       await togglePinned(id);
     } catch (err) {
-      setPinError(getErrorMessage(err, "Could not update pin."));
+      setActionError(getErrorMessage(err, "Could not update pin."));
+    }
+  };
+
+  const onMoveToFolder = async (note: Note, folderId: RecordId | null) => {
+    if (note.folder_id === folderId) return;
+    setActionError("");
+    try {
+      await updateNote(note._id, { ...toUpdateBody(note), folder_id: folderId });
+    } catch (err) {
+      setActionError(getErrorMessage(err, "Could not update folder."));
+      throw err;
+    }
+  };
+
+  const onCreateFolderAndMove = async (note: Note, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setActionError("");
+    try {
+      const folder = await createNoteFolder({ name: trimmed });
+      await updateNote(note._id, {
+        ...toUpdateBody(note),
+        folder_id: folder._id,
+      });
+    } catch (err) {
+      setActionError(getErrorMessage(err, "Could not create folder."));
+      throw err;
     }
   };
 
@@ -121,12 +153,15 @@ export function useNotesListView() {
     isError,
     isEmpty,
     isFetching,
-    pinError,
+    actionError,
     openCreateNote,
     openEditNote,
     closeNoteForm,
     onNoteSaved,
     onTogglePinned,
+    onMoveToFolder,
+    onCreateFolderAndMove,
+    folderBusy: isUpdating || isCreatingFolder,
   };
 }
 

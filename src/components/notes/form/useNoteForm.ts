@@ -5,7 +5,6 @@ import { getErrorMessage } from "@/shared/errors";
 import {
   useGoalsApi,
   useLabelsApi,
-  useNoteFoldersApi,
   useNotesApi,
   useSprintsApi,
 } from "@/shared/hooks";
@@ -36,7 +35,6 @@ export function useNoteForm(
     isDeleting,
   } = useNotesApi();
   const { useLabelsList } = useLabelsApi();
-  const { useNoteFoldersList } = useNoteFoldersApi();
   const { useGoal } = useGoalsApi();
   const { useSprint } = useSprintsApi();
 
@@ -46,15 +44,11 @@ export function useNoteForm(
   const initialFolderId = editing?.folder_id ?? create?.folderId ?? null;
   const initialGoalId = editing?.goal_id ?? create?.goalId ?? null;
   const initialSprintId = editing?.sprint_id ?? create?.sprintId ?? null;
-  const initialDate = toDateInputValue(
-    editing?.date ?? create?.date ?? null,
-  );
+  const initialDate = toDateInputValue(editing?.date ?? create?.date ?? null);
 
   const [title, setTitle] = useState(editing?.title ?? "");
   const [content, setContent] = useState(editing?.content ?? "");
-  const [folderId, setFolderId] = useState<RecordId | "">(
-    initialFolderId ?? "",
-  );
+  const folderId = initialFolderId ?? "";
   const [labelIds, setLabelIds] = useState<RecordId[]>(
     editing?.label_ids ?? [],
   );
@@ -70,15 +64,11 @@ export function useNoteForm(
   const [error, setError] = useState("");
 
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
-  const foldersQuery = useNoteFoldersList({ page: 1, limit: 100 });
   const goalQuery = useGoal(goalId, !!goalId);
   const sprintQuery = useSprint(sprintId, !!sprintId);
 
   const pending = isCreating || isUpdating || isDeleting;
   const labels = labelsQuery.data?.items ?? [];
-  const folders = foldersQuery.data?.items ?? [];
-  const folderName =
-    folders.find((folder) => folder._id === folderId)?.name ?? "";
   const goalTitle = goalQuery.data?.title ?? "";
   const sprintName = sprintQuery.data?.name ?? "";
 
@@ -160,9 +150,6 @@ export function useNoteForm(
     setTitle,
     content,
     setContent,
-    folderId,
-    folderName,
-    clearFolder: () => setFolderId(""),
     labelIds,
     setLabelIds,
     labels,
