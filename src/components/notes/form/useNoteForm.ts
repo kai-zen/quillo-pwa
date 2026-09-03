@@ -58,7 +58,6 @@ export function useNoteForm(
   );
   const [date, setDate] = useState(initialDate);
   const [pinned, setPinned] = useState(editing?.pinned ?? false);
-  const [archived, setArchived] = useState(editing?.archived ?? false);
   const [labelManagerOpen, setLabelManagerOpen] = useState(false);
   const [labelDraftName, setLabelDraftName] = useState("");
   const [error, setError] = useState("");
@@ -98,7 +97,6 @@ export function useNoteForm(
     sprint_id: sprintId || null,
     date: date || null,
     pinned,
-    archived: editing ? archived : false,
   });
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -163,8 +161,6 @@ export function useNoteForm(
     clearDate: () => setDate(""),
     pinned,
     setPinned,
-    archived,
-    setArchived,
     labelManagerOpen,
     labelDraftName,
     error,

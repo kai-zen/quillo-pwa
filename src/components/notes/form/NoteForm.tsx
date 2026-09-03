@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Pin, X } from "lucide-react";
+import { Pin, X } from "lucide-react";
 import { FC, useId } from "react";
 import {
   Button,
@@ -90,17 +90,6 @@ const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
                   aria-hidden
                 />
               </IconButton>
-              {form.editing && (
-                <IconButton
-                  label={form.archived ? "Unarchive note" : "Archive note"}
-                  size="sm"
-                  active={form.archived}
-                  onClick={() => form.setArchived(!form.archived)}
-                  disabled={form.pending}
-                >
-                  <Archive className="h-4 w-4" aria-hidden />
-                </IconButton>
-              )}
             </div>
           </div>
           <Input

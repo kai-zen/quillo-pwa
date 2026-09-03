@@ -53,6 +53,12 @@ export const useNotesApi = () => {
     onSuccess: invalidateNotes,
   });
 
+  const toggleArchivedMutation = useMutation({
+    mutationFn: (id: RecordId) =>
+      request(notesModule.toggleArchived, { params: { id } }),
+    onSuccess: invalidateNotes,
+  });
+
   return {
     useNotesList,
     useNote,
@@ -61,9 +67,11 @@ export const useNotesApi = () => {
       updateNoteMutation.mutateAsync({ id, body }),
     deleteNote: deleteNoteMutation.mutateAsync,
     togglePinned: togglePinnedMutation.mutateAsync,
+    toggleArchived: toggleArchivedMutation.mutateAsync,
     isCreating: createNoteMutation.isPending,
     isUpdating: updateNoteMutation.isPending,
     isDeleting: deleteNoteMutation.isPending,
     isTogglingPinned: togglePinnedMutation.isPending,
+    isTogglingArchived: toggleArchivedMutation.isPending,
   };
 };

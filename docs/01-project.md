@@ -60,6 +60,7 @@ Each module entry is a static definition. Example:
 labelsModule.list; // GET /labels → PaginatedResponse<Label>
 goalsModule.toggleObjective; // PATCH /goals/:id/objectives/:objectiveId/toggle → Goal
 notesModule.togglePinned; // PATCH /notes/:id/pinned/toggle → Note
+notesModule.toggleArchived; // PATCH /notes/:id/archived/toggle → Note
 ```
 
 Call them through `request(endpoint, { body, query, params })`.
@@ -143,6 +144,7 @@ Independent from the Goal → Sprint → Daily Task hierarchy. Optional links to
 - `pinned`, `archived`
 - optional `folder_id`, `label_ids[]`, `goal_id`, `sprint_id`, `date`
 - toggle `pinned` via `PATCH /notes/:id/pinned/toggle` (no body)
+- toggle `archived` via `PATCH /notes/:id/archived/toggle` (no body)
 - list filters: `folder_id`, `goal_id`, `sprint_id`, `date`, `archived`, `pinned`, `label_ids` (send `"null"` for none)
 
 ### Subtasks
@@ -208,6 +210,7 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 
 - Updates use full resource bodies (`PUT`), including `null` to clear `folder_id`, `goal_id`, `sprint_id`, or `date`.
 - Toggle pin with `PATCH /notes/:id/pinned/toggle` (no body); it only flips `pinned`.
+- Toggle archive with `PATCH /notes/:id/archived/toggle` (no body); it only flips `archived`.
 - A note does not need a folder, label, or relationship to any other entity.
 
 ## Folder map (v1)

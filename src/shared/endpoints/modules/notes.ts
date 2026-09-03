@@ -34,6 +34,12 @@ export const notesModule = {
     auth: true,
   }),
 
+  toggleArchived: defineEndpoint<Note, never, never, IdParam>({
+    method: "PATCH",
+    path: ROUTES.notes.toggleArchived,
+    auth: true,
+  }),
+
   update: defineEndpoint<Note, UpdateNoteBody, never, IdParam>({
     method: "PUT",
     path: ROUTES.notes.byId,

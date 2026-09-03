@@ -51,6 +51,7 @@ export const ROUTES = {
     base: "/notes",
     byId: ({ id }: IdParam) => `/notes/${id}`,
     togglePinned: ({ id }: IdParam) => `/notes/${id}/pinned/toggle`,
+    toggleArchived: ({ id }: IdParam) => `/notes/${id}/archived/toggle`,
   },
 } as const;
 

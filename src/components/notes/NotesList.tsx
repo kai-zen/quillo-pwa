@@ -38,6 +38,7 @@ const NotesList: FC<Props> = ({ view }) => {
     closeNoteForm,
     onNoteSaved,
     onTogglePinned,
+    onToggleArchived,
     onMoveToFolder,
     onCreateFolderAndMove,
     folderBusy,
@@ -53,25 +54,36 @@ const NotesList: FC<Props> = ({ view }) => {
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
       <PageHeader
-        title="Notes"
-        description="Write freely, then file notes into folders when you want."
-        icon={StickyNote}
+        title={showArchived ? "Archived notes" : "Notes"}
+        description={
+          showArchived
+            ? "These notes are out of the way. Unarchive one to bring it back."
+            : "Write freely, then file notes into folders when you want."
+        }
+        icon={showArchived ? Archive : StickyNote}
         actions={
-          <>
-            <IconButton
-              label={
-                showArchived ? "Show active notes" : "Show archived notes"
-              }
-              active={showArchived}
-              onClick={() => setShowArchivedAndResetPage(!showArchived)}
+          showArchived ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowArchivedAndResetPage(false)}
             >
-              <Archive className="h-4 w-4" aria-hidden />
-            </IconButton>
-            <Button onClick={openCreateNote} size="sm">
-              <Plus className="h-4 w-4" aria-hidden />
-              New note
+              Show active notes
             </Button>
-          </>
+          ) : (
+            <>
+              <IconButton
+                label="Show archived notes"
+                onClick={() => setShowArchivedAndResetPage(true)}
+              >
+                <Archive className="h-4 w-4" aria-hidden />
+              </IconButton>
+              <Button onClick={openCreateNote} size="sm">
+                <Plus className="h-4 w-4" aria-hidden />
+                New note
+              </Button>
+            </>
+          )
         }
       />
 
@@ -90,10 +102,7 @@ const NotesList: FC<Props> = ({ view }) => {
             </span>
           </div>
         ) : (
-          <NoteFoldersPanel
-            folders={folders}
-            onOpen={openFolderAndResetPage}
-          />
+          <NoteFoldersPanel folders={folders} onOpen={openFolderAndResetPage} />
         )}
 
         {actionError && <p className="text-sm text-rose-500">{actionError}</p>}
@@ -133,6 +142,7 @@ const NotesList: FC<Props> = ({ view }) => {
                 labelMap={labelMap}
                 onOpen={openEditNote}
                 onTogglePinned={onTogglePinned}
+                onToggleArchived={onToggleArchived}
                 onMoveToFolder={onMoveToFolder}
                 onCreateFolderAndMove={onCreateFolderAndMove}
                 folderBusy={folderBusy}

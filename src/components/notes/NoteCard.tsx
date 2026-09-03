@@ -1,6 +1,6 @@
 "use client";
 
-import { Pin } from "lucide-react";
+import { Archive, Pin } from "lucide-react";
 import { FC, MouseEvent } from "react";
 import { cn, IconButton } from "@/components/common";
 import type { Label, Note, NoteFolder, RecordId } from "@/shared/types";
@@ -13,6 +13,7 @@ interface Props {
   labelMap: Map<string, Label>;
   onOpen: (note: Note) => void;
   onTogglePinned: (id: string) => void | Promise<void>;
+  onToggleArchived: (id: string) => void | Promise<void>;
   onMoveToFolder: (
     note: Note,
     folderId: RecordId | null,
@@ -27,6 +28,7 @@ const NoteCard: FC<Props> = ({
   labelMap,
   onOpen,
   onTogglePinned,
+  onToggleArchived,
   onMoveToFolder,
   onCreateFolderAndMove,
   folderBusy,
@@ -36,10 +38,11 @@ const NoteCard: FC<Props> = ({
     .filter((label): label is Label => !!label);
   const visibleLabels = labels.slice(0, 2);
 
-  const handlePinClick = (event: MouseEvent) => {
-    event.stopPropagation();
-    void onTogglePinned(note._id);
-  };
+  const handleActionClick =
+    (action: () => void | Promise<void>) => (event: MouseEvent) => {
+      event.stopPropagation();
+      void action();
+    };
 
   return (
     <article
@@ -52,7 +55,7 @@ const NoteCard: FC<Props> = ({
         type="button"
         onClick={() => onOpen(note)}
         aria-label={`Open note ${note.title}`}
-        className="flex min-h-0 flex-1 cursor-pointer flex-col items-start pr-8 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+        className="flex min-h-0 flex-1 cursor-pointer flex-col items-start pr-16 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
       >
         <span className="line-clamp-2 font-medium text-foreground">
           {note.title}
@@ -62,12 +65,27 @@ const NoteCard: FC<Props> = ({
         </span>
       </button>
 
-      <div className="absolute right-3 top-3">
+      <div className="absolute right-3 top-3 flex">
+        <IconButton
+          label={
+            note.archived
+              ? `Unarchive ${note.title}`
+              : `Archive ${note.title}`
+          }
+          size="sm"
+          active={note.archived}
+          onClick={handleActionClick(() => onToggleArchived(note._id))}
+        >
+          <Archive
+            className={cn("h-3.5 w-3.5", note.archived && "fill-current")}
+            aria-hidden
+          />
+        </IconButton>
         <IconButton
           label={note.pinned ? `Unpin ${note.title}` : `Pin ${note.title}`}
           size="sm"
           active={note.pinned}
-          onClick={handlePinClick}
+          onClick={handleActionClick(() => onTogglePinned(note._id))}
         >
           <Pin
             className={cn("h-3.5 w-3.5", note.pinned && "fill-current")}

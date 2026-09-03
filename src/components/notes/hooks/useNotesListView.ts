@@ -31,7 +31,8 @@ export function useNotesListView() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { useNotesList, togglePinned, updateNote, isUpdating } = useNotesApi();
+  const { useNotesList, togglePinned, toggleArchived, updateNote, isUpdating } =
+    useNotesApi();
   const {
     useNoteFoldersList,
     createNoteFolder,
@@ -123,6 +124,15 @@ export function useNotesListView() {
     }
   };
 
+  const onToggleArchived = async (id: RecordId) => {
+    setActionError("");
+    try {
+      await toggleArchived(id);
+    } catch (err) {
+      setActionError(getErrorMessage(err, "Could not update archive."));
+    }
+  };
+
   const onMoveToFolder = async (note: Note, folderId: RecordId | null) => {
     if (note.folder_id === folderId) return;
     setActionError("");
@@ -174,6 +184,7 @@ export function useNotesListView() {
     closeNoteForm,
     onNoteSaved,
     onTogglePinned,
+    onToggleArchived,
     onMoveToFolder,
     onCreateFolderAndMove,
     folderBusy: isUpdating || isCreatingFolder,
