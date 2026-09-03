@@ -16,13 +16,9 @@ import type {
 } from "@/shared/types";
 import type { NoteFormMode } from "../form/useNoteForm";
 import {
-  ALL_NOTES,
-  UNFILED_NOTES,
   UNFILED_QUERY_VALUE,
   comparePinnedFirst,
-  isNamedFolder,
   toUpdateBody,
-  type FolderFilter,
 } from "../helpers";
 
 const PAGE_LIMIT = 50;
@@ -36,8 +32,7 @@ export function useNotesListView() {
   } = useNoteFoldersApi();
   const { useLabelsList } = useLabelsApi();
 
-  const [folderFilter, setFolderFilter] = useState<FolderFilter>(ALL_NOTES);
-  const [folderOpen, setFolderOpen] = useState(false);
+  const [openFolder, setOpenFolder] = useState<RecordId | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [page, setPage] = useState(1);
   const [noteFormMode, setNoteFormMode] = useState<NoteFormMode | null>(null);
@@ -47,10 +42,7 @@ export function useNotesListView() {
     page,
     limit: PAGE_LIMIT,
     archived: showArchived,
-    ...(folderFilter === UNFILED_NOTES
-      ? { folder_id: UNFILED_QUERY_VALUE }
-      : {}),
-    ...(isNamedFolder(folderFilter) ? { folder_id: folderFilter } : {}),
+    folder_id: openFolder ?? UNFILED_QUERY_VALUE,
   };
 
   const notesQuery = useNotesList(listQuery);
@@ -75,21 +67,20 @@ export function useNotesListView() {
   const openCreateNote = () =>
     setNoteFormMode({
       type: "create",
-      folderId: isNamedFolder(folderFilter) ? folderFilter : null,
+      folderId: openFolder,
     });
   const openEditNote = (note: Note) =>
     setNoteFormMode({ type: "edit", note });
   const closeNoteForm = () => setNoteFormMode(null);
   const onNoteSaved = () => setNoteFormMode(null);
 
-  const setFolderFilterAndResetPage = (filter: FolderFilter) => {
-    setFolderFilter(filter);
+  const openFolderAndResetPage = (id: RecordId) => {
+    setOpenFolder(id);
     setPage(1);
-    setFolderOpen(true);
   };
 
   const closeFolder = () => {
-    setFolderOpen(false);
+    setOpenFolder(null);
     setPage(1);
   };
 
@@ -135,9 +126,8 @@ export function useNotesListView() {
   };
 
   return {
-    folderFilter,
-    folderOpen,
-    setFolderFilterAndResetPage,
+    openFolder,
+    openFolderAndResetPage,
     closeFolder,
     showArchived,
     setShowArchivedAndResetPage,

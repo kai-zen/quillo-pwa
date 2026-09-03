@@ -4,21 +4,13 @@ import { FormEvent, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import { useNoteFoldersApi } from "@/shared/hooks";
 import type { NoteFolder, RecordId } from "@/shared/types";
-import {
-  ALL_NOTES,
-  isNamedFolder,
-  type FolderFilter,
-} from "../helpers";
 
 type Editor =
   | { type: "idle" }
   | { type: "create" }
   | { type: "rename"; folder: NoteFolder };
 
-export function useNoteFoldersPanel(
-  selected: FolderFilter | null,
-  onSelect: (filter: FolderFilter) => void,
-) {
+export function useNoteFoldersPanel(onOpen: (id: RecordId) => void) {
   const {
     createNoteFolder,
     updateNoteFolder,
@@ -34,8 +26,7 @@ export function useNoteFoldersPanel(
 
   const pending = isCreating || isUpdating || isDeleting;
   const creating = editor.type === "create";
-  const renaming =
-    editor.type === "rename" ? editor.folder : null;
+  const renaming = editor.type === "rename" ? editor.folder : null;
 
   const startCreate = () => {
     setEditor({ type: "create" });
@@ -69,8 +60,8 @@ export function useNoteFoldersPanel(
       }
 
       const folder = await createNoteFolder({ name: trimmed });
-      onSelect(folder._id);
       cancelEditor();
+      onOpen(folder._id);
     } catch (err) {
       setError(
         getErrorMessage(
@@ -95,9 +86,6 @@ export function useNoteFoldersPanel(
     setError("");
     try {
       await deleteNoteFolder(folder._id);
-      if (selected && isNamedFolder(selected) && selected === folder._id) {
-        onSelect(ALL_NOTES);
-      }
       if (editor.type === "rename" && editor.folder._id === folder._id) {
         cancelEditor();
       }
