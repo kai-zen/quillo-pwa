@@ -2,6 +2,7 @@
 
 import { FC } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { cn } from "../cn";
 
@@ -17,7 +18,7 @@ const Markdown: FC<Props> = ({ children, className, compact = false }) => {
   return (
     <div
       className={cn(
-        "markdown text-sm text-foreground",
+        "markdown text-sm leading-relaxed text-foreground",
         "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
         "[&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-foreground",
         "[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:text-foreground",
@@ -39,7 +40,9 @@ const Markdown: FC<Props> = ({ children, className, compact = false }) => {
         className,
       )}
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+        {children}
+      </ReactMarkdown>
     </div>
   );
 };

@@ -5,4 +5,8 @@ export {
   NoteEditorModal,
   noteFormTitle,
 } from "./form/NoteForm";
-export type { NoteCreateContext, NoteFormMode } from "./form/useNoteForm";
+export type {
+  NoteCreateContext,
+  NoteFormMode,
+  NoteModalMode,
+} from "./form/useNoteForm";

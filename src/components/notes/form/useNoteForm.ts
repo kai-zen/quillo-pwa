@@ -22,9 +22,15 @@ export type NoteFormMode =
   | ({ type: "create" } & NoteCreateContext)
   | { type: "edit"; note: Note };
 
+export type NoteModalMode =
+  | ({ type: "create" } & NoteCreateContext)
+  | { type: "view"; note: Note };
+
+export type NoteSaveResult = { deleted?: boolean; note?: Note };
+
 export function useNoteForm(
   mode: NoteFormMode,
-  onSaved: (result?: { deleted?: boolean }) => void,
+  onSaved: (result?: NoteSaveResult) => void,
 ) {
   const {
     createNote,
@@ -111,14 +117,15 @@ export function useNoteForm(
 
     try {
       if (editing) {
-        await updateNote(editing._id, {
+        const note = await updateNote(editing._id, {
           ...toUpdateBody(editing),
           ...body,
         });
+        onSaved({ note });
       } else {
-        await createNote(body);
+        const note = await createNote(body);
+        onSaved({ note });
       }
-      onSaved();
     } catch (err) {
       setError(
         getErrorMessage(

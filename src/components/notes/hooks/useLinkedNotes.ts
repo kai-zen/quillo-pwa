@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNotesApi } from "@/shared/hooks";
 import type { Note, NoteListQuery, RecordId } from "@/shared/types";
-import type { NoteCreateContext, NoteFormMode } from "../form/useNoteForm";
+import type { NoteCreateContext, NoteModalMode } from "../form/useNoteForm";
 
 const PAGE_LIMIT = 50;
 
@@ -15,7 +15,7 @@ export type LinkedNotesFilter = {
 
 export function useLinkedNotes(filter: LinkedNotesFilter) {
   const { useNotesList } = useNotesApi();
-  const [noteFormMode, setNoteFormMode] = useState<NoteFormMode | null>(null);
+  const [noteFormMode, setNoteFormMode] = useState<NoteModalMode | null>(null);
 
   const listQuery: NoteListQuery = {
     page: 1,
@@ -36,7 +36,7 @@ export function useLinkedNotes(filter: LinkedNotesFilter) {
   const notes: Note[] = notesQuery.data?.items ?? [];
 
   const openCreate = () => setNoteFormMode({ type: "create", ...create });
-  const openEdit = (note: Note) => setNoteFormMode({ type: "edit", note });
+  const openNote = (note: Note) => setNoteFormMode({ type: "view", note });
   const closeForm = () => setNoteFormMode(null);
   const onSaved = () => setNoteFormMode(null);
 
@@ -47,7 +47,7 @@ export function useLinkedNotes(filter: LinkedNotesFilter) {
     isEmpty: !notesQuery.isLoading && !notesQuery.isError && notes.length === 0,
     noteFormMode,
     openCreate,
-    openEdit,
+    openNote,
     closeForm,
     onSaved,
   };

@@ -1,6 +1,6 @@
 "use client";
 
-import { Pin, X } from "lucide-react";
+import { Pencil, Pin, X } from "lucide-react";
 import { FC, useId } from "react";
 import {
   Button,
@@ -11,14 +11,26 @@ import {
 } from "@/components/common";
 import { LabelField, LabelManagerModal } from "@/components/labels";
 import { formatNoteDate } from "../helpers";
-import { useNoteForm, type NoteFormMode } from "./useNoteForm";
+import NoteReader from "../NoteReader";
+import { useNoteModal } from "./useNoteModal";
+import {
+  useNoteForm,
+  type NoteFormMode,
+  type NoteModalMode,
+  type NoteSaveResult,
+} from "./useNoteForm";
 
-export type { NoteCreateContext, NoteFormMode } from "./useNoteForm";
+export type {
+  NoteCreateContext,
+  NoteFormMode,
+  NoteModalMode,
+  NoteSaveResult,
+} from "./useNoteForm";
 
 interface Props {
   mode: NoteFormMode;
   onClose: () => void;
-  onSaved: (result?: { deleted?: boolean }) => void;
+  onSaved: (result?: NoteSaveResult) => void;
 }
 
 const Chip: FC<{
@@ -158,29 +170,49 @@ export const noteFormTitle = (mode: NoteFormMode): string =>
   mode.type === "edit" ? "Edit note" : "New note";
 
 interface NoteEditorModalProps {
-  mode: NoteFormMode | null;
+  mode: NoteModalMode | null;
   onClose: () => void;
-  onSaved: (result?: { deleted?: boolean }) => void;
+  onSaved: (result?: NoteSaveResult) => void;
 }
 
 export const NoteEditorModal: FC<NoteEditorModalProps> = ({
   mode,
   onClose,
   onSaved,
-}) => (
-  <Modal
-    open={!!mode}
-    onClose={onClose}
-    title={mode ? noteFormTitle(mode) : ""}
-    className="max-w-3xl sm:max-h-[90vh]"
-  >
-    {mode && (
-      <NoteForm
-        key={mode.type === "edit" ? mode.note._id : "create"}
-        mode={mode}
-        onClose={onClose}
-        onSaved={onSaved}
-      />
-    )}
-  </Modal>
-);
+}) => {
+  const modal = useNoteModal(mode, onClose, onSaved);
+
+  return (
+    <Modal
+      open={!!mode}
+      onClose={onClose}
+      title={
+        <span className="block truncate" title={modal.title}>
+          {modal.title}
+        </span>
+      }
+      headerActions={
+        modal.reading ? (
+          <IconButton label="Edit note" size="sm" onClick={modal.startEdit}>
+            <Pencil className="h-4 w-4" aria-hidden />
+          </IconButton>
+        ) : null
+      }
+      className="max-w-3xl sm:max-h-[90vh]"
+    >
+      {modal.formMode && (
+        <NoteForm
+          key={
+            modal.formMode.type === "edit"
+              ? modal.formMode.note._id
+              : "create"
+          }
+          mode={modal.formMode}
+          onClose={modal.onFormClose}
+          onSaved={modal.onFormSaved}
+        />
+      )}
+      {modal.reading && modal.note && <NoteReader note={modal.note} />}
+    </Modal>
+  );
+};

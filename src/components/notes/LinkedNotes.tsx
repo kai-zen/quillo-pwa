@@ -19,7 +19,7 @@ const LinkedNotes: FC<Props> = ({ of, ...filter }) => {
     isEmpty,
     noteFormMode,
     openCreate,
-    openEdit,
+    openNote,
     closeForm,
     onSaved,
   } = useLinkedNotes(filter);
@@ -78,7 +78,8 @@ const LinkedNotes: FC<Props> = ({ of, ...filter }) => {
               <li key={note._id}>
                 <button
                   type="button"
-                  onClick={() => openEdit(note)}
+                  onClick={() => openNote(note)}
+                  aria-label={`Open note ${note.title}`}
                   className={cn(
                     "flex w-full cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-surface px-3 py-2.5 text-left",
                     "hover:bg-foreground/3",

@@ -34,7 +34,7 @@ const NotesList: FC<Props> = ({ view }) => {
     isFetching,
     actionError,
     openCreateNote,
-    openEditNote,
+    openNote,
     closeNoteForm,
     onNoteSaved,
     onTogglePinned,
@@ -140,7 +140,7 @@ const NotesList: FC<Props> = ({ view }) => {
                 note={note}
                 folders={folders}
                 labelMap={labelMap}
-                onOpen={openEditNote}
+                onOpen={openNote}
                 onTogglePinned={onTogglePinned}
                 onToggleArchived={onToggleArchived}
                 onMoveToFolder={onMoveToFolder}

@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { FC, ReactNode, useEffect, useId, useState } from "react";
+import { FC, ReactNode, useEffect, useId } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "./cn";
 import IconButton from "./IconButton";
@@ -9,12 +9,20 @@ import IconButton from "./IconButton";
 interface Props {
   open: boolean;
   onClose: () => void;
-  title: string;
+  title: ReactNode;
+  headerActions?: ReactNode;
   children: ReactNode;
   className?: string;
 }
 
-const Modal: FC<Props> = ({ open, onClose, title, children, className }) => {
+const Modal: FC<Props> = ({
+  open,
+  onClose,
+  title,
+  headerActions,
+  children,
+  className,
+}) => {
   const titleId = useId();
 
   useEffect(() => {
@@ -56,13 +64,16 @@ const Modal: FC<Props> = ({ open, onClose, title, children, className }) => {
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
           <h2
             id={titleId}
-            className="text-base font-semibold tracking-tight text-foreground"
+            className="min-w-0 flex-1 text-base font-semibold tracking-tight text-foreground"
           >
             {title}
           </h2>
-          <IconButton label="Close" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" aria-hidden />
-          </IconButton>
+          <div className="flex shrink-0 items-center">
+            {headerActions}
+            <IconButton label="Close" size="sm" onClick={onClose}>
+              <X className="h-4 w-4" aria-hidden />
+            </IconButton>
+          </div>
         </div>
         <div className="overflow-y-auto p-4">{children}</div>
       </div>

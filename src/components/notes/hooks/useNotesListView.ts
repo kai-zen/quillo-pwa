@@ -15,7 +15,7 @@ import type {
   NoteListQuery,
   RecordId,
 } from "@/shared/types";
-import type { NoteFormMode } from "../form/useNoteForm";
+import type { NoteModalMode } from "../form/useNoteForm";
 import {
   UNFILED_QUERY_VALUE,
   comparePinnedFirst,
@@ -44,7 +44,7 @@ export function useNotesListView() {
     () => readNotesUrlFilters(searchParams),
     [searchParams],
   );
-  const [noteFormMode, setNoteFormMode] = useState<NoteFormMode | null>(null);
+  const [noteFormMode, setNoteFormMode] = useState<NoteModalMode | null>(null);
   const [actionError, setActionError] = useState("");
 
   const applyFilters = useCallback(
@@ -103,8 +103,7 @@ export function useNotesListView() {
       type: "create",
       folderId: openFolder,
     });
-  const openEditNote = (note: Note) =>
-    setNoteFormMode({ type: "edit", note });
+  const openNote = (note: Note) => setNoteFormMode({ type: "view", note });
   const closeNoteForm = () => setNoteFormMode(null);
   const onNoteSaved = () => setNoteFormMode(null);
 
@@ -180,7 +179,7 @@ export function useNotesListView() {
     isFetching,
     actionError,
     openCreateNote,
-    openEditNote,
+    openNote,
     closeNoteForm,
     onNoteSaved,
     onTogglePinned,
