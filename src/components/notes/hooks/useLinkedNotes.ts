@@ -52,5 +52,3 @@ export function useLinkedNotes(filter: LinkedNotesFilter) {
     onSaved,
   };
 }
-
-export type LinkedNotesViewModel = ReturnType<typeof useLinkedNotes>;

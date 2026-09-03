@@ -4,19 +4,14 @@ import { Pin, Plus, StickyNote } from "lucide-react";
 import { FC } from "react";
 import { Button, cn } from "@/components/common";
 import { NoteEditorModal } from "./form/NoteForm";
-import type { LinkedNotesViewModel } from "./hooks/useLinkedNotes";
+import { formatNoteDate } from "./helpers";
+import { useLinkedNotes, type LinkedNotesFilter } from "./hooks/useLinkedNotes";
 
-interface Props {
-  view: LinkedNotesViewModel;
-  empty?: "hidden" | "placeholder";
-  showAddButton?: boolean;
-}
+type Props = LinkedNotesFilter & {
+  of?: string;
+};
 
-const LinkedNotes: FC<Props> = ({
-  view,
-  empty = "placeholder",
-  showAddButton = true,
-}) => {
+const LinkedNotes: FC<Props> = ({ of, ...filter }) => {
   const {
     notes,
     isLoading,
@@ -27,34 +22,29 @@ const LinkedNotes: FC<Props> = ({
     openEdit,
     closeForm,
     onSaved,
-  } = view;
-
-  const editor = (
-    <NoteEditorModal
-      mode={noteFormMode}
-      onClose={closeForm}
-      onSaved={onSaved}
-    />
-  );
-
-  if (
-    empty === "hidden" &&
-    (isLoading || isError || isEmpty)
-  ) {
-    return editor;
-  }
+  } = useLinkedNotes(filter);
+  const subject = of || (filter.date ? formatNoteDate(filter.date) : "");
+  const title = subject ? `Notes of ${subject}` : "Notes";
 
   return (
     <>
       <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm font-medium text-foreground">Notes</p>
-          {showAddButton && (
-            <Button size="sm" variant="secondary" onClick={openCreate}>
-              <Plus className="h-4 w-4" aria-hidden />
-              Add note
-            </Button>
-          )}
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <p
+            className="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
+            title={title}
+          >
+            {title}
+          </p>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="shrink-0"
+            onClick={openCreate}
+          >
+            <Plus className="h-4 w-4" aria-hidden />
+            Add note
+          </Button>
         </div>
 
         {isLoading && <p className="text-sm text-muted">Loading notes…</p>}
@@ -71,16 +61,14 @@ const LinkedNotes: FC<Props> = ({
             <p className="mt-1 text-sm text-muted">
               Write a note without leaving this page.
             </p>
-            {showAddButton && (
-              <Button
-                variant="secondary"
-                className="mt-4"
-                onClick={openCreate}
-                startIcon={<Plus className="w-4" aria-hidden />}
-              >
-                Add note
-              </Button>
-            )}
+            <Button
+              variant="secondary"
+              className="mt-4"
+              onClick={openCreate}
+              startIcon={<Plus className="w-4" aria-hidden />}
+            >
+              Add note
+            </Button>
           </div>
         )}
 
@@ -117,7 +105,11 @@ const LinkedNotes: FC<Props> = ({
         )}
       </div>
 
-      {editor}
+      <NoteEditorModal
+        mode={noteFormMode}
+        onClose={closeForm}
+        onSaved={onSaved}
+      />
     </>
   );
 };

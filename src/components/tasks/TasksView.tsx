@@ -1,9 +1,9 @@
 "use client";
 
-import { ListTodo, Plus, StickyNote } from "lucide-react";
+import { ListTodo, Plus } from "lucide-react";
 import { FC, Suspense } from "react";
 import { Button, DatePicker, Modal, PageHeader } from "@/components/common";
-import { LinkedNotes, useLinkedNotes } from "@/components/notes";
+import { LinkedNotes } from "@/components/notes";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
 import DayProgress from "./DayProgress";
@@ -39,7 +39,6 @@ const TasksViewContent: FC = () => {
     removeTask,
     reorderTasks,
   } = useTasksDayView();
-  const dayNotes = useLinkedNotes({ date: selectedDate });
 
   const heading = formatDayHeading(selectedDate);
 
@@ -153,13 +152,6 @@ const TasksViewContent: FC = () => {
             >
               Add tasks
             </Button>
-            <Button
-              variant="secondary"
-              onClick={dayNotes.openCreate}
-              startIcon={<StickyNote className="w-4" aria-hidden />}
-            >
-              Add note
-            </Button>
           </div>
         </div>
       )}
@@ -179,7 +171,7 @@ const TasksViewContent: FC = () => {
         />
       )}
 
-      <LinkedNotes view={dayNotes} empty="hidden" />
+      <LinkedNotes key={selectedDate} date={selectedDate} />
     </div>
   );
 };

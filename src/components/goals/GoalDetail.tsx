@@ -11,7 +11,7 @@ import {
   Select,
   cn,
 } from "@/components/common";
-import { LinkedNotes, useLinkedNotes } from "@/components/notes";
+import { LinkedNotes } from "@/components/notes";
 import { SprintForm, sprintFormTitle } from "@/components/sprints";
 import type { GoalObjective, GoalStatus } from "@/shared/types";
 import GoalForm, { goalFormTitle } from "./form/GoalForm";
@@ -78,7 +78,6 @@ const ObjectiveRow: FC<{
 
 const GoalDetail: FC<Props> = ({ goalId }) => {
   const view = useGoalDetail(goalId);
-  const goalNotes = useLinkedNotes({ goalId });
   const {
     goal,
     sprints,
@@ -299,7 +298,7 @@ const GoalDetail: FC<Props> = ({ goalId }) => {
         )}
       </div>
 
-      <LinkedNotes view={goalNotes} />
+      <LinkedNotes of={goal.title} goalId={goalId} />
     </div>
   );
 };

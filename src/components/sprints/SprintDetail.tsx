@@ -10,7 +10,7 @@ import {
   PageHeader,
   cn,
 } from "@/components/common";
-import { LinkedNotes, useLinkedNotes } from "@/components/notes";
+import { LinkedNotes } from "@/components/notes";
 import TaskForm, { taskFormTitle } from "@/components/tasks/form/TaskForm";
 import TaskKanbanBoard from "@/components/tasks/TaskKanbanBoard";
 import TaskSummaryTable from "@/components/tasks/TaskSummaryTable";
@@ -32,7 +32,6 @@ interface Props {
 
 const SprintDetail: FC<Props> = ({ sprintId }) => {
   const view = useSprintDetail(sprintId);
-  const sprintNotes = useLinkedNotes({ sprintId });
   const {
     sprint,
     linkedGoal,
@@ -272,7 +271,7 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
           />
         ))}
 
-      <LinkedNotes view={sprintNotes} />
+      <LinkedNotes of={sprint.name} sprintId={sprintId} />
     </div>
   );
 };

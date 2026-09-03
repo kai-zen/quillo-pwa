@@ -6,4 +6,3 @@ export {
   noteFormTitle,
 } from "./form/NoteForm";
 export type { NoteCreateContext, NoteFormMode } from "./form/useNoteForm";
-export { useLinkedNotes } from "./hooks/useLinkedNotes";
