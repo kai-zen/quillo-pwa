@@ -101,8 +101,11 @@ export const groupTasks = (tasks: Task[]): TaskGroup[] => {
     }));
 };
 
+export const isTaskSettled = (task: Task) =>
+  task.status === "done" || task.status === "cancelled";
+
 export const compareDoneLast = (a: Task, b: Task) =>
-  Number(a.status === "done") - Number(b.status === "done");
+  Number(isTaskSettled(a)) - Number(isTaskSettled(b));
 
 export const compareSortOrder = (a: Task, b: Task) =>
   (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.task_number - b.task_number;

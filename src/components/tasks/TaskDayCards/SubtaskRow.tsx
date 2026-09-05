@@ -4,7 +4,11 @@ import { Trash2 } from "lucide-react";
 import { FC } from "react";
 import { IconButton, cn } from "@/components/common";
 import type { Task } from "@/shared/types";
-import { PRIORITY_BADGE_CLASS, PRIORITY_LABELS } from "../helpers";
+import {
+  PRIORITY_BADGE_CLASS,
+  PRIORITY_LABELS,
+  isTaskSettled,
+} from "../helpers";
 import DoneCheckbox from "./DoneCheckbox";
 
 interface Props {
@@ -22,7 +26,7 @@ const SubtaskRow: FC<Props> = ({
   onToggleDone,
   onDelete,
 }) => {
-  const done = task.status === "done";
+  const settled = isTaskSettled(task);
 
   return (
     <div className="flex items-center gap-2 px-2.5 py-2">
@@ -36,7 +40,7 @@ const SubtaskRow: FC<Props> = ({
           "min-w-0 flex-1 cursor-pointer truncate text-left text-sm leading-snug",
           "hover:underline focus-visible:underline focus-visible:outline-none",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          done ? "text-muted line-through" : "text-foreground",
+          settled ? "text-muted line-through" : "text-foreground",
         )}
       >
         {task.title}

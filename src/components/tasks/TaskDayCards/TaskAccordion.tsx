@@ -10,6 +10,7 @@ import {
   STATUS_BADGE_CLASS,
   STATUS_DOT_CLASS,
   STATUS_LABELS,
+  isTaskSettled,
 } from "../helpers";
 import DoneCheckbox from "./DoneCheckbox";
 import SubtaskRow from "./SubtaskRow";
@@ -39,13 +40,12 @@ const TaskAccordion: FC<Props> = ({
   onDelete,
   reorderHandle,
 }) => {
-  const done = task.status === "done";
+  const settled = isTaskSettled(task);
+  const cancelled = task.status === "cancelled";
   const pending = pendingId === task._id;
   const description = task.description.trim();
   const hasSubtasks = childrenTasks.length > 0;
-  const subtasksDone = childrenTasks.filter(
-    (child) => child.status === "done",
-  ).length;
+  const subtasksDone = childrenTasks.filter(isTaskSettled).length;
   const { dragging: reorderDragging, ...reorderHandleProps } =
     reorderHandle ?? {};
 
@@ -53,6 +53,7 @@ const TaskAccordion: FC<Props> = ({
     <details
       className={cn(
         "group/card rounded-xl border border-border bg-surface shadow-sm shadow-black/2",
+        cancelled && "opacity-70",
         reorderDragging && "opacity-40",
       )}
     >
@@ -93,7 +94,7 @@ const TaskAccordion: FC<Props> = ({
           <p
             className={cn(
               "text-sm font-medium leading-snug text-foreground",
-              done && "text-muted line-through",
+              settled && "text-muted line-through",
             )}
           >
             {task.title}

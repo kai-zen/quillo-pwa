@@ -7,6 +7,7 @@ import {
   compareDoneLast,
   compareSortOrder,
   groupTasks,
+  isTaskSettled,
   labelsById,
 } from "../helpers";
 import TaskAccordion from "./TaskAccordion";
@@ -34,12 +35,15 @@ const TaskDayCards: FC<Props> = ({
   onReorder,
 }) => {
   const labelMap = labelsById(labels);
+  const byListOrder = (a: Task, b: Task) =>
+    compareDoneLast(a, b) || compareSortOrder(a, b);
+
   const groups = groupTasks(tasks)
     .map((group) => ({
       ...group,
-      children: [...group.children].sort(compareDoneLast),
+      children: [...group.children].sort(byListOrder),
     }))
-    .sort((a, b) => compareSortOrder(a.task, b.task));
+    .sort((a, b) => byListOrder(a.task, b.task));
 
   const ids = groups.map((group) => group.task._id);
   const { listRef, activeId, dropSlot, bindHandle } = useTaskListReorder({
@@ -79,7 +83,7 @@ const TaskDayCards: FC<Props> = ({
             onDelete={onDelete}
             reorderHandle={{
               ...bindHandle(task._id),
-              disabled: ids.length < 2,
+              disabled: ids.length < 2 || isTaskSettled(task),
               dragging: activeId === task._id,
             }}
           />
