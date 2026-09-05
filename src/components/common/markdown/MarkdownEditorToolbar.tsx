@@ -2,12 +2,12 @@
 
 import {
   Bold,
-  Code,
   Heading2,
   Italic,
-  Link as LinkIcon,
   List,
+  ListChecks,
   ListOrdered,
+  Minus,
 } from "lucide-react";
 import { FC } from "react";
 import { cn } from "../cn";
@@ -116,24 +116,24 @@ const MarkdownEditorToolbar: FC<Props> = ({
           <ListOrdered className="h-3.5 w-3.5" aria-hidden />
         </IconButton>
         <IconButton
-          label="Inline code"
+          label="Checklist"
           size="sm"
           disabled={disabled}
-          active={active.code}
-          aria-pressed={active.code}
-          onClick={() => onFormat("code")}
+          active={active.taskList}
+          aria-pressed={active.taskList}
+          onClick={() => onFormat("taskList")}
         >
-          <Code className="h-3.5 w-3.5" aria-hidden />
+          <ListChecks className="h-3.5 w-3.5" aria-hidden />
         </IconButton>
         <IconButton
-          label="Link"
+          label="Divider"
           size="sm"
           disabled={disabled}
-          active={active.link}
-          aria-pressed={active.link}
-          onClick={() => onFormat("link")}
+          active={active.divider}
+          aria-pressed={active.divider}
+          onClick={() => onFormat("divider")}
         >
-          <LinkIcon className="h-3.5 w-3.5" aria-hidden />
+          <Minus className="h-3.5 w-3.5" aria-hidden />
         </IconButton>
       </div>
     )}

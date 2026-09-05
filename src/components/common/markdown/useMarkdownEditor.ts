@@ -141,11 +141,6 @@ export function useMarkdownEditor({
       run("italic");
       return;
     }
-    if (mod && !event.altKey && event.key.toLowerCase() === "k") {
-      event.preventDefault();
-      run("link");
-      return;
-    }
 
     if (
       event.key !== "Enter" ||

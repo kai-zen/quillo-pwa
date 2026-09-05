@@ -7,8 +7,8 @@ import {
   Field,
   IconButton,
   Input,
+  MarkdownEditor,
   Select,
-  Textarea,
   cn,
 } from "@/components/common";
 import { LabelField } from "@/components/labels";
@@ -246,13 +246,12 @@ const DraftCard: FC<DraftCardProps> = ({
           </div>
 
           <Field label="Description">
-            <Textarea
+            <MarkdownEditor
               value={draft.description}
-              onChange={(event) =>
-                onUpdate({ description: event.target.value })
-              }
+              onChange={(description) => onUpdate({ description })}
               rows={2}
               maxRows={4}
+              compact
               placeholder="Notes for this task…"
               disabled={disabled}
             />

@@ -4,8 +4,8 @@ export type FormatKind =
   | "heading"
   | "bulletList"
   | "orderedList"
-  | "code"
-  | "link";
+  | "taskList"
+  | "divider";
 
 export type ActiveFormats = Record<FormatKind, boolean>;
 
@@ -21,14 +21,20 @@ export const EMPTY_FORMATS: ActiveFormats = {
   heading: false,
   bulletList: false,
   orderedList: false,
-  code: false,
-  link: false,
+  taskList: false,
+  divider: false,
 };
 
-const MD_PREFIX = /^(?:#{1,6} |\d+\. |- |\* )/;
+type BlockKind = "heading" | "bulletList" | "orderedList" | "taskList";
+
+const MD_PREFIX =
+  /^(?:#{1,6} |(?:[-*+] |\d+\. )\[(?:[ xX])\] |\d+\. |- |\* )/;
 const HEADING_PREFIX = /^(?:#{1,6} )/;
+const TASK_PREFIX = /^(?:[-*+] |\d+\. )\[(?:[ xX])\] /;
 const BULLET_PREFIX = /^(?:- |\* )/;
 const ORDERED_PREFIX = /^(?:\d+\. )/;
+const DIVIDER_LINE = /^(?:-{3,}|\*{3,}|_{3,})$/;
+const TASK_ITEM_LINE = /^(\s*)([-*+] |\d+\. )\[([ xX])\] /;
 
 const isWordChar = (char: string | undefined) =>
   !!char && /[A-Za-z0-9]/.test(char);
@@ -131,46 +137,17 @@ const findInlineWrap = (
   return null;
 };
 
-const findLinkWrap = (
-  value: string,
-  start: number,
-  end: number,
-): {
-  open: number;
-  close: number;
-  innerStart: number;
-  innerEnd: number;
-} | null => {
-  const { start: lineStart, end: lineEnd, text } = lineBounds(value, start);
-  if (end > lineEnd) return null;
-
-  const pattern = /\[([^\]]*)\]\(([^)]*)\)/g;
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(text))) {
-    const open = lineStart + match.index;
-    const close = open + match[0].length;
-    const innerStart = open + 1;
-    const innerEnd = innerStart + match[1].length;
-    const caretOutside = start === end && (start <= open || start >= close);
-
-    if (start >= open && end <= close && !caretOutside) {
-      return { open, close, innerStart, innerEnd };
-    }
-  }
-
-  return null;
-};
-
-const lineKind = (
-  line: string,
-): "heading" | "bulletList" | "orderedList" | null => {
+const lineKind = (line: string): BlockKind | null => {
   const content = splitIndent(line).content;
   if (HEADING_PREFIX.test(content)) return "heading";
+  if (TASK_PREFIX.test(content)) return "taskList";
   if (ORDERED_PREFIX.test(content)) return "orderedList";
   if (BULLET_PREFIX.test(content)) return "bulletList";
   return null;
 };
+
+const isDividerLine = (line: string) =>
+  DIVIDER_LINE.test(splitIndent(line).content);
 
 export const detectFormats = (
   value: string,
@@ -185,13 +162,13 @@ export const detectFormats = (
   return {
     bold: !!findInlineWrap(value, safeStart, safeEnd, "**"),
     italic: !!findInlineWrap(value, safeStart, safeEnd, "_"),
-    code: !!findInlineWrap(value, safeStart, safeEnd, "`"),
-    link: !!findLinkWrap(value, safeStart, safeEnd),
     heading: kinds.length > 0 && kinds.every((kind) => kind === "heading"),
     bulletList:
       kinds.length > 0 && kinds.every((kind) => kind === "bulletList"),
     orderedList:
       kinds.length > 0 && kinds.every((kind) => kind === "orderedList"),
+    taskList: kinds.length > 0 && kinds.every((kind) => kind === "taskList"),
+    divider: lines.length > 0 && lines.every(isDividerLine),
   };
 };
 
@@ -218,23 +195,6 @@ const unwrapInline = (
     Math.min(length, content.length - (selectionStart - wrap.open));
 
   return { next, selectionStart, selectionEnd };
-};
-
-const unwrapLink = (
-  value: string,
-  start: number,
-  end: number,
-): EditResult | null => {
-  const wrap = findLinkWrap(value, start, end);
-  if (!wrap) return null;
-
-  const label = value.slice(wrap.innerStart, wrap.innerEnd);
-  const next = value.slice(0, wrap.open) + label + value.slice(wrap.close);
-  return {
-    next,
-    selectionStart: wrap.open,
-    selectionEnd: wrap.open + label.length,
-  };
 };
 
 const mapBlockLines = (
@@ -283,14 +243,16 @@ const unwrapLinePrefix = (
   value: string,
   start: number,
   end: number,
-  kind: "heading" | "bulletList" | "orderedList",
+  kind: BlockKind,
 ): EditResult => {
   const pattern =
     kind === "heading"
       ? HEADING_PREFIX
-      : kind === "orderedList"
-        ? ORDERED_PREFIX
-        : BULLET_PREFIX;
+      : kind === "taskList"
+        ? TASK_PREFIX
+        : kind === "orderedList"
+          ? ORDERED_PREFIX
+          : BULLET_PREFIX;
 
   return mapBlockLines(value, start, end, (line) => {
     const { indent, content } = splitIndent(line);
@@ -307,7 +269,7 @@ const wrapLines = (
   value: string,
   start: number,
   end: number,
-  kind: "heading" | "bulletList" | "orderedList",
+  kind: BlockKind,
 ): EditResult => {
   const { from, to, block } = blockBounds(value, start, end);
   const lines = block.split("\n");
@@ -324,7 +286,9 @@ const wrapLines = (
         ? "## "
         : kind === "orderedList"
           ? `${index + 1}. `
-          : "- ";
+          : kind === "taskList"
+            ? "- [ ] "
+            : "- ";
     const nextLine = `${indent}${prefix}${stripped}`;
     const oldPrefixLen = indent.length + (content.length - stripped.length);
     const newPrefixLen = indent.length + prefix.length;
@@ -370,28 +334,8 @@ const wrapInline = (
   end: number,
   before: string,
   after: string,
-  kind: FormatKind,
 ): EditResult => {
   const selected = value.slice(start, end);
-
-  if (kind === "link") {
-    if (start !== end) {
-      const inserted = `[${selected}](url)`;
-      const urlStart = start + selected.length + 3;
-      return {
-        next: `${value.slice(0, start)}${inserted}${value.slice(end)}`,
-        selectionStart: urlStart,
-        selectionEnd: urlStart + 3,
-      };
-    }
-
-    const inserted = "[](url)";
-    return {
-      next: `${value.slice(0, start)}${inserted}${value.slice(end)}`,
-      selectionStart: start + 1,
-      selectionEnd: start + 1,
-    };
-  }
 
   if (start !== end) {
     const inserted = `${before}${selected}${after}`;
@@ -419,26 +363,17 @@ export const toggleOrWrap = (
   if (kind === "bold") {
     return (
       unwrapInline(value, start, end, "**") ??
-      wrapInline(value, start, end, "**", "**", kind)
+      wrapInline(value, start, end, "**", "**")
     );
   }
   if (kind === "italic") {
     return (
       unwrapInline(value, start, end, "_") ??
-      wrapInline(value, start, end, "_", "_", kind)
+      wrapInline(value, start, end, "_", "_")
     );
   }
-  if (kind === "code") {
-    return (
-      unwrapInline(value, start, end, "`") ??
-      wrapInline(value, start, end, "`", "`", kind)
-    );
-  }
-  if (kind === "link") {
-    return (
-      unwrapLink(value, start, end) ??
-      wrapInline(value, start, end, "[", "](url)", kind)
-    );
+  if (kind === "divider") {
+    return toggleDivider(value, start, end);
   }
 
   const { block } = blockBounds(value, start, end);
@@ -447,10 +382,62 @@ export const toggleOrWrap = (
     lines.length > 0 && lines.every((line) => lineKind(line) === kind);
 
   if (allSame) {
-    return unwrapLinePrefix(value, start, end, kind);
+    return unwrapLinePrefix(value, start, end, kind as BlockKind);
   }
 
-  return wrapLines(value, start, end, kind);
+  return wrapLines(value, start, end, kind as BlockKind);
+};
+
+const toggleDivider = (
+  value: string,
+  start: number,
+  end: number,
+): EditResult => {
+  const line = lineBounds(value, Math.max(start, end - (end > start ? 1 : 0)));
+
+  if (isDividerLine(line.text)) {
+    const dropNewline =
+      line.end < value.length && value[line.end] === "\n" ? 1 : 0;
+    const next = `${value.slice(0, line.start)}${value.slice(line.end + dropNewline)}`;
+    return { next, selectionStart: line.start, selectionEnd: line.start };
+  }
+
+  if (line.text.trim() === "") {
+    const next = `${value.slice(0, line.start)}---${value.slice(line.end)}`;
+    const caret = line.start + 3;
+    return { next, selectionStart: caret, selectionEnd: caret };
+  }
+
+  const inserted = "\n---\n";
+  const next = `${value.slice(0, line.end)}${inserted}${value.slice(line.end)}`;
+  const caret = line.end + inserted.length;
+  return { next, selectionStart: caret, selectionEnd: caret };
+};
+
+export const toggleMarkdownTask = (
+  markdown: string,
+  index: number,
+): string => {
+  const lines = markdown.split("\n");
+  let inFence = false;
+  let seen = 0;
+
+  return lines
+    .map((line) => {
+      if (/^`{3,}/.test(line.trim())) {
+        inFence = !inFence;
+        return line;
+      }
+      if (inFence) return line;
+
+      const match = line.match(TASK_ITEM_LINE);
+      if (!match) return line;
+      if (seen++ !== index) return line;
+
+      const nextMark = match[3] === " " ? "x" : " ";
+      return `${match[1]}${match[2]}[${nextMark}] ${line.slice(match[0].length)}`;
+    })
+    .join("\n");
 };
 
 export const continueListOnEnter = (
@@ -462,11 +449,16 @@ export const continueListOnEnter = (
 
   const { start: lineStart, text } = lineBounds(value, start);
   const { indent, content } = splitIndent(text);
-  const bullet = content.match(/^(- |\* )(.*)$/);
-  const ordered = content.match(/^(\d+)\. (.*)$/);
-  const nextPrefix =
-    bullet?.[1] ?? (ordered ? `${Number(ordered[1]) + 1}. ` : null);
-  const rest = bullet?.[2] ?? ordered?.[2];
+  const task = content.match(/^([-*+] |\d+\. )\[([ xX])\] (.*)$/);
+  const bullet = task ? null : content.match(/^(- |\* )(.*)$/);
+  const ordered = task ? null : content.match(/^(\d+)\. (.*)$/);
+  const orderedTask = task?.[1].match(/^(\d+)\. $/);
+  const nextPrefix = task
+    ? orderedTask
+      ? `${Number(orderedTask[1]) + 1}. [ ] `
+      : `${task[1]}[ ] `
+    : (bullet?.[1] ?? (ordered ? `${Number(ordered[1]) + 1}. ` : null));
+  const rest = task?.[3] ?? bullet?.[2] ?? ordered?.[2];
 
   if (!nextPrefix || rest === undefined) return null;
 
@@ -483,7 +475,9 @@ export const continueListOnEnter = (
   const splitAt = Math.max(0, caretInLine - contentStart - markerLen);
   const before = rest.slice(0, splitAt);
   const after = rest.slice(splitAt);
-  const currentPrefix = bullet?.[1] ?? `${ordered?.[1]}. `;
+  const currentPrefix = task
+    ? `${task[1]}[${task[2]}] `
+    : (bullet?.[1] ?? `${ordered?.[1]}. `);
   const currentLine = `${indent}${currentPrefix}${before}`;
   const nextLine = `${indent}${nextPrefix}${after}`;
   const next = `${value.slice(0, lineStart)}${currentLine}\n${nextLine}${value.slice(lineStart + text.length)}`;

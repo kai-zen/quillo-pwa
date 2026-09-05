@@ -78,7 +78,7 @@ const MarkdownEditor: FC<Props> = ({
       {tab === "preview" && (
         <div className="min-h-28 px-3 py-2">
           {value.trim() ? (
-            <Markdown>{value}</Markdown>
+            <Markdown onChange={onChange}>{value}</Markdown>
           ) : (
             <p className="text-sm text-muted">Nothing to preview.</p>
           )}

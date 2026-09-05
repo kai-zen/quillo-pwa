@@ -28,7 +28,6 @@ import {
   SPRINT_STATUS_LABELS,
 } from "./helpers";
 import type { SprintsListViewModel } from "./hooks/useSprintsListView";
-import SprintGoalLink from "./SprintGoalLink";
 
 interface Props {
   view: SprintsListViewModel;
@@ -151,7 +150,6 @@ const SprintsList: FC<Props> = ({ view }) => {
             <TableRow>
               <TableHead className="w-20">#</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead className="w-44">Goal</TableHead>
               <TableHead className="w-52">Dates</TableHead>
               <TableHead className="w-32">Status</TableHead>
             </TableRow>
@@ -175,17 +173,6 @@ const SprintsList: FC<Props> = ({ view }) => {
                     <span className="block truncate font-medium text-foreground">
                       {sprint.name}
                     </span>
-                  </TableCell>
-                  <TableCell>
-                    {linkedGoal ? (
-                      <SprintGoalLink
-                        goal={linkedGoal}
-                        size="sm"
-                        onClick={(event) => event.stopPropagation()}
-                      />
-                    ) : (
-                      <span className="text-sm text-muted">—</span>
-                    )}
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-muted">
