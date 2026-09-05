@@ -1,9 +1,10 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
+import Button from "../Button";
 import { cn } from "../cn";
 
 interface Props {
@@ -13,36 +14,74 @@ interface Props {
 }
 
 const Markdown: FC<Props> = ({ children, className, compact = false }) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [canExpand, setCanExpand] = useState(false);
+
+  useEffect(() => {
+    if (!compact || expanded) return;
+
+    const element = contentRef.current;
+    if (!element) return;
+
+    const checkTruncation = () => {
+      if (element.scrollHeight > element.clientHeight + 1) {
+        setCanExpand(true);
+      }
+    };
+
+    checkTruncation();
+
+    const observer = new ResizeObserver(checkTruncation);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [children, compact, expanded]);
+
   if (!children.trim()) return null;
 
   return (
-    <div
-      className={cn(
-        "markdown text-sm leading-relaxed text-foreground",
-        "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
-        "[&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-foreground",
-        "[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:text-foreground",
-        "[&_li]:my-0.5 [&_li]:text-foreground",
-        "[&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted",
-        "[&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-muted",
-        "[&_code]:rounded [&_code]:bg-accent-soft [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
-        "[&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-border [&_pre]:bg-accent-soft [&_pre]:p-3",
-        "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
-        "[&_h1]:mb-2 [&_h1]:mt-3 [&_h1]:text-base [&_h1]:font-semibold",
-        "[&_h2]:mb-2 [&_h2]:mt-3 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-foreground",
-        "[&_h3]:mb-1.5 [&_h3]:mt-2 [&_h3]:text-sm [&_h3]:font-medium",
-        "[&_hr]:my-3 [&_hr]:border-border",
-        "[&_strong]:font-semibold",
-        "[&_table]:my-2 [&_table]:w-full [&_table]:border-collapse text-left",
-        "[&_th]:border [&_th]:border-border [&_th]:bg-accent-soft [&_th]:px-2 [&_th]:py-1",
-        "[&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1",
-        compact && "line-clamp-3 text-muted [&_p]:my-0",
-        className,
-      )}
-    >
-      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-        {children}
-      </ReactMarkdown>
+    <div>
+      <div
+        ref={contentRef}
+        className={cn(
+          "markdown text-sm leading-relaxed text-foreground",
+          "[&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0",
+          "[&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:text-foreground",
+          "[&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:text-foreground",
+          "[&_li]:my-0.5 [&_li]:text-foreground",
+          "[&_blockquote]:my-2 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted",
+          "[&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-muted",
+          "[&_code]:rounded [&_code]:bg-accent-soft [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.85em]",
+          "[&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-border [&_pre]:bg-accent-soft [&_pre]:p-3",
+          "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
+          "[&_h1]:mb-2 [&_h1]:mt-3 [&_h1]:text-base [&_h1]:font-semibold",
+          "[&_h2]:mb-2 [&_h2]:mt-3 [&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-foreground",
+          "[&_h3]:mb-1.5 [&_h3]:mt-2 [&_h3]:text-sm [&_h3]:font-medium",
+          "[&_hr]:my-3 [&_hr]:border-border",
+          "[&_strong]:font-semibold",
+          "[&_table]:my-2 [&_table]:w-full [&_table]:border-collapse text-left",
+          "[&_th]:border [&_th]:border-border [&_th]:bg-accent-soft [&_th]:px-2 [&_th]:py-1",
+          "[&_td]:border [&_td]:border-border [&_td]:px-2 [&_td]:py-1",
+          compact && "text-muted [&_p]:my-0",
+          compact && !expanded && "line-clamp-3",
+          className,
+        )}
+      >
+        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+          {children}
+        </ReactMarkdown>
+      </div>
+      {compact && canExpand ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="mt-2"
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? "Show less" : "Show more..."}
+        </Button>
+      ) : null}
     </div>
   );
 };
