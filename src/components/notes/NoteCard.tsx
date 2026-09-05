@@ -2,7 +2,7 @@
 
 import { Archive, Pin } from "lucide-react";
 import { FC, MouseEvent } from "react";
-import { cn, IconButton } from "@/components/common";
+import { cn, IconButton, Markdown } from "@/components/common";
 import type { Label, Note, NoteFolder, RecordId } from "@/shared/types";
 import { formatNoteDate } from "./helpers";
 import NoteFolderPicker from "./NoteFolderPicker";
@@ -60,9 +60,17 @@ const NoteCard: FC<Props> = ({
         <span className="line-clamp-2 w-full min-w-0 wrap-anywhere font-medium text-foreground">
           {note.title}
         </span>
-        <span className="mt-2 line-clamp-3 w-full min-w-0 wrap-anywhere text-sm leading-6 text-muted">
-          {note.content.replace(/\s+/g, " ").trim() || "No content"}
-        </span>
+        {note.content.trim() ? (
+          <Markdown
+            compact
+            expandable={false}
+            className="pointer-events-none mt-2 w-full min-w-0 [&_a]:no-underline"
+          >
+            {note.content}
+          </Markdown>
+        ) : (
+          <span className="mt-2 text-sm leading-6 text-muted">No content</span>
+        )}
       </button>
 
       <div className="absolute right-3 top-3 flex">

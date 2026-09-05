@@ -10,7 +10,12 @@ type Editor =
   | { type: "create" }
   | { type: "rename"; folder: NoteFolder };
 
-export function useNoteFoldersPanel(onOpen: (id: RecordId) => void) {
+interface Options {
+  onOpen?: (id: RecordId) => void;
+  onDeleted?: (id: RecordId) => void;
+}
+
+export function useNoteFoldersPanel({ onOpen, onDeleted }: Options = {}) {
   const {
     createNoteFolder,
     updateNoteFolder,
@@ -61,7 +66,7 @@ export function useNoteFoldersPanel(onOpen: (id: RecordId) => void) {
 
       const folder = await createNoteFolder({ name: trimmed });
       cancelEditor();
-      onOpen(folder._id);
+      onOpen?.(folder._id);
     } catch (err) {
       setError(
         getErrorMessage(
@@ -89,6 +94,7 @@ export function useNoteFoldersPanel(onOpen: (id: RecordId) => void) {
       if (editor.type === "rename" && editor.folder._id === folder._id) {
         cancelEditor();
       }
+      onDeleted?.(folder._id);
     } catch (err) {
       setError(getErrorMessage(err, "Could not delete folder."));
     }

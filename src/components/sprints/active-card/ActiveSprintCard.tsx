@@ -2,8 +2,12 @@
 
 import { ChevronDown, ListPlus, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { Button, cn } from "@/components/common";
+import {
+  formatDayChipWeekday,
+  todayIso,
+} from "@/components/tasks/helpers";
 import type { RecordId, Sprint, Task } from "@/shared/types";
 import AddTasksToSprintModal from "../AddTasksToSprintModal";
 import {
@@ -15,17 +19,26 @@ import { useActiveSprint } from "../hooks/useActiveSprint";
 import RemainingTaskRow from "./RemainingTaskRow";
 import SprintProgressRing from "./SprintProgressRing";
 
+const REMAINING_PREVIEW = 5;
+
 interface Props {
   sprints: Sprint[];
+  selectedDate: string;
   onCreateTask: (sprintId: RecordId) => void;
   onEditTask: (task: Task) => void;
 }
 
-const ActiveSprintCard: FC<Props> = ({ sprints, onCreateTask, onEditTask }) => {
+const ActiveSprintCard: FC<Props> = ({
+  sprints,
+  selectedDate,
+  onCreateTask,
+  onEditTask,
+}) => {
   const {
     sprint,
     progress,
     remaining,
+    selectedDate: day,
     isLoading,
     isError,
     addTasksOpen,
@@ -34,7 +47,17 @@ const ActiveSprintCard: FC<Props> = ({ sprints, onCreateTask, onEditTask }) => {
     openAddTasks,
     closeAddTasks,
     scheduleForDay,
-  } = useActiveSprint(sprints);
+  } = useActiveSprint(sprints, selectedDate);
+  const [showAllRemaining, setShowAllRemaining] = useState(false);
+
+  const visibleRemaining = showAllRemaining
+    ? remaining
+    : remaining.slice(0, REMAINING_PREVIEW);
+  const hiddenCount = Math.max(0, remaining.length - REMAINING_PREVIEW);
+  const scheduleLabel =
+    day === todayIso() ? "Today" : formatDayChipWeekday(day);
+  const remainingHeading =
+    day === todayIso() ? "Not on today" : `Not on ${formatDayChipWeekday(day)}`;
 
   if (!sprint) return null;
   const progressLabel = isLoading
@@ -132,30 +155,33 @@ const ActiveSprintCard: FC<Props> = ({ sprints, onCreateTask, onEditTask }) => {
             </p>
           )}
 
-          {remaining.items.length > 0 && (
+          {remaining.length > 0 && (
             <div>
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted">
-                Not on today
+                {remainingHeading}
               </p>
               <ul className="overflow-hidden rounded-lg border border-border">
-                {remaining.items.map((task) => (
+                {visibleRemaining.map((task) => (
                   <RemainingTaskRow
                     key={task._id}
                     task={task}
                     pending={pendingId === task._id}
-                    scheduleLabel="Today"
+                    scheduleLabel={scheduleLabel}
                     onSchedule={() => scheduleForDay(task)}
                     onEdit={() => onEditTask(task)}
                   />
                 ))}
               </ul>
-              {remaining.extra > 0 && (
-                <Link
-                  href={sprintHref(sprint)}
-                  className="mt-2 inline-block text-xs font-medium text-muted transition-colors hover:text-foreground"
+              {hiddenCount > 0 && (
+                <button
+                  type="button"
+                  className="mt-2 cursor-pointer text-xs font-medium text-muted transition-colors hover:text-foreground"
+                  onClick={() => setShowAllRemaining((open) => !open)}
                 >
-                  +{remaining.extra} more in this sprint
-                </Link>
+                  {showAllRemaining
+                    ? "Show less"
+                    : `Show ${hiddenCount} more`}
+                </button>
               )}
             </div>
           )}

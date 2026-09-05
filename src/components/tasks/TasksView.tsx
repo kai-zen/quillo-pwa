@@ -63,6 +63,7 @@ const TasksViewContent: FC = () => {
 
       <ActiveSprintCard
         sprints={sprints}
+        selectedDate={selectedDate}
         onCreateTask={(sprintId) => openCreate(undefined, sprintId)}
         onEditTask={openEdit}
       />

@@ -2,7 +2,7 @@
 
 import { Pin, Plus } from "lucide-react";
 import { FC } from "react";
-import { Button, cn } from "@/components/common";
+import { Button, cn, Markdown } from "@/components/common";
 import type { Note } from "@/shared/types";
 import { NoteEditorModal } from "./form/NoteForm";
 import { formatNoteDate } from "./helpers";
@@ -16,8 +16,6 @@ const LinkedNoteCard: FC<{
   note: Note;
   onOpen: (note: Note) => void;
 }> = ({ note, onOpen }) => {
-  const preview = note.content.replace(/\s+/g, " ").trim() || "No content";
-
   return (
     <button
       type="button"
@@ -40,9 +38,19 @@ const LinkedNoteCard: FC<{
           />
         ) : null}
       </span>
-      <span className="mt-2 line-clamp-3 min-w-0 w-full flex-1 wrap-anywhere text-sm leading-6 text-muted">
-        {preview}
-      </span>
+      {note.content.trim() ? (
+        <Markdown
+          compact
+          expandable={false}
+          className="pointer-events-none mt-2 min-w-0 w-full flex-1 [&_a]:no-underline"
+        >
+          {note.content}
+        </Markdown>
+      ) : (
+        <span className="mt-2 min-w-0 w-full flex-1 text-sm leading-6 text-muted">
+          No content
+        </span>
+      )}
       <span className="mt-3 block border-t border-border/70 pt-2.5 text-xs text-muted">
         Updated {formatNoteDate(note.updated_at)}
       </span>

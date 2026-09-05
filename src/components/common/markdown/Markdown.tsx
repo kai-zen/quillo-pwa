@@ -13,6 +13,8 @@ interface Props {
   children: string;
   className?: string;
   compact?: boolean;
+  /** When compact, show a Show more control if truncated. Default true. */
+  expandable?: boolean;
   onChange?: (value: string) => void;
 }
 
@@ -79,14 +81,16 @@ const Markdown: FC<Props> = ({
   children,
   className,
   compact = false,
+  expandable = true,
   onChange,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
+  const allowExpand = compact && expandable;
 
   useEffect(() => {
-    if (!compact || expanded) return;
+    if (!allowExpand || expanded) return;
 
     const element = contentRef.current;
     if (!element) return;
@@ -102,7 +106,7 @@ const Markdown: FC<Props> = ({
     const observer = new ResizeObserver(checkTruncation);
     observer.observe(element);
     return () => observer.disconnect();
-  }, [children, compact, expanded]);
+  }, [children, allowExpand, expanded]);
 
   if (!children.trim()) return null;
 
@@ -145,7 +149,7 @@ const Markdown: FC<Props> = ({
           {children}
         </ReactMarkdown>
       </div>
-      {compact && canExpand ? (
+      {allowExpand && canExpand ? (
         <Button
           type="button"
           variant="ghost"

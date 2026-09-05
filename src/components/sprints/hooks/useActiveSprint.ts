@@ -13,19 +13,18 @@ import type { Goal, RecordId, Sprint, Task } from "@/shared/types";
 import { findGoal, pickActiveSprint } from "../helpers";
 
 const PAGE_LIMIT = 50;
-const REMAINING_LIMIT = 5;
 
 const flattenTasks = (tasks: Task[]): Task[] =>
   groupTasks(tasks).flatMap(({ task, children }) => [task, ...children]);
 
-export function useActiveSprint(sprints: Sprint[]) {
+export function useActiveSprint(sprints: Sprint[], selectedDate: string) {
   const { useTasksList, updateTask } = useTasksApi();
   const { useGoalsList } = useGoalsApi();
   const sprint = pickActiveSprint(sprints);
   const goalsQuery = useGoalsList({ page: 1, limit: 100 });
   const goals: Goal[] = goalsQuery.data?.items ?? [];
   const linkedGoal = sprint ? findGoal(sprint.goal_id, goals) : null;
-  const today = todayIso();
+  const day = selectedDate || todayIso();
 
   const [addTasksOpen, setAddTasksOpen] = useState(false);
   const [pendingId, setPendingId] = useState<RecordId | null>(null);
@@ -54,16 +53,14 @@ export function useActiveSprint(sprints: Sprint[]) {
     };
   }, [flatTasks]);
 
-  const remaining = useMemo(() => {
-    const items = flatTasks.filter((task) => {
-      if (task.status === "done" || task.status === "cancelled") return false;
-      return toDateInputValue(task.doing_date) !== today;
-    });
-    return {
-      items: items.slice(0, REMAINING_LIMIT),
-      extra: Math.max(0, items.length - REMAINING_LIMIT),
-    };
-  }, [flatTasks, today]);
+  const remaining = useMemo(
+    () =>
+      flatTasks.filter((task) => {
+        if (task.status === "done" || task.status === "cancelled") return false;
+        return toDateInputValue(task.doing_date) !== day;
+      }),
+    [flatTasks, day],
+  );
 
   const isLoading = !!sprint && tasksQuery.isLoading;
   const isError = !!sprint && tasksQuery.isError;
@@ -78,7 +75,7 @@ export function useActiveSprint(sprints: Sprint[]) {
     try {
       await updateTask(task._id, {
         ...toUpdateBody(task),
-        doing_date: today,
+        doing_date: day,
       });
     } catch (err) {
       setActionError(getErrorMessage(err, "Could not schedule this task."));
@@ -92,6 +89,7 @@ export function useActiveSprint(sprints: Sprint[]) {
     linkedGoal,
     progress,
     remaining,
+    selectedDate: day,
     isLoading,
     isError,
     addTasksOpen,
