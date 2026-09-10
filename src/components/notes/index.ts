@@ -1,5 +1,6 @@
 export { default as NotesView } from "./NotesView";
 export { default as LinkedNotes } from "./LinkedNotes";
+export type { LinkedNotesHandle } from "./LinkedNotes";
 export {
   default as NoteForm,
   NoteEditorModal,

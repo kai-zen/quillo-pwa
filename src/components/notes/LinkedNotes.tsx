@@ -1,7 +1,11 @@
 "use client";
 
 import { Pin, Plus } from "lucide-react";
-import { FC } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  type FC,
+} from "react";
 import { Button, cn, Markdown } from "@/components/common";
 import type { Note } from "@/shared/types";
 import { NoteEditorModal } from "./form/NoteForm";
@@ -14,9 +18,15 @@ import {
   tapeTransform,
 } from "./stickyNote";
 
+export type LinkedNotesHandle = {
+  openCreate: () => void;
+};
+
 type Props = LinkedNotesFilter & {
   of?: string;
   className?: string;
+  /** When false, parent owns the primary Add note CTA. Default true. */
+  showAddButton?: boolean;
 };
 
 const LinkedNoteCard: FC<{
@@ -80,7 +90,10 @@ const LinkedNoteCard: FC<{
   );
 };
 
-const LinkedNotes: FC<Props> = ({ of, className, ...filter }) => {
+const LinkedNotes = forwardRef<LinkedNotesHandle, Props>(function LinkedNotes(
+  { of, className, showAddButton = true, ...filter },
+  ref,
+) {
   const {
     notes,
     isLoading,
@@ -95,6 +108,8 @@ const LinkedNotes: FC<Props> = ({ of, className, ...filter }) => {
   const subject = of || (filter.date ? formatNoteDate(filter.date) : "");
   const title = subject ? `Notes of ${subject}` : "Notes";
 
+  useImperativeHandle(ref, () => ({ openCreate }), [openCreate]);
+
   return (
     <>
       <div className={cn("flex flex-col gap-3", className)}>
@@ -105,15 +120,17 @@ const LinkedNotes: FC<Props> = ({ of, className, ...filter }) => {
           >
             {title}
           </p>
-          <Button
-            size="sm"
-            variant="secondary"
-            className="shrink-0"
-            onClick={openCreate}
-          >
-            <Plus className="h-4 w-4" aria-hidden />
-            Add note
-          </Button>
+          {showAddButton ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="shrink-0"
+              onClick={openCreate}
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Add note
+            </Button>
+          ) : null}
         </div>
 
         {isLoading && <p className="text-sm text-muted">Loading notes…</p>}
@@ -159,6 +176,6 @@ const LinkedNotes: FC<Props> = ({ of, className, ...filter }) => {
       />
     </>
   );
-};
+});
 
 export default LinkedNotes;

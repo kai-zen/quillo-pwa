@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, StickyNote } from "lucide-react";
-import { FC, Suspense, useState } from "react";
+import { FC, Suspense, useRef, useState } from "react";
 import {
   Button,
   ConfirmModal,
@@ -10,7 +10,7 @@ import {
   Modal,
 } from "@/components/common";
 import { DailyReview } from "@/components/daily-reviews";
-import { LinkedNotes } from "@/components/notes";
+import { LinkedNotes, type LinkedNotesHandle } from "@/components/notes";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
 import type { Task } from "@/shared/types";
@@ -49,6 +49,7 @@ const TasksViewContent: FC = () => {
     reorderTasks,
   } = useTasksDayView();
   const [toDelete, setToDelete] = useState<Task | null>(null);
+  const linkedNotesRef = useRef<LinkedNotesHandle>(null);
 
   const heading = formatDayHeading(selectedDate);
 
@@ -98,11 +99,16 @@ const TasksViewContent: FC = () => {
               <StickyNote className="h-5 w-5" aria-hidden />
             </IconButton>
             <Button
-              onClick={() => openCreate()}
+              onClick={() => {
+                if (showNotes) linkedNotesRef.current?.openCreate();
+                else openCreate();
+              }}
               size="sm"
+              className="w-[100px]"
+              variant={showNotes ? "secondary" : "primary"}
               startIcon={<Plus className="h-4 w-4" aria-hidden />}
             >
-              Add tasks
+              {showNotes ? "Add note" : "Add task"}
             </Button>
           </div>
         </div>
@@ -113,7 +119,12 @@ const TasksViewContent: FC = () => {
       )}
 
       {showNotes ? (
-        <LinkedNotes key={selectedDate} date={selectedDate} />
+        <LinkedNotes
+          ref={linkedNotesRef}
+          key={selectedDate}
+          date={selectedDate}
+          showAddButton={false}
+        />
       ) : (
         <>
           {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
