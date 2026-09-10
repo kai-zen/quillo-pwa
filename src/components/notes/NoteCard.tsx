@@ -6,6 +6,12 @@ import { cn, IconButton, Markdown } from "@/components/common";
 import type { Label, Note, NoteFolder, RecordId } from "@/shared/types";
 import { formatNoteDate } from "./helpers";
 import NoteFolderPicker from "./NoteFolderPicker";
+import {
+  getStickyNoteStyle,
+  stickyNoteCssVars,
+  tapePositionClass,
+  tapeTransform,
+} from "./stickyNote";
 
 interface Props {
   note: Note;
@@ -44,13 +50,31 @@ const NoteCard: FC<Props> = ({
       void action();
     };
 
+  const sticky = getStickyNoteStyle(note._id);
+  const style = stickyNoteCssVars(sticky);
+
   return (
     <article
+      style={style}
       className={cn(
-        "group relative flex min-h-48 min-w-0 w-full flex-col rounded-xl border border-border bg-surface p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md focus-within:z-20 has-aria-expanded:z-20",
+        "group relative flex min-h-48 min-w-0 w-full rotate-[var(--tilt)] flex-col rounded-sm border p-4 pt-6 shadow-[2px_4px_10px_-2px_rgba(0,0,0,0.18)]",
+        "transition-all duration-200 ease-out will-change-transform",
+        "hover:z-10 hover:rotate-0 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[2px_10px_20px_-4px_rgba(0,0,0,0.25)]",
+        "focus-within:z-20 has-aria-expanded:z-20",
+        sticky.cardClassName,
         note.archived && "opacity-70",
       )}
     >
+      <span
+        aria-hidden
+        style={{ transform: tapeTransform(sticky.tapeSide) }}
+        className={cn(
+          "pointer-events-none absolute -top-3 h-5 w-14 rounded-[2px] border shadow-sm backdrop-blur-[1px]",
+          tapePositionClass[sticky.tapeSide],
+          sticky.tapeClassName,
+        )}
+      />
+
       <button
         type="button"
         onClick={() => onOpen(note)}
@@ -102,7 +126,7 @@ const NoteCard: FC<Props> = ({
         </IconButton>
       </div>
 
-      <footer className="mt-4 min-w-0 border-t border-border/70 pt-3">
+      <footer className="mt-4 min-w-0 border-t border-black/10 pt-3 dark:border-white/10">
         <span className="block text-xs text-muted">
           Updated {formatNoteDate(note.updated_at)}
         </span>

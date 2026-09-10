@@ -141,7 +141,7 @@ const NotesList: FC<Props> = ({ view }) => {
         )}
 
         {!isLoading && !isError && notes.length > 0 && (
-          <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid min-w-0 gap-x-4 gap-y-6 pt-3 sm:grid-cols-2 xl:grid-cols-3">
             {notes.map((note) => (
               <NoteCard
                 key={note._id}

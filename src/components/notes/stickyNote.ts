@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+
 /**
  * Deterministic "sticky note" look for a note card: a paper color, a slight
  * tilt, and a strip of tape — all derived from the note's id so a given note
@@ -73,4 +75,23 @@ export function getStickyNoteStyle(id: string): StickyNoteStyle {
     tapeTilt,
     tapeSide,
   };
+}
+
+export function stickyNoteCssVars(style: StickyNoteStyle): CSSProperties {
+  return {
+    "--tilt": `${style.tilt}deg`,
+    "--tape-tilt": `${style.tapeTilt}deg`,
+  } as CSSProperties;
+}
+
+export const tapePositionClass: Record<StickyNoteStyle["tapeSide"], string> = {
+  left: "left-5",
+  center: "left-1/2",
+  right: "right-5",
+};
+
+export function tapeTransform(side: StickyNoteStyle["tapeSide"]): string {
+  return side === "center"
+    ? "translateX(-50%) rotate(var(--tape-tilt))"
+    : "rotate(var(--tape-tilt))";
 }

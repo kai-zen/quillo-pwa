@@ -1,39 +1,30 @@
 "use client";
 
 import { Pin, Plus } from "lucide-react";
-import { CSSProperties, FC } from "react";
+import { FC } from "react";
 import { Button, cn, Markdown } from "@/components/common";
 import type { Note } from "@/shared/types";
 import { NoteEditorModal } from "./form/NoteForm";
 import { formatNoteDate } from "./helpers";
 import { useLinkedNotes, type LinkedNotesFilter } from "./hooks/useLinkedNotes";
-import { getStickyNoteStyle } from "./stickyNote";
+import {
+  getStickyNoteStyle,
+  stickyNoteCssVars,
+  tapePositionClass,
+  tapeTransform,
+} from "./stickyNote";
 
 type Props = LinkedNotesFilter & {
   of?: string;
   className?: string;
 };
 
-const tapePositionClass = {
-  left: "left-5",
-  center: "left-1/2",
-  right: "right-5",
-} as const;
-
-const tapeTransform = (side: "left" | "center" | "right") =>
-  side === "center"
-    ? "translateX(-50%) rotate(var(--tape-tilt))"
-    : "rotate(var(--tape-tilt))";
-
 const LinkedNoteCard: FC<{
   note: Note;
   onOpen: (note: Note) => void;
 }> = ({ note, onOpen }) => {
   const sticky = getStickyNoteStyle(note._id);
-  const style = {
-    "--tilt": `${sticky.tilt}deg`,
-    "--tape-tilt": `${sticky.tapeTilt}deg`,
-  } as CSSProperties;
+  const style = stickyNoteCssVars(sticky);
 
   return (
     <button
