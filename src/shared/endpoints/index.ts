@@ -8,20 +8,26 @@ export {
   subscribeAuth,
 } from "./client";
 export {
+  dailyReviewsModule,
   goalsModule,
   labelsModule,
   noteFoldersModule,
   notesModule,
+  progressesModule,
+  progressInputsModule,
   sprintsModule,
   routinesModule,
   tasksModule,
   usersModule,
 } from "./modules";
 export type {
+  DailyReviewsModule,
   GoalsModule,
   LabelsModule,
   NoteFoldersModule,
   NotesModule,
+  ProgressesModule,
+  ProgressInputsModule,
   SprintsModule,
   RoutinesModule,
   TasksModule,

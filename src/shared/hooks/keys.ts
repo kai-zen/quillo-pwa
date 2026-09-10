@@ -1,8 +1,13 @@
 import type {
+  DailyReviewListQuery,
+  DailyReviewRangeQuery,
   GoalListQuery,
   LabelListQuery,
   NoteFolderListQuery,
   NoteListQuery,
+  ProgressInputListQuery,
+  ProgressInputRangeQuery,
+  ProgressListQuery,
   RecordId,
   RoutineListQuery,
   SprintListQuery,
@@ -49,5 +54,28 @@ export const queryKeys = {
     all: ["notes"] as const,
     list: (query?: NoteListQuery) => ["notes", "list", query] as const,
     detail: (id: RecordId) => ["notes", "detail", id] as const,
+  },
+  progresses: {
+    all: ["progresses"] as const,
+    list: (query?: ProgressListQuery) => ["progresses", "list", query] as const,
+    detail: (id: RecordId) => ["progresses", "detail", id] as const,
+  },
+  progressInputs: {
+    all: ["progressInputs"] as const,
+    list: (query?: ProgressInputListQuery) =>
+      ["progressInputs", "list", query] as const,
+    detail: (id: RecordId) => ["progressInputs", "detail", id] as const,
+    byDate: (date: string) => ["progressInputs", "date", date] as const,
+    range: (query?: ProgressInputRangeQuery) =>
+      ["progressInputs", "range", query] as const,
+  },
+  dailyReviews: {
+    all: ["dailyReviews"] as const,
+    list: (query?: DailyReviewListQuery) =>
+      ["dailyReviews", "list", query] as const,
+    detail: (id: RecordId) => ["dailyReviews", "detail", id] as const,
+    byDate: (date: string) => ["dailyReviews", "date", date] as const,
+    range: (query?: DailyReviewRangeQuery) =>
+      ["dailyReviews", "range", query] as const,
   },
 };

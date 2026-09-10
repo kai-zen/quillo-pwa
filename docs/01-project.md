@@ -20,7 +20,7 @@ These are filters on `GET /tasks`, not separate screens with separate data store
 
 Stay minimal. Do not add UI surface, state, or shared helpers unless a v1 screen needs them.
 
-Eight domain modules: users, labels, goals, sprints, routines, tasks, note folders, notes. Match the API. Prefer shared types and one data-access path so components stay thin.
+Eleven domain modules: users, labels, goals, sprints, routines, tasks, note folders, notes, daily reviews, progresses, progress inputs. Match the API. Prefer shared types and one data-access path so components stay thin.
 
 ## Stack
 
@@ -35,7 +35,7 @@ Components do not call Axios directly. Flow is:
 
 ```
 component
-  → module hook (useUsersApi / useLabelsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi / useNoteFoldersApi / useNotesApi)
+  → module hook (useUsersApi / useLabelsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi / useNoteFoldersApi / useNotesApi / useDailyReviewsApi / useProgressesApi / useProgressInputsApi)
     → request() + module endpoint def
       → apiClient (Axios)
         → Quillo API
@@ -61,6 +61,8 @@ labelsModule.list; // GET /labels → PaginatedResponse<Label>
 goalsModule.toggleObjective; // PATCH /goals/:id/objectives/:objectiveId/toggle → Goal
 notesModule.togglePinned; // PATCH /notes/:id/pinned/toggle → Note
 notesModule.toggleArchived; // PATCH /notes/:id/archived/toggle → Note
+dailyReviewsModule.getByRange; // GET /daily-reviews/range → { items }
+dailyReviewsModule.getByDate; // GET /daily-reviews/date/:date → DailyReview
 ```
 
 Call them through `request(endpoint, { body, query, params })`.
@@ -117,6 +119,8 @@ Named work buckets with dates and status: `planned` | `active` | `completed` | `
 
 Optional `goal_id` — link this sprint to a goal. Send `null` on update to clear.
 
+Optional `progress_ids[]` — select which progresses to track during this sprint. Omit on create for none; include on update to replace the full list.
+
 ### Routines
 
 Named lists of task drafts. Applying routines for a day creates normal tasks with that `doing_date`.
@@ -146,6 +150,41 @@ Independent from the Goal → Sprint → Daily Task hierarchy. Optional links to
 - toggle `pinned` via `PATCH /notes/:id/pinned/toggle` (no body)
 - toggle `archived` via `PATCH /notes/:id/archived/toggle` (no body)
 - list filters: `folder_id`, `goal_id`, `sprint_id`, `date`, `archived`, `pinned`, `label_ids` (send `"null"` for none)
+
+### Progresses
+
+Reusable tracker definitions. Independent from goals, sprints, and tasks.
+
+- `title`, optional `description`
+- `input_type` — `boolean` | `number` | `duration` | `rating` | `choice`
+- `choice_options[]` when `input_type` is `choice`
+- `number_range` as `[min, max]` when `input_type` is `number` or `rating`
+- title unique per user
+- updates use full resource bodies (`PUT`)
+- `input_type` cannot change after values have been recorded
+- deleting a progress also deletes its recorded inputs and removes it from sprint `progress_ids`
+
+### Progress inputs
+
+Daily values for a progress. Independent from tasks.
+
+- `progress_id`, `date`, `value` (`boolean` | `number` | `string`)
+- one input per progress per calendar day
+- value shape is validated against the linked progress `input_type`
+- list: `GET /progress-inputs` with optional `progress_id`, `date`, pagination
+- range: `GET /progress-inputs/range?from=&to=` (inclusive, optional `progress_id`)
+- one day: `GET /progress-inputs/date/:date` → `{ items }`
+- updates use full resource bodies (`PUT`)
+
+### Daily reviews
+
+One journal entry per calendar day. Independent from the Goal → Sprint → Daily Task hierarchy.
+
+- `date`, `journal`, `mood`, `completion` (0 to 100)
+- moods: `awful` | `bad` | `sad` | `angry` | `anxious` | `overwhelmed` | `frustrated` | `tired` | `lonely` | `bored` | `okay` | `restless` | `calm` | `good` | `happy` | `grateful` | `proud` | `hopeful` | `excited` | `great`
+- list: `GET /daily-reviews` with optional `date`, `mood`
+- range: `GET /daily-reviews/range?from=&to=` (inclusive, no pagination)
+- one day: `GET /daily-reviews/date/:date`
 
 ### Subtasks
 
@@ -185,6 +224,7 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 ### Sprints
 
 - A sprint may belong to zero or one goal.
+- `progress_ids` must reference progresses owned by the user. Duplicates are ignored.
 - `start_date` ≤ `end_date`.
 - Deleting a sprint clears `sprint_id` on tasks and notes; tasks and notes stay.
 - Archive keeps task associations.
@@ -212,6 +252,29 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 - Toggle pin with `PATCH /notes/:id/pinned/toggle` (no body); it only flips `pinned`.
 - Toggle archive with `PATCH /notes/:id/archived/toggle` (no body); it only flips `archived`.
 - A note does not need a folder, label, or relationship to any other entity.
+
+### Progresses
+
+- Title unique per user.
+- `choice_options` is required for `choice`; `number_range` is required for `number` and `rating`.
+- Do not send `choice_options` or `number_range` for other input types.
+- `number_range` min must be less than max.
+- `input_type` cannot change once any input value exists for that progress.
+- Deleting a progress deletes its inputs and removes its id from every sprint `progress_ids`. Tasks and other entities stay.
+
+### Progress inputs
+
+- `date` is `YYYY-MM-DD`. `from` must be ≤ `to` on range.
+- Only one input per progress per day. Absent input means no answer; do not treat as `false` or `0`.
+- Updates use full resource bodies (`PUT`).
+- Deleting an input does not affect the progress definition, sprint selection, or tasks.
+
+### Daily reviews
+
+- One review per user per calendar day.
+- `date` is `YYYY-MM-DD`. `from` must be ≤ `to` on range.
+- Updates use full resource bodies (`PUT`).
+- Deleting a review does not affect tasks, notes, or other entities.
 
 ## Folder map (v1)
 

@@ -68,6 +68,39 @@ export const DAYS_OF_WEEK = [
 ] as const;
 export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];
 
+export const PROGRESS_INPUT_TYPES = [
+  "boolean",
+  "number",
+  "duration",
+  "rating",
+  "choice",
+] as const;
+export type ProgressInputType = (typeof PROGRESS_INPUT_TYPES)[number];
+
+export const DAILY_REVIEW_MOODS = [
+  "awful",
+  "bad",
+  "sad",
+  "angry",
+  "anxious",
+  "overwhelmed",
+  "frustrated",
+  "tired",
+  "lonely",
+  "bored",
+  "okay",
+  "restless",
+  "calm",
+  "good",
+  "happy",
+  "grateful",
+  "proud",
+  "hopeful",
+  "excited",
+  "great",
+] as const;
+export type DailyReviewMood = (typeof DAILY_REVIEW_MOODS)[number];
+
 // ---------------------------------------------------------------------------
 // Entities
 // ---------------------------------------------------------------------------
@@ -116,6 +149,7 @@ export interface Sprint extends Timestamps {
   status: SprintStatus;
   sprint_number: number;
   goal_id: RecordId | null;
+  progress_ids: RecordId[];
 }
 
 export interface RoutineDraft {
@@ -168,6 +202,33 @@ export interface Note extends Timestamps {
   date: string | null;
   pinned: boolean;
   archived: boolean;
+}
+
+export interface DailyReview extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  date: string;
+  journal: string;
+  mood: DailyReviewMood;
+  completion: number;
+}
+
+export interface Progress extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  title: string;
+  description: string;
+  input_type: ProgressInputType;
+  choice_options?: string[];
+  number_range?: [number, number];
+}
+
+export interface ProgressInput extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  progress_id: RecordId;
+  date: string;
+  value: boolean | number | string;
 }
 
 // ---------------------------------------------------------------------------
@@ -244,6 +305,7 @@ export interface CreateSprintBody {
   description?: string;
   status?: SprintStatus;
   goal_id?: RecordId | null;
+  progress_ids?: RecordId[];
 }
 
 export type UpdateSprintBody = CreateSprintBody;
@@ -362,6 +424,76 @@ export interface NoteListQuery extends PaginationQuery {
 }
 
 // ---------------------------------------------------------------------------
+// Daily reviews — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateDailyReviewBody {
+  date: string;
+  journal?: string;
+  mood?: DailyReviewMood;
+  completion?: number;
+}
+
+export type UpdateDailyReviewBody = CreateDailyReviewBody;
+
+export interface DailyReviewListQuery extends PaginationQuery {
+  date?: string;
+  mood?: DailyReviewMood;
+}
+
+export interface DailyReviewRangeQuery {
+  from: string;
+  to: string;
+}
+
+export interface DailyReviewRangeResponse {
+  items: DailyReview[];
+}
+
+// ---------------------------------------------------------------------------
+// Progresses — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateProgressBody {
+  title: string;
+  description?: string;
+  input_type: ProgressInputType;
+  choice_options?: string[];
+  number_range?: [number, number];
+}
+
+export type UpdateProgressBody = CreateProgressBody;
+
+export type ProgressListQuery = PaginationQuery;
+
+// ---------------------------------------------------------------------------
+// Progress inputs — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateProgressInputBody {
+  progress_id: RecordId;
+  date: string;
+  value: boolean | number | string;
+}
+
+export type UpdateProgressInputBody = CreateProgressInputBody;
+
+export interface ProgressInputListQuery extends PaginationQuery {
+  progress_id?: RecordId;
+  date?: string;
+}
+
+export interface ProgressInputRangeQuery {
+  from: string;
+  to: string;
+  progress_id?: RecordId;
+}
+
+export interface ProgressInputItemsResponse {
+  items: ProgressInput[];
+}
+
+// ---------------------------------------------------------------------------
 // Shared path params
 // ---------------------------------------------------------------------------
 
@@ -372,4 +504,8 @@ export interface IdParam {
 export interface GoalObjectiveParam {
   id: RecordId;
   objectiveId: RecordId;
+}
+
+export interface DailyReviewDateParam {
+  date: string;
 }

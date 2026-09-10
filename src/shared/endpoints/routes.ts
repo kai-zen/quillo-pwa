@@ -1,4 +1,8 @@
-import type { GoalObjectiveParam, IdParam } from "@/shared/types";
+import type {
+  DailyReviewDateParam,
+  GoalObjectiveParam,
+  IdParam,
+} from "@/shared/types";
 
 /**
  * All API route paths. Dynamic segments use builder functions.
@@ -52,6 +56,25 @@ export const ROUTES = {
     byId: ({ id }: IdParam) => `/notes/${id}`,
     togglePinned: ({ id }: IdParam) => `/notes/${id}/pinned/toggle`,
     toggleArchived: ({ id }: IdParam) => `/notes/${id}/archived/toggle`,
+  },
+
+  dailyReviews: {
+    base: "/daily-reviews",
+    byId: ({ id }: IdParam) => `/daily-reviews/${id}`,
+    range: "/daily-reviews/range",
+    byDate: ({ date }: DailyReviewDateParam) => `/daily-reviews/date/${date}`,
+  },
+
+  progresses: {
+    base: "/progresses",
+    byId: ({ id }: IdParam) => `/progresses/${id}`,
+  },
+
+  progressInputs: {
+    base: "/progress-inputs",
+    byId: ({ id }: IdParam) => `/progress-inputs/${id}`,
+    range: "/progress-inputs/range",
+    byDate: ({ date }: DailyReviewDateParam) => `/progress-inputs/date/${date}`,
   },
 } as const;
 
