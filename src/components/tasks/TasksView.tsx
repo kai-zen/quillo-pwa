@@ -1,11 +1,12 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, StickyNote } from "lucide-react";
 import { FC, Suspense, useState } from "react";
 import {
   Button,
   ConfirmModal,
   DatePickerIconButton,
+  IconButton,
   Modal,
 } from "@/components/common";
 import { DailyReview } from "@/components/daily-reviews";
@@ -46,6 +47,7 @@ const TasksViewContent: FC = () => {
     reorderTasks,
   } = useTasksDayView();
   const [toDelete, setToDelete] = useState<Task | null>(null);
+  const [showNotes, setShowNotes] = useState(false);
 
   const heading = formatDayHeading(selectedDate);
 
@@ -85,18 +87,79 @@ const TasksViewContent: FC = () => {
               {formatDayShort(selectedDate)}
             </p>
           </div>
-          <Button
-            onClick={() => openCreate()}
-            size="sm"
-            startIcon={<Plus className="h-4 w-4" aria-hidden />}
-          >
-            Add tasks
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <IconButton
+              label="Day notes"
+              size="sm"
+              active={showNotes}
+              aria-pressed={showNotes}
+              onClick={() => setShowNotes((current) => !current)}
+            >
+              <StickyNote className="h-4 w-4" aria-hidden />
+            </IconButton>
+            <Button
+              onClick={() => openCreate()}
+              size="sm"
+              startIcon={<Plus className="h-4 w-4" aria-hidden />}
+            >
+              Add tasks
+            </Button>
+          </div>
         </div>
       </div>
 
       {!isLoading && !isError && tasks.length > 0 && (
         <DayProgress tasks={tasks} />
+      )}
+
+      {showNotes ? (
+        <LinkedNotes key={selectedDate} date={selectedDate} embedded />
+      ) : (
+        <>
+          {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
+
+          {isError && (
+            <p className="text-sm text-foreground">
+              Could not load tasks. Try refreshing the page.
+            </p>
+          )}
+
+          {isEmpty && (
+            <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
+              <p className="font-medium text-foreground">
+                No tasks for this day
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                Schedule something for {heading}, or pick another day.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <Button
+                  onClick={() => openCreate()}
+                  startIcon={<Plus className="w-4" aria-hidden />}
+                >
+                  Add tasks
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {actionError && (
+            <p className="text-sm text-foreground">{actionError}</p>
+          )}
+
+          {!isLoading && !isError && tasks.length > 0 && (
+            <TaskDayCards
+              tasks={tasks}
+              labels={labels}
+              pendingId={pendingId}
+              onEdit={openEdit}
+              onCreateSubtask={openCreate}
+              onToggleDone={toggleDone}
+              onDelete={setToDelete}
+              onReorder={reorderTasks}
+            />
+          )}
+        </>
       )}
 
       <Modal
@@ -136,46 +199,6 @@ const TasksViewContent: FC = () => {
         onClose={closeApply}
       />
 
-      {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
-
-      {isError && (
-        <p className="text-sm text-foreground">
-          Could not load tasks. Try refreshing the page.
-        </p>
-      )}
-
-      {isEmpty && (
-        <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
-          <p className="font-medium text-foreground">No tasks for this day</p>
-          <p className="mt-1 text-sm text-muted">
-            Schedule something for {heading}, or pick another day.
-          </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <Button
-              onClick={() => openCreate()}
-              startIcon={<Plus className="w-4" aria-hidden />}
-            >
-              Add tasks
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {actionError && <p className="text-sm text-foreground">{actionError}</p>}
-
-      {!isLoading && !isError && tasks.length > 0 && (
-        <TaskDayCards
-          tasks={tasks}
-          labels={labels}
-          pendingId={pendingId}
-          onEdit={openEdit}
-          onCreateSubtask={openCreate}
-          onToggleDone={toggleDone}
-          onDelete={setToDelete}
-          onReorder={reorderTasks}
-        />
-      )}
-
       <ConfirmModal
         open={!!toDelete}
         title="Delete task"
@@ -189,7 +212,7 @@ const TasksViewContent: FC = () => {
 
       <DailyReview key={`review-${selectedDate}`} date={selectedDate} />
 
-      <LinkedNotes key={selectedDate} date={selectedDate} />
+      {!showNotes && <LinkedNotes key={selectedDate} date={selectedDate} />}
     </div>
   );
 };
