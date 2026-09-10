@@ -2,17 +2,7 @@
 
 import { Plus, X } from "lucide-react";
 import { FC, useState } from "react";
-import {
-  Button,
-  IconButton,
-  Modal,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/common";
+import { Button, ConfirmModal, IconButton } from "@/components/common";
 import {
   formatProgressDetails,
   PROGRESS_INPUT_TYPE_LABELS,
@@ -46,9 +36,12 @@ const SprintProgresses: FC<Props> = ({
     onRemove(progress);
   };
 
+  const isEmpty = !isLoading && !isError && count === 0;
+  const hasItems = !isLoading && !isError && count > 0;
+
   return (
-    <div className="flex min-w-0 flex-col gap-3 my-8">
-      <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+    <div className="my-8 flex min-w-0 w-full flex-col gap-3">
+      <div className="flex w-full min-w-0 flex-wrap items-center justify-between gap-3">
         <p className="text-sm font-medium text-foreground">Progress Trackers</p>
         <div className="flex items-center gap-3">
           <span className="text-xs font-medium tabular-nums text-muted">
@@ -69,7 +62,7 @@ const SprintProgresses: FC<Props> = ({
         </p>
       )}
 
-      {!isLoading && !isError && count === 0 && (
+      {isEmpty && (
         <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-10 text-center">
           <p className="font-medium text-foreground">
             No progress trackers on this sprint
@@ -88,78 +81,57 @@ const SprintProgresses: FC<Props> = ({
         </div>
       )}
 
-      {!isLoading && !isError && count > 0 && (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead className="w-32">Type</TableHead>
-              <TableHead className="w-64">Details</TableHead>
-              <TableHead className="w-12">
-                <span className="sr-only">Remove</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {progresses.map((progress) => (
-              <TableRow key={progress._id}>
-                <TableCell>
-                  <span className="block truncate font-medium text-foreground">
+      {hasItems && (
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+          {progresses.map((progress) => {
+            const typeLabel = PROGRESS_INPUT_TYPE_LABELS[progress.input_type];
+            const details = formatProgressDetails(progress);
+            const meta =
+              details === "—" ? typeLabel : `${typeLabel} · ${details}`;
+
+            return (
+              <li
+                key={progress._id}
+                className="flex items-start gap-2 px-3 py-2.5 odd:bg-accent-soft/55 even:bg-surface"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-foreground">
                     {progress.title}
-                  </span>
+                  </p>
                   {progress.description ? (
-                    <span className="mt-0.5 block truncate text-sm text-muted">
+                    <p className="mt-0.5 truncate text-sm text-muted">
                       {progress.description}
-                    </span>
+                    </p>
                   ) : null}
-                </TableCell>
-                <TableCell>
-                  <span className="text-sm whitespace-nowrap text-muted">
-                    {PROGRESS_INPUT_TYPE_LABELS[progress.input_type]}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="block truncate text-sm text-muted">
-                    {formatProgressDetails(progress)}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <IconButton
-                    label={`Remove ${progress.title} from this sprint`}
-                    size="sm"
-                    disabled={!!pendingId}
-                    onClick={() => setToRemove(progress)}
-                  >
-                    <X className="h-3.5 w-3.5" aria-hidden />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                  <p className="mt-0.5 truncate text-xs text-muted">{meta}</p>
+                </div>
+                <IconButton
+                  label={`Remove ${progress.title} from this sprint`}
+                  size="sm"
+                  className="shrink-0"
+                  disabled={!!pendingId}
+                  onClick={() => setToRemove(progress)}
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden />
+                </IconButton>
+              </li>
+            );
+          })}
+        </ul>
       )}
 
-      <Modal
+      <ConfirmModal
         open={!!toRemove}
-        onClose={() => setToRemove(null)}
         title="Remove progress"
-        className="max-w-md"
-      >
-        {toRemove && (
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-muted">
-              Remove “{toRemove.title}” from this sprint? The tracker itself
-              stays and can be added again later.
-            </p>
-            <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-              <Button variant="ghost" onClick={() => setToRemove(null)}>
-                Cancel
-              </Button>
-              <Button onClick={confirmRemove}>Remove</Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+        description={
+          toRemove
+            ? `Remove “${toRemove.title}” from this sprint? The tracker itself stays and can be added again later.`
+            : undefined
+        }
+        confirmLabel="Remove"
+        onClose={() => setToRemove(null)}
+        onConfirm={confirmRemove}
+      />
     </div>
   );
 };

@@ -9,6 +9,7 @@ export { default as Modal } from "./Modal";
 export { default as PageHeader } from "./PageHeader";
 export { default as Combobox } from "./combobox/Combobox";
 export type { ComboboxOption, ComboboxProps } from "./combobox/useCombobox";
+export { default as ConfirmModal } from "./ConfirmModal";
 export { default as Select } from "./select-box/Select";
 export { default as Tabs } from "./Tabs";
 export {
