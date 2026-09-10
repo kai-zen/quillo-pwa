@@ -1,15 +1,27 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { dailyReviewsModule, request } from "@/shared/endpoints";
+import { isNotFoundError } from "@/shared/errors";
 import type {
   CreateDailyReviewBody,
+  DailyReview,
   DailyReviewListQuery,
   DailyReviewRangeQuery,
   RecordId,
   UpdateDailyReviewBody,
 } from "@/shared/types";
 import { queryKeys } from "./keys";
+
+const cacheReview = (queryClient: QueryClient, review: DailyReview) => {
+  queryClient.setQueryData(queryKeys.dailyReviews.detail(review._id), review);
+  queryClient.setQueryData(queryKeys.dailyReviews.byDate(review.date), review);
+};
 
 export const useDailyReviewsApi = () => {
   const queryClient = useQueryClient();
@@ -33,7 +45,16 @@ export const useDailyReviewsApi = () => {
   const useDailyReviewByDate = (date: string, enabled = true) =>
     useQuery({
       queryKey: queryKeys.dailyReviews.byDate(date),
-      queryFn: () => request(dailyReviewsModule.getByDate, { params: { date } }),
+      queryFn: async () => {
+        try {
+          return await request(dailyReviewsModule.getByDate, {
+            params: { date },
+          });
+        } catch (error) {
+          if (isNotFoundError(error)) return null;
+          throw error;
+        }
+      },
       enabled: enabled && !!date,
     });
 
@@ -50,7 +71,10 @@ export const useDailyReviewsApi = () => {
   const createDailyReviewMutation = useMutation({
     mutationFn: (body: CreateDailyReviewBody) =>
       request(dailyReviewsModule.create, { body }),
-    onSuccess: invalidateDailyReviews,
+    onSuccess: (review) => {
+      cacheReview(queryClient, review);
+      invalidateDailyReviews();
+    },
   });
 
   const updateDailyReviewMutation = useMutation({
@@ -61,7 +85,10 @@ export const useDailyReviewsApi = () => {
       id: RecordId;
       body: UpdateDailyReviewBody;
     }) => request(dailyReviewsModule.update, { body, params: { id } }),
-    onSuccess: invalidateDailyReviews,
+    onSuccess: (review) => {
+      cacheReview(queryClient, review);
+      invalidateDailyReviews();
+    },
   });
 
   const deleteDailyReviewMutation = useMutation({

@@ -9,6 +9,7 @@ import {
   Modal,
   PageHeader,
 } from "@/components/common";
+import { DailyReviewCard } from "@/components/daily-reviews";
 import { LinkedNotes } from "@/components/notes";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
@@ -190,15 +191,15 @@ const TasksViewContent: FC = () => {
       <ConfirmModal
         open={!!toDelete}
         title="Delete task"
-        description={
-          toDelete ? `Delete “${toDelete.title}”?` : undefined
-        }
+        description={toDelete ? `Delete “${toDelete.title}”?` : undefined}
         confirmLabel="Delete"
         pending={!!pendingId}
         pendingLabel="Deleting…"
         onClose={() => setToDelete(null)}
         onConfirm={confirmDelete}
       />
+
+      <DailyReviewCard key={`review-${selectedDate}`} date={selectedDate} />
 
       <LinkedNotes key={selectedDate} date={selectedDate} />
     </div>

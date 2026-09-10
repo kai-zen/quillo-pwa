@@ -1,5 +1,8 @@
 import axios from "axios";
 
+export const isNotFoundError = (error: unknown): boolean =>
+  axios.isAxiosError(error) && error.response?.status === 404;
+
 export const getErrorMessage = (
   error: unknown,
   fallback = "Something went wrong.",
