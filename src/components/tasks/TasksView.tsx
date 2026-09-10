@@ -60,13 +60,6 @@ const TasksViewContent: FC = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <ActiveSprintCard
-        sprints={sprints}
-        selectedDate={selectedDate}
-        onCreateTask={(sprintId) => openCreate(undefined, sprintId)}
-        onEditTask={openEdit}
-      />
-
       <div>
         <DayStrip
           centerDate={stripCenter}
@@ -74,15 +67,22 @@ const TasksViewContent: FC = () => {
           onSelect={selectDate}
         />
       </div>
+      <DatePicker
+        value={selectedDate}
+        onChange={jumpToDate}
+        clearable={false}
+        aria-label="Go to date"
+        placeholder="Pick a date…"
+      />
+
+      <ActiveSprintCard
+        sprints={sprints}
+        selectedDate={selectedDate}
+        onCreateTask={(sprintId) => openCreate(undefined, sprintId)}
+        onEditTask={openEdit}
+      />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <DatePicker
-          value={selectedDate}
-          onChange={jumpToDate}
-          clearable={false}
-          aria-label="Go to date"
-          placeholder="Pick a date…"
-        />
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium tabular-nums">
             {taskTotal} task{taskTotal === 1 ? "" : "s"}
