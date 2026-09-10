@@ -60,23 +60,6 @@ const TasksViewContent: FC = () => {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      <PageHeader
-        title="Tasks"
-        description="Pick a day and work through what you planned to do."
-        icon={ListTodo}
-        actions={
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button
-              onClick={() => openCreate()}
-              size="sm"
-              startIcon={<Plus className="h-4 w-4" aria-hidden />}
-            >
-              Add tasks
-            </Button>
-          </div>
-        }
-      />
-
       <ActiveSprintCard
         sprints={sprints}
         selectedDate={selectedDate}
@@ -100,10 +83,17 @@ const TasksViewContent: FC = () => {
           aria-label="Go to date"
           placeholder="Pick a date…"
         />
-        <div>
+        <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium tabular-nums">
             {taskTotal} task{taskTotal === 1 ? "" : "s"}
           </p>
+          <Button
+            onClick={() => openCreate()}
+            size="sm"
+            startIcon={<Plus className="h-4 w-4" aria-hidden />}
+          >
+            Add tasks
+          </Button>
         </div>
       </div>
 
