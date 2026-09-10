@@ -5,6 +5,7 @@ import {
   Repeat,
   StickyNote,
   Target,
+  TrendingUp,
   type LucideIcon,
 } from "lucide-react";
 
@@ -21,6 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   { is_primary: false, href: "/goals", label: "Goals", icon: Target },
   { is_primary: true, href: "/sprints", label: "Sprints", icon: Flag },
   { is_primary: false, href: "/routines", label: "Routines", icon: Repeat },
+  { is_primary: false, href: "/progresses", label: "Progress", icon: TrendingUp },
   { is_primary: true, href: "/notes", label: "Notes", icon: StickyNote },
 ];
 
