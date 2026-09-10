@@ -1,33 +1,63 @@
 "use client";
 
 import { Pin, Plus } from "lucide-react";
-import { FC } from "react";
+import { CSSProperties, FC } from "react";
 import { Button, cn, Markdown } from "@/components/common";
 import type { Note } from "@/shared/types";
 import { NoteEditorModal } from "./form/NoteForm";
 import { formatNoteDate } from "./helpers";
 import { useLinkedNotes, type LinkedNotesFilter } from "./hooks/useLinkedNotes";
+import { getStickyNoteStyle } from "./stickyNote";
 
 type Props = LinkedNotesFilter & {
   of?: string;
   className?: string;
 };
 
+const tapePositionClass = {
+  left: "left-5",
+  center: "left-1/2",
+  right: "right-5",
+} as const;
+
+const tapeTransform = (side: "left" | "center" | "right") =>
+  side === "center"
+    ? "translateX(-50%) rotate(var(--tape-tilt))"
+    : "rotate(var(--tape-tilt))";
+
 const LinkedNoteCard: FC<{
   note: Note;
   onOpen: (note: Note) => void;
 }> = ({ note, onOpen }) => {
+  const sticky = getStickyNoteStyle(note._id);
+  const style = {
+    "--tilt": `${sticky.tilt}deg`,
+    "--tape-tilt": `${sticky.tapeTilt}deg`,
+  } as CSSProperties;
+
   return (
     <button
       type="button"
       onClick={() => onOpen(note)}
       aria-label={`Open note ${note.title}${note.pinned ? ", pinned" : ""}`}
+      style={style}
       className={cn(
-        "flex h-full min-w-0 w-full cursor-pointer flex-col rounded-xl border border-border bg-surface p-4 text-left shadow-sm",
-        "transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        "group/note relative flex h-full min-w-0 w-full rotate-[var(--tilt)] cursor-pointer flex-col rounded-sm border p-4 pt-6 text-left shadow-[2px_4px_10px_-2px_rgba(0,0,0,0.18)]",
+        "transition-all duration-200 ease-out will-change-transform",
+        "hover:z-10 hover:rotate-0 hover:-translate-y-1 hover:scale-[1.03] hover:shadow-[2px_10px_20px_-4px_rgba(0,0,0,0.25)]",
+        "focus-visible:z-10 focus-visible:rotate-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+        sticky.cardClassName,
       )}
     >
+      <span
+        aria-hidden
+        style={{ transform: tapeTransform(sticky.tapeSide) }}
+        className={cn(
+          "pointer-events-none absolute -top-3 h-5 w-14 rounded-[2px] border shadow-sm backdrop-blur-[1px]",
+          tapePositionClass[sticky.tapeSide],
+          sticky.tapeClassName,
+        )}
+      />
       <span className="flex w-full min-w-0 items-start gap-2">
         <span className="line-clamp-2 min-w-0 flex-1 wrap-anywhere font-medium text-foreground">
           {note.title}
@@ -52,7 +82,7 @@ const LinkedNoteCard: FC<{
           No content
         </span>
       )}
-      <span className="mt-3 block border-t border-border/70 pt-2.5 text-xs text-muted">
+      <span className="mt-3 block border-t border-black/10 pt-2.5 text-xs text-muted dark:border-white/10">
         Updated {formatNoteDate(note.updated_at)}
       </span>
     </button>
@@ -121,7 +151,7 @@ const LinkedNotes: FC<Props> = ({ of, className, ...filter }) => {
         )}
 
         {!isLoading && !isError && notes.length > 0 && (
-          <ul className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <ul className="grid min-w-0 grid-cols-1 gap-x-4 gap-y-6 pt-3 sm:grid-cols-2 xl:grid-cols-3">
             {notes.map((note) => (
               <li key={note._id} className="min-w-0">
                 <LinkedNoteCard note={note} onOpen={openNote} />
