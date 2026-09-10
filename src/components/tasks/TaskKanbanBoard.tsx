@@ -85,7 +85,7 @@ const TaskKanbanBoard: FC<Props> = ({
   };
 
   return (
-    <div className="-mx-1 overflow-x-auto px-1 pb-1">
+    <div className="min-w-0 -mx-1 overflow-x-auto px-1 pb-1">
       <div className="flex min-w-full gap-3">
         {columns.map(({ status, tasks: columnTasks }) => {
           const isOver = overStatus === status;

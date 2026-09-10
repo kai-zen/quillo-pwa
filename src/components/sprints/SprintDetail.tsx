@@ -15,6 +15,7 @@ import TaskForm, { taskFormTitle } from "@/components/tasks/form/TaskForm";
 import TaskKanbanBoard from "@/components/tasks/TaskKanbanBoard";
 import TaskSummaryTable from "@/components/tasks/TaskSummaryTable";
 import type { RecordId } from "@/shared/types";
+import AddProgressToSprintModal from "./AddProgressToSprintModal";
 import AddTasksToSprintModal from "./AddTasksToSprintModal";
 import SprintForm, { sprintFormTitle } from "./form/SprintForm";
 import {
@@ -25,6 +26,7 @@ import {
 } from "./helpers";
 import { useSprintDetail } from "./hooks/useSprintDetail";
 import SprintGoalLink from "./SprintGoalLink";
+import SprintProgresses from "./SprintProgresses";
 
 interface Props {
   sprintId: RecordId;
@@ -35,9 +37,11 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
   const {
     sprint,
     linkedGoal,
+    linkedProgresses,
     sprintFormMode,
     taskFormMode,
     addTasksOpen,
+    addProgressOpen,
     catalog,
     labels,
     tasks,
@@ -48,6 +52,8 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
     isTasksLoading,
     isTasksError,
     isTasksEmpty,
+    isProgressesLoading,
+    isProgressesError,
     pendingId,
     actionError,
     openEditSprint,
@@ -58,6 +64,9 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
     closeTaskForm,
     openAddTasks,
     closeAddTasks,
+    openAddProgress,
+    closeAddProgress,
+    removeProgress,
     changeTaskStatus,
   } = view;
   const [taskView, setTaskView] = useState<"table" | "board">("table");
@@ -85,7 +94,7 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
     );
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+    <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-col gap-5">
       <PageHeader
         title={sprint.name}
         description={formatSprintRange(sprint.start_date, sprint.end_date)}
@@ -134,8 +143,10 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
         ) : null}
       </PageHeader>
 
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">Tasks in this sprint</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm font-medium text-foreground">
+          Tasks in this sprint
+        </p>
         <div className="flex items-center gap-3">
           <div
             className="inline-flex items-center rounded-lg border border-border bg-surface p-0.5"
@@ -196,6 +207,12 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
           closeAddTasks();
           openCreateTask();
         }}
+      />
+
+      <AddProgressToSprintModal
+        open={addProgressOpen}
+        sprint={sprint}
+        onClose={closeAddProgress}
       />
 
       <Modal
@@ -270,6 +287,15 @@ const SprintDetail: FC<Props> = ({ sprintId }) => {
             onEdit={openEditTask}
           />
         ))}
+
+      <SprintProgresses
+        progresses={linkedProgresses}
+        isLoading={isProgressesLoading}
+        isError={isProgressesError}
+        pendingId={pendingId}
+        onAdd={openAddProgress}
+        onRemove={removeProgress}
+      />
 
       <LinkedNotes of={sprint.name} sprintId={sprintId} />
     </div>

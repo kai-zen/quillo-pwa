@@ -30,12 +30,6 @@ const SprintForm: FC<Props> = ({ mode, onClose, onSaved }) => {
 
   return (
     <form onSubmit={form.onSubmit} className="flex w-full flex-col gap-3">
-      <p className="text-sm text-muted">
-        {form.editing
-          ? "Update this sprint’s details."
-          : "Create a timeboxed bucket for related work."}
-      </p>
-
       <Field label="Name" htmlFor={nameId}>
         <Input
           id={nameId}

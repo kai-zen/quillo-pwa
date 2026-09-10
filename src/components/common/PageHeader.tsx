@@ -40,7 +40,7 @@ const PageHeader: FC<Props> = ({
 
       <div
         className={cn(
-          "flex items-start justify-between gap-3 sm:gap-4",
+          "flex flex-wrap items-start justify-between gap-3 sm:gap-4",
           !alignStart && "sm:items-center",
         )}
       >
@@ -60,7 +60,7 @@ const PageHeader: FC<Props> = ({
                 {eyebrow}
               </div>
             ) : null}
-            <h1 className="text-xl lg:text-2xl font-semibold text-foreground">
+            <h1 className="wrap-anywhere text-xl font-semibold text-foreground lg:text-2xl">
               {title}
             </h1>
             {description ? (
@@ -68,7 +68,9 @@ const PageHeader: FC<Props> = ({
                 {description}
               </p>
             ) : null}
-            {children ? <div className="mt-2 max-w-2xl">{children}</div> : null}
+            {children ? (
+              <div className="mt-2 min-w-0 max-w-2xl">{children}</div>
+            ) : null}
           </div>
         </div>
 

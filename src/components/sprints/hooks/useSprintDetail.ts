@@ -3,19 +3,38 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { TaskFormMode } from "@/components/tasks/form/TaskForm";
-import { toUpdateBody } from "@/components/tasks/helpers";
+import { toUpdateBody as toTaskUpdateBody } from "@/components/tasks/helpers";
 import { getErrorMessage } from "@/shared/errors";
-import { useGoalsApi, useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
-import type { Goal, Label, RecordId, Sprint, Task, TaskStatus } from "@/shared/types";
+import {
+  useGoalsApi,
+  useLabelsApi,
+  useProgressesApi,
+  useSprintsApi,
+  useTasksApi,
+} from "@/shared/hooks";
+import type {
+  Goal,
+  Label,
+  Progress,
+  RecordId,
+  Sprint,
+  Task,
+  TaskStatus,
+} from "@/shared/types";
 import type { SprintFormMode } from "../form/SprintForm";
-import { findGoal } from "../helpers";
+import {
+  findGoal,
+  findProgresses,
+  toUpdateBody as toSprintUpdateBody,
+} from "../helpers";
 
 const PAGE_LIMIT = 50;
 
 export function useSprintDetail(sprintId: RecordId) {
   const router = useRouter();
-  const { useSprint, useSprintsList } = useSprintsApi();
+  const { useSprint, useSprintsList, updateSprint } = useSprintsApi();
   const { useGoalsList } = useGoalsApi();
+  const { useProgressesList } = useProgressesApi();
   const { useTasksList, updateTask } = useTasksApi();
   const { useLabelsList } = useLabelsApi();
 
@@ -24,12 +43,14 @@ export function useSprintDetail(sprintId: RecordId) {
   );
   const [taskFormMode, setTaskFormMode] = useState<TaskFormMode | null>(null);
   const [addTasksOpen, setAddTasksOpen] = useState(false);
+  const [addProgressOpen, setAddProgressOpen] = useState(false);
   const [pendingId, setPendingId] = useState<RecordId | null>(null);
   const [actionError, setActionError] = useState("");
 
   const sprintQuery = useSprint(sprintId);
   const catalogQuery = useSprintsList({ page: 1, limit: 100 });
   const goalsQuery = useGoalsList({ page: 1, limit: 100 });
+  const progressesQuery = useProgressesList({ page: 1, limit: 100 });
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const tasksQuery = useTasksList(
     { page: 1, limit: PAGE_LIMIT, sprint_id: sprintId },
@@ -40,6 +61,10 @@ export function useSprintDetail(sprintId: RecordId) {
   const catalog: Sprint[] = catalogQuery.data?.items ?? [];
   const goals: Goal[] = goalsQuery.data?.items ?? [];
   const linkedGoal = sprint ? findGoal(sprint.goal_id, goals) : null;
+  const progresses: Progress[] = progressesQuery.data?.items ?? [];
+  const linkedProgresses = sprint
+    ? findProgresses(sprint.progress_ids, progresses)
+    : [];
   const labels: Label[] = labelsQuery.data?.items ?? [];
   const tasks = tasksQuery.data?.items ?? [];
   const taskTotal = tasksQuery.data?.total ?? 0;
@@ -51,6 +76,11 @@ export function useSprintDetail(sprintId: RecordId) {
   const isTasksLoading = tasksQuery.isLoading || labelsQuery.isLoading;
   const isTasksError = tasksQuery.isError;
   const isTasksEmpty = !isTasksLoading && !isTasksError && tasks.length === 0;
+
+  const linkedProgressCount = sprint?.progress_ids?.length ?? 0;
+  const isProgressesLoading =
+    linkedProgressCount > 0 && progressesQuery.isLoading;
+  const isProgressesError = linkedProgressCount > 0 && progressesQuery.isError;
 
   const openEditSprint = () => {
     if (!sprint) return;
@@ -76,6 +106,28 @@ export function useSprintDetail(sprintId: RecordId) {
   const closeTaskForm = () => setTaskFormMode(null);
   const openAddTasks = () => setAddTasksOpen(true);
   const closeAddTasks = () => setAddTasksOpen(false);
+  const openAddProgress = () => setAddProgressOpen(true);
+  const closeAddProgress = () => setAddProgressOpen(false);
+
+  const removeProgress = async (progress: Progress) => {
+    if (!sprint || pendingId) return;
+    setActionError("");
+    setPendingId(progress._id);
+    try {
+      await updateSprint(sprint._id, {
+        ...toSprintUpdateBody(sprint),
+        progress_ids: (sprint.progress_ids ?? []).filter(
+          (id) => id !== progress._id,
+        ),
+      });
+    } catch (err) {
+      setActionError(
+        getErrorMessage(err, "Could not remove progress from this sprint."),
+      );
+    } finally {
+      setPendingId(null);
+    }
+  };
 
   const changeTaskStatus = async (task: Task, status: TaskStatus) => {
     if (pendingId || task.status === status) return;
@@ -83,7 +135,7 @@ export function useSprintDetail(sprintId: RecordId) {
     setPendingId(task._id);
     try {
       await updateTask(task._id, {
-        ...toUpdateBody(task),
+        ...toTaskUpdateBody(task),
         status,
       });
     } catch (err) {
@@ -97,9 +149,11 @@ export function useSprintDetail(sprintId: RecordId) {
     sprintId,
     sprint,
     linkedGoal,
+    linkedProgresses,
     sprintFormMode,
     taskFormMode,
     addTasksOpen,
+    addProgressOpen,
     catalog,
     labels,
     tasks,
@@ -110,6 +164,8 @@ export function useSprintDetail(sprintId: RecordId) {
     isTasksLoading,
     isTasksError,
     isTasksEmpty,
+    isProgressesLoading,
+    isProgressesError,
     pendingId,
     actionError,
     openEditSprint,
@@ -120,6 +176,9 @@ export function useSprintDetail(sprintId: RecordId) {
     closeTaskForm,
     openAddTasks,
     closeAddTasks,
+    openAddProgress,
+    closeAddProgress,
+    removeProgress,
     changeTaskStatus,
   };
 }

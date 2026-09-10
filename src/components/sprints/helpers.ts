@@ -1,4 +1,11 @@
-import type { Goal, RecordId, Sprint, SprintStatus, UpdateSprintBody } from "@/shared/types";
+import type {
+  Goal,
+  Progress,
+  RecordId,
+  Sprint,
+  SprintStatus,
+  UpdateSprintBody,
+} from "@/shared/types";
 import { GOAL_STATUS_LABELS } from "@/components/goals/helpers";
 import { SPRINT_STATUSES } from "@/shared/types";
 
@@ -94,6 +101,7 @@ export const toUpdateBody = (sprint: Sprint): UpdateSprintBody => ({
   end_date: toDateInputValue(sprint.end_date),
   status: sprint.status,
   goal_id: sprint.goal_id,
+  progress_ids: sprint.progress_ids ?? [],
 });
 
 export const findGoal = (
@@ -102,6 +110,17 @@ export const findGoal = (
 ): Goal | null => {
   if (!goalId) return null;
   return goals.find((goal) => goal._id === goalId) ?? null;
+};
+
+export const findProgresses = (
+  ids: RecordId[] | undefined,
+  progresses: Progress[],
+): Progress[] => {
+  if (!ids?.length) return [];
+  const byId = new Map(progresses.map((item) => [item._id, item]));
+  return ids
+    .map((id) => byId.get(id))
+    .filter((item): item is Progress => !!item);
 };
 
 export const formatGoalOptionLabel = (goal: Goal): string => {

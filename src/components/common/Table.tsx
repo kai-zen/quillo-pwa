@@ -12,7 +12,7 @@ const Table: FC<HTMLAttributes<HTMLTableElement>> = ({
   children,
   ...props
 }) => (
-  <div className="w-full overflow-x-auto rounded-xl border border-border bg-surface shadow-sm shadow-black/2">
+  <div className="min-w-0 w-full overflow-x-auto rounded-xl border border-border bg-surface shadow-sm shadow-black/2">
     <table
       className={cn(
         "w-full min-w-xl border-collapse text-left text-sm",

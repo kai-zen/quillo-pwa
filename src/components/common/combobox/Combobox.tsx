@@ -178,7 +178,7 @@ const Combobox = <TData,>({
                       )}
                       onMouseEnter={() => setActiveIndex(index)}
                       onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => selectOption(option.value, true)}
+                      onClick={() => selectOption(option.value)}
                     >
                       {renderOption ? (
                         renderOption(option, { active })

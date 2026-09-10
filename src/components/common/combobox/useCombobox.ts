@@ -154,9 +154,8 @@ export function useCombobox<TData = unknown>({
     onChange(value.filter((item) => item !== nextId));
   };
 
-  const selectOption = (nextId: string, closeAfter = false) => {
+  const selectOption = (nextId: string) => {
     add(nextId);
-    if (closeAfter) close();
   };
 
   const createFromQuery = () => {
