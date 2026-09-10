@@ -178,6 +178,16 @@ export const formatDayHeading = (iso: string): string => {
   });
 };
 
+export const formatDayShort = (iso: string): string => {
+  const date = parseIsoDate(iso);
+  if (!date) return iso;
+  return date.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+};
+
 export const formatDayChipWeekday = (iso: string): string => {
   const date = parseIsoDate(iso);
   if (!date) return "";

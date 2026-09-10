@@ -77,7 +77,15 @@ export const isBeforeDay = (a: Date, b: Date): boolean => {
 export const isAfterDay = (a: Date, b: Date): boolean => isBeforeDay(b, a);
 
 /** Monday-first weekday labels. */
-export const WEEKDAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] as const;
+export const WEEKDAY_LABELS = [
+  "Mo",
+  "Tu",
+  "We",
+  "Th",
+  "Fr",
+  "Sa",
+  "Su",
+] as const;
 
 /** 0 = Monday … 6 = Sunday */
 export const mondayIndex = (date: Date): number => (date.getDay() + 6) % 7;
@@ -134,4 +142,3 @@ export const formatMonthLabel = (date: Date): string =>
   monthFormatter.format(date);
 
 export const todayIso = (): string => toIsoDate(new Date());
-

@@ -63,7 +63,7 @@ const DatePickerCalendar: FC<Props> = ({
       aria-modal="false"
       aria-labelledby={triggerId}
       className={cn(
-        "absolute z-50 w-[min(100%,19.5rem)] rounded-lg border border-border bg-surface p-3 shadow-lg shadow-black/10 dark:shadow-black/50",
+        "absolute left-0 z-50 box-border w-[19.5rem] max-w-[calc(100vw-2rem)] rounded-lg border border-border bg-surface p-3 shadow-lg shadow-black/10 dark:shadow-black/50",
         placement === "bottom" ? "top-full mt-1.5" : "bottom-full mb-1.5",
       )}
     >
@@ -71,7 +71,7 @@ const DatePickerCalendar: FC<Props> = ({
         <IconButton label="Previous month" size="sm" onClick={onPrevMonth}>
           <ChevronLeft className="h-4 w-4" aria-hidden />
         </IconButton>
-        <p className="text-sm font-medium text-foreground">
+        <p className="min-w-0 flex-1 truncate px-1 text-center text-sm font-medium text-foreground">
           {formatMonthLabel(viewMonth)}
         </p>
         <IconButton label="Next month" size="sm" onClick={onNextMonth}>

@@ -1,13 +1,12 @@
 "use client";
 
-import { ListTodo, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { FC, Suspense, useState } from "react";
 import {
   Button,
   ConfirmModal,
-  DatePicker,
+  DatePickerIconButton,
   Modal,
-  PageHeader,
 } from "@/components/common";
 import { DailyReview } from "@/components/daily-reviews";
 import { LinkedNotes } from "@/components/notes";
@@ -17,7 +16,7 @@ import type { Task } from "@/shared/types";
 import DayProgress from "./DayProgress";
 import DayStrip from "./DayStrip";
 import TaskForm, { taskFormTitle } from "./form/TaskForm";
-import { formatDayHeading } from "./helpers";
+import { formatDayHeading, formatDayShort } from "./helpers";
 import TaskDayCards from "./TaskDayCards";
 import { useTasksDayView } from "./useTasksDayView";
 
@@ -31,7 +30,6 @@ const TasksViewContent: FC = () => {
     labels,
     sprints,
     tasks,
-    taskTotal,
     isLoading,
     isError,
     isEmpty,
@@ -67,13 +65,6 @@ const TasksViewContent: FC = () => {
           onSelect={selectDate}
         />
       </div>
-      <DatePicker
-        value={selectedDate}
-        onChange={jumpToDate}
-        clearable={false}
-        aria-label="Go to date"
-        placeholder="Pick a date…"
-      />
 
       <ActiveSprintCard
         sprints={sprints}
@@ -84,9 +75,16 @@ const TasksViewContent: FC = () => {
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-medium tabular-nums">
-            {taskTotal} task{taskTotal === 1 ? "" : "s"}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <DatePickerIconButton
+              value={selectedDate}
+              onChange={jumpToDate}
+              label="Pick a date"
+            />
+            <p className="text-sm font-medium tabular-nums">
+              {formatDayShort(selectedDate)}
+            </p>
+          </div>
           <Button
             onClick={() => openCreate()}
             size="sm"
