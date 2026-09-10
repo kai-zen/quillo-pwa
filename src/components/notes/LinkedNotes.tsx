@@ -10,7 +10,6 @@ import { useLinkedNotes, type LinkedNotesFilter } from "./hooks/useLinkedNotes";
 
 type Props = LinkedNotesFilter & {
   of?: string;
-  embedded?: boolean;
   className?: string;
 };
 
@@ -60,12 +59,7 @@ const LinkedNoteCard: FC<{
   );
 };
 
-const LinkedNotes: FC<Props> = ({
-  of,
-  embedded = false,
-  className,
-  ...filter
-}) => {
+const LinkedNotes: FC<Props> = ({ of, className, ...filter }) => {
   const {
     notes,
     isLoading,
@@ -82,28 +76,24 @@ const LinkedNotes: FC<Props> = ({
 
   return (
     <>
-      <div
-        className={cn("flex flex-col gap-3", !embedded && "mt-4", className)}
-      >
-        {!embedded && (
-          <div className="flex min-w-0 items-center justify-between gap-3">
-            <p
-              className="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
-              title={title}
-            >
-              {title}
-            </p>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="shrink-0"
-              onClick={openCreate}
-            >
-              <Plus className="h-4 w-4" aria-hidden />
-              Add note
-            </Button>
-          </div>
-        )}
+      <div className={cn("flex flex-col gap-3", className)}>
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <p
+            className="min-w-0 flex-1 truncate text-sm font-medium text-foreground"
+            title={title}
+          >
+            {title}
+          </p>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="shrink-0"
+            onClick={openCreate}
+          >
+            <Plus className="h-4 w-4" aria-hidden />
+            Add note
+          </Button>
+        </div>
 
         {isLoading && <p className="text-sm text-muted">Loading notes…</p>}
 

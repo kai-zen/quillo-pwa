@@ -23,6 +23,7 @@ import type { TaskFormMode } from "./form/TaskForm";
 import { buildDayStrip, parseIsoDate, toUpdateBody, todayIso } from "./helpers";
 
 export const TASKS_DATE_PARAM = "date";
+export const TASKS_NOTES_PARAM = "notes";
 
 const PAGE_LIMIT = 50;
 
@@ -30,6 +31,10 @@ function selectedDateFromParams(searchParams: URLSearchParams): string {
   const raw = searchParams.get(TASKS_DATE_PARAM);
   if (raw && parseIsoDate(raw)) return raw;
   return todayIso();
+}
+
+function showNotesFromParams(searchParams: URLSearchParams): boolean {
+  return searchParams.get(TASKS_NOTES_PARAM) === "1";
 }
 
 export function useTasksDayView() {
@@ -45,6 +50,10 @@ export function useTasksDayView() {
 
   const selectedDate = useMemo(
     () => selectedDateFromParams(searchParams),
+    [searchParams],
+  );
+  const showNotes = useMemo(
+    () => showNotesFromParams(searchParams),
     [searchParams],
   );
   const [stripAnchor, setStripAnchor] = useState(selectedDate);
@@ -103,6 +112,17 @@ export function useTasksDayView() {
       buildDayStrip(center).includes(iso) ? center : iso,
     );
   };
+
+  const toggleNotes = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (showNotes) {
+      params.delete(TASKS_NOTES_PARAM);
+    } else {
+      params.set(TASKS_NOTES_PARAM, "1");
+    }
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [pathname, router, searchParams, showNotes]);
 
   const openCreate = (parent?: Task, sprintId?: RecordId | null) => {
     setFormMode({
@@ -199,6 +219,8 @@ export function useTasksDayView() {
     stripCenter,
     selectDate,
     jumpToDate,
+    showNotes,
+    toggleNotes,
     formMode,
     labels,
     sprints,

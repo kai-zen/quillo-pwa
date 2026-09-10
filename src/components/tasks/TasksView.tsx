@@ -27,6 +27,8 @@ const TasksViewContent: FC = () => {
     stripCenter,
     selectDate,
     jumpToDate,
+    showNotes,
+    toggleNotes,
     formMode,
     labels,
     sprints,
@@ -47,7 +49,6 @@ const TasksViewContent: FC = () => {
     reorderTasks,
   } = useTasksDayView();
   const [toDelete, setToDelete] = useState<Task | null>(null);
-  const [showNotes, setShowNotes] = useState(false);
 
   const heading = formatDayHeading(selectedDate);
 
@@ -90,12 +91,11 @@ const TasksViewContent: FC = () => {
           <div className="flex items-center gap-1.5">
             <IconButton
               label="Day notes"
-              size="sm"
               active={showNotes}
               aria-pressed={showNotes}
-              onClick={() => setShowNotes((current) => !current)}
+              onClick={toggleNotes}
             >
-              <StickyNote className="h-4 w-4" aria-hidden />
+              <StickyNote className="h-5 w-5" aria-hidden />
             </IconButton>
             <Button
               onClick={() => openCreate()}
@@ -113,7 +113,7 @@ const TasksViewContent: FC = () => {
       )}
 
       {showNotes ? (
-        <LinkedNotes key={selectedDate} date={selectedDate} embedded />
+        <LinkedNotes key={selectedDate} date={selectedDate} />
       ) : (
         <>
           {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
@@ -211,8 +211,6 @@ const TasksViewContent: FC = () => {
       />
 
       <DailyReview key={`review-${selectedDate}`} date={selectedDate} />
-
-      {!showNotes && <LinkedNotes key={selectedDate} date={selectedDate} />}
     </div>
   );
 };
