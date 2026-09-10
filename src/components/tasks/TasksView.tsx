@@ -77,7 +77,7 @@ const TasksViewContent: FC = () => {
       />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center justify-between gap-2">
+        <div className="w-full flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
             <DatePickerIconButton
               value={selectedDate}
