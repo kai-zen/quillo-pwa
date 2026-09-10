@@ -1,15 +1,18 @@
 "use client";
 
-import { FC, useId } from "react";
-import { Button, Field, Input, Select, cn } from "@/components/common";
+import { FC, useId, useState } from "react";
+import {
+  Button,
+  ConfirmModal,
+  Field,
+  Input,
+  Select,
+  cn,
+} from "@/components/common";
 import { LabelManagerModal } from "@/components/labels";
 import type { Label, RoutineRepeat } from "@/shared/types";
 import { DAYS_OF_WEEK } from "@/shared/types";
-import {
-  DAY_SHORT_LABELS,
-  REPEAT_LABELS,
-  REPEAT_OPTIONS,
-} from "../helpers";
+import { DAY_SHORT_LABELS, REPEAT_LABELS, REPEAT_OPTIONS } from "../helpers";
 import RoutineDraftsEditor from "./RoutineDraftsEditor";
 import { useRoutineForm, type RoutineFormMode } from "./useRoutineForm";
 
@@ -25,6 +28,7 @@ interface Props {
 const RoutineForm: FC<Props> = ({ mode, labels, onClose, onSaved }) => {
   const nameId = useId();
   const form = useRoutineForm(mode, onSaved);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <>
@@ -107,7 +111,7 @@ const RoutineForm: FC<Props> = ({ mode, labels, onClose, onSaved }) => {
             <Button
               variant="ghost"
               className="mr-auto hover:text-rose-500"
-              onClick={form.onDelete}
+              onClick={() => setConfirmDelete(true)}
               disabled={form.pending}
             >
               Delete
@@ -133,6 +137,19 @@ const RoutineForm: FC<Props> = ({ mode, labels, onClose, onSaved }) => {
         onClose={form.closeLabelManager}
         onCreated={(label) => form.onLabelCreated(label._id)}
         onDeleted={form.onLabelDeleted}
+      />
+
+      <ConfirmModal
+        open={confirmDelete}
+        title="Delete routine"
+        description={
+          form.editing ? `Delete “${form.editing.name}”?` : undefined
+        }
+        confirmLabel="Delete"
+        pending={form.pending}
+        pendingLabel="Deleting…"
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={form.onDelete}
       />
     </>
   );

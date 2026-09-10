@@ -140,7 +140,6 @@ export function useTasksDayView() {
 
   const removeTask = async (task: Task) => {
     if (pendingId) return;
-    if (!window.confirm(`Delete “${task.title}”?`)) return;
     setActionError("");
     setPendingId(task._id);
     try {

@@ -149,13 +149,6 @@ export function useGoalForm(
 
   const onDelete = async () => {
     if (!editing) return;
-    if (
-      !window.confirm(
-        `Delete “${editing.title}”? Linked sprints keep their tasks but lose this goal.`,
-      )
-    ) {
-      return;
-    }
 
     setError("");
     try {

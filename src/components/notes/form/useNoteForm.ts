@@ -138,7 +138,6 @@ export function useNoteForm(
 
   const onDelete = async () => {
     if (!editing) return;
-    if (!window.confirm(`Delete “${editing.title}”?`)) return;
 
     setError("");
     try {

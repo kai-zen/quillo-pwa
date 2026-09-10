@@ -1,9 +1,10 @@
 "use client";
 
 import { Pencil, Pin, X } from "lucide-react";
-import { FC, useId } from "react";
+import { FC, useId, useState } from "react";
 import {
   Button,
+  ConfirmModal,
   IconButton,
   Input,
   MarkdownEditor,
@@ -54,6 +55,7 @@ const Chip: FC<{
 const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
   const titleId = useId();
   const form = useNoteForm(mode, onSaved);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <>
@@ -137,7 +139,7 @@ const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
             <Button
               variant="ghost"
               className="mr-auto hover:text-rose-500"
-              onClick={form.onDelete}
+              onClick={() => setConfirmDelete(true)}
               disabled={form.pending}
             >
               Delete
@@ -159,6 +161,19 @@ const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
         onClose={form.closeLabelManager}
         onCreated={(label) => form.onLabelCreated(label._id)}
         onDeleted={form.onLabelDeleted}
+      />
+
+      <ConfirmModal
+        open={confirmDelete}
+        title="Delete note"
+        description={
+          form.editing ? `Delete “${form.editing.title}”?` : undefined
+        }
+        confirmLabel="Delete"
+        pending={form.pending}
+        pendingLabel="Deleting…"
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={form.onDelete}
       />
     </>
   );
@@ -203,9 +218,7 @@ export const NoteEditorModal: FC<NoteEditorModalProps> = ({
       {modal.formMode && (
         <NoteForm
           key={
-            modal.formMode.type === "edit"
-              ? modal.formMode.note._id
-              : "create"
+            modal.formMode.type === "edit" ? modal.formMode.note._id : "create"
           }
           mode={modal.formMode}
           onClose={modal.onFormClose}

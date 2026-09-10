@@ -1,11 +1,18 @@
 "use client";
 
 import { ListTodo, Plus } from "lucide-react";
-import { FC, Suspense } from "react";
-import { Button, DatePicker, Modal, PageHeader } from "@/components/common";
+import { FC, Suspense, useState } from "react";
+import {
+  Button,
+  ConfirmModal,
+  DatePicker,
+  Modal,
+  PageHeader,
+} from "@/components/common";
 import { LinkedNotes } from "@/components/notes";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
+import type { Task } from "@/shared/types";
 import DayProgress from "./DayProgress";
 import DayStrip from "./DayStrip";
 import TaskForm, { taskFormTitle } from "./form/TaskForm";
@@ -39,8 +46,16 @@ const TasksViewContent: FC = () => {
     removeTask,
     reorderTasks,
   } = useTasksDayView();
+  const [toDelete, setToDelete] = useState<Task | null>(null);
 
   const heading = formatDayHeading(selectedDate);
+
+  const confirmDelete = () => {
+    if (!toDelete || pendingId) return;
+    const task = toDelete;
+    setToDelete(null);
+    void removeTask(task);
+  };
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
@@ -167,10 +182,23 @@ const TasksViewContent: FC = () => {
           onEdit={openEdit}
           onCreateSubtask={openCreate}
           onToggleDone={toggleDone}
-          onDelete={removeTask}
+          onDelete={setToDelete}
           onReorder={reorderTasks}
         />
       )}
+
+      <ConfirmModal
+        open={!!toDelete}
+        title="Delete task"
+        description={
+          toDelete ? `Delete “${toDelete.title}”?` : undefined
+        }
+        confirmLabel="Delete"
+        pending={!!pendingId}
+        pendingLabel="Deleting…"
+        onClose={() => setToDelete(null)}
+        onConfirm={confirmDelete}
+      />
 
       <LinkedNotes key={selectedDate} date={selectedDate} />
     </div>

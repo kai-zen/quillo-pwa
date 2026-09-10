@@ -80,14 +80,6 @@ export function useNoteFoldersPanel({ onOpen, onDeleted }: Options = {}) {
   };
 
   const onDelete = async (folder: NoteFolder) => {
-    if (
-      !window.confirm(
-        `Delete “${folder.name}”? Notes stay, but leave this folder.`,
-      )
-    ) {
-      return;
-    }
-
     setError("");
     try {
       await deleteNoteFolder(folder._id);

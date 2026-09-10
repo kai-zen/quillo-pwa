@@ -1,8 +1,8 @@
 "use client";
 
 import { FilePlus2, Folder, Pencil, Trash2 } from "lucide-react";
-import { FC } from "react";
-import { Button, Input } from "@/components/common";
+import { FC, useState } from "react";
+import { Button, ConfirmModal, Input } from "@/components/common";
 import type { NoteFolder, RecordId } from "@/shared/types";
 import { useNoteFoldersPanel } from "./useNoteFoldersPanel";
 
@@ -13,6 +13,14 @@ interface Props {
 
 const NoteFoldersPanel: FC<Props> = ({ folders, onOpen }) => {
   const panel = useNoteFoldersPanel({ onOpen });
+  const [toDelete, setToDelete] = useState<NoteFolder | null>(null);
+
+  const confirmDelete = () => {
+    if (!toDelete || panel.pending) return;
+    const folder = toDelete;
+    setToDelete(null);
+    void panel.onDelete(folder);
+  };
 
   return (
     <section>
@@ -70,7 +78,10 @@ const NoteFoldersPanel: FC<Props> = ({ folders, onOpen }) => {
                 onClick={() => onOpen(folder._id)}
                 className="flex min-h-0 flex-1 cursor-pointer flex-col items-start justify-between gap-3 p-3.5 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
               >
-                <Folder className="h-6 w-6 shrink-0 text-foreground" aria-hidden />
+                <Folder
+                  className="h-6 w-6 shrink-0 text-foreground"
+                  aria-hidden
+                />
                 <span className="block w-full truncate font-medium text-foreground">
                   {folder.name}
                 </span>
@@ -87,7 +98,7 @@ const NoteFoldersPanel: FC<Props> = ({ folders, onOpen }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => panel.onDelete(folder)}
+                  onClick={() => setToDelete(folder)}
                   disabled={panel.pending}
                   className="inline-flex flex-1 cursor-pointer items-center justify-center gap-1.5 border-l border-border px-2 py-2 text-xs font-medium text-muted transition-colors hover:bg-rose-500/10 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
                 >
@@ -147,9 +158,22 @@ const NoteFoldersPanel: FC<Props> = ({ folders, onOpen }) => {
         )}
       </nav>
 
-      {panel.error && (
-        <p className="text-sm text-rose-500">{panel.error}</p>
-      )}
+      {panel.error && <p className="text-sm text-rose-500">{panel.error}</p>}
+
+      <ConfirmModal
+        open={!!toDelete}
+        title="Delete folder"
+        description={
+          toDelete
+            ? `Delete “${toDelete.name}”? Notes stay, but leave this folder.`
+            : undefined
+        }
+        confirmLabel="Delete"
+        pending={panel.pending}
+        pendingLabel="Deleting…"
+        onClose={() => setToDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </section>
   );
 };

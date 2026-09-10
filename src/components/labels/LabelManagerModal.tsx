@@ -4,6 +4,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import { FC, FormEvent, useMemo, useState } from "react";
 import {
   Button,
+  ConfirmModal,
   Field,
   IconButton,
   Input,
@@ -86,6 +87,7 @@ const LabelManagerBody: FC<Omit<Props, "open" | "onClose">> = ({
   const [name, setName] = useState(initialName.trim());
   const [color, setColor] = useState<string>(LABEL_COLORS[0]);
   const [error, setError] = useState("");
+  const [toDelete, setToDelete] = useState<Label | null>(null);
 
   const pending = isCreating || isUpdating || isDeleting;
   const editing = editor.type === "edit";
@@ -131,8 +133,6 @@ const LabelManagerBody: FC<Omit<Props, "open" | "onClose">> = ({
   };
 
   const onDelete = async (label: Label) => {
-    if (!window.confirm(`Delete “${label.name}”?`)) return;
-
     setError("");
     try {
       await deleteLabel(label._id);
@@ -182,7 +182,7 @@ const LabelManagerBody: FC<Omit<Props, "open" | "onClose">> = ({
                 <IconButton
                   label={`Delete ${label.name}`}
                   size="sm"
-                  onClick={() => onDelete(label)}
+                  onClick={() => setToDelete(label)}
                   disabled={pending}
                 >
                   <Trash2 className="h-3.5 w-3.5" aria-hidden />
@@ -231,6 +231,24 @@ const LabelManagerBody: FC<Omit<Props, "open" | "onClose">> = ({
           </Button>
         </div>
       </form>
+
+      <ConfirmModal
+        open={!!toDelete}
+        title="Delete label"
+        description={
+          toDelete ? `Delete “${toDelete.name}”?` : undefined
+        }
+        confirmLabel="Delete"
+        pending={pending}
+        pendingLabel="Deleting…"
+        onClose={() => setToDelete(null)}
+        onConfirm={() => {
+          if (!toDelete) return;
+          const label = toDelete;
+          setToDelete(null);
+          void onDelete(label);
+        }}
+      />
     </div>
   );
 };

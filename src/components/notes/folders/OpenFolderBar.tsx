@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
-import { FC } from "react";
-import { Button, Input } from "@/components/common";
+import { FC, useState } from "react";
+import { Button, ConfirmModal, Input } from "@/components/common";
 import type { NoteFolder } from "@/shared/types";
 import { useNoteFoldersPanel } from "./useNoteFoldersPanel";
 
@@ -13,14 +13,10 @@ interface Props {
   onDeleted: () => void;
 }
 
-const OpenFolderBar: FC<Props> = ({
-  folder,
-  noteCount,
-  onBack,
-  onDeleted,
-}) => {
+const OpenFolderBar: FC<Props> = ({ folder, noteCount, onBack, onDeleted }) => {
   const panel = useNoteFoldersPanel({ onDeleted: () => onDeleted() });
   const renaming = panel.isRenaming(folder._id);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (renaming) {
     return (
@@ -84,7 +80,7 @@ const OpenFolderBar: FC<Props> = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => panel.onDelete(folder)}
+          onClick={() => setConfirmDelete(true)}
           disabled={panel.pending}
           aria-label={`Delete ${folder.name}`}
           className="hover:text-rose-600"
@@ -99,6 +95,21 @@ const OpenFolderBar: FC<Props> = ({
       {panel.error && (
         <p className="w-full text-sm text-rose-500">{panel.error}</p>
       )}
+
+      <ConfirmModal
+        open={confirmDelete}
+        title="Delete folder"
+        description={`Delete “${folder.name}”? Notes stay, but leave this folder.`}
+        confirmLabel="Delete"
+        pending={panel.pending}
+        pendingLabel="Deleting…"
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          if (panel.pending) return;
+          setConfirmDelete(false);
+          void panel.onDelete(folder);
+        }}
+      />
     </div>
   );
 };

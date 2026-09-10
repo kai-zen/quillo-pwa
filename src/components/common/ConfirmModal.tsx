@@ -33,7 +33,13 @@ const ConfirmModal: FC<Props> = ({
   };
 
   return (
-    <Modal open={open} onClose={close} title={title} className="max-w-md">
+    <Modal
+      open={open}
+      onClose={close}
+      title={title}
+      className="max-w-md"
+      overlayClassName="z-90"
+    >
       <div className="flex flex-col gap-3">
         {description ? (
           <p className="text-sm text-muted">{description}</p>

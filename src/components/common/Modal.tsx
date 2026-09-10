@@ -6,6 +6,8 @@ import { createPortal } from "react-dom";
 import { cn } from "./cn";
 import IconButton from "./IconButton";
 
+let openModalCount = 0;
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -13,6 +15,7 @@ interface Props {
   headerActions?: ReactNode;
   children: ReactNode;
   className?: string;
+  overlayClassName?: string;
 }
 
 const Modal: FC<Props> = ({
@@ -22,14 +25,18 @@ const Modal: FC<Props> = ({
   headerActions,
   children,
   className,
+  overlayClassName,
 }) => {
   const titleId = useId();
 
   useEffect(() => {
     if (!open) return;
 
+    openModalCount += 1;
+    const depth = openModalCount;
+
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && depth === openModalCount) onClose();
     };
 
     document.addEventListener("keydown", onKeyDown);
@@ -37,6 +44,7 @@ const Modal: FC<Props> = ({
     document.body.style.overflow = "hidden";
 
     return () => {
+      openModalCount -= 1;
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
     };
@@ -45,7 +53,12 @@ const Modal: FC<Props> = ({
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-80 flex items-end justify-center sm:items-center sm:p-4">
+    <div
+      className={cn(
+        "fixed inset-0 flex items-end justify-center sm:items-center sm:p-4",
+        overlayClassName ?? "z-80",
+      )}
+    >
       <button
         type="button"
         className="absolute inset-0 bg-foreground/25 dark:bg-foreground/15"

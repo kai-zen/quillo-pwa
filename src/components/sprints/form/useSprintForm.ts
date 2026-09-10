@@ -88,9 +88,6 @@ export function useSprintForm(
 
   const onDelete = async () => {
     if (!editing) return;
-    if (!window.confirm(`Delete “${editing.name}”? Tasks stay, but leave this sprint.`)) {
-      return;
-    }
 
     setError("");
     try {

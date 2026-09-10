@@ -174,13 +174,6 @@ export function useProgressForm(
 
   const onDelete = async () => {
     if (!editing) return;
-    if (
-      !window.confirm(
-        `Delete “${editing.title}”? Recorded values and sprint tracking for this progress will also be removed.`,
-      )
-    ) {
-      return;
-    }
 
     setError("");
     try {

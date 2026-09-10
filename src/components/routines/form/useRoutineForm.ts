@@ -212,7 +212,6 @@ export function useRoutineForm(
 
   const onDelete = async () => {
     if (!editing) return;
-    if (!window.confirm(`Delete “${editing.name}”?`)) return;
 
     setError("");
     try {
