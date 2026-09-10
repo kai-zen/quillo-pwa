@@ -6,7 +6,7 @@ import { useDailyReviewsApi } from "@/shared/hooks";
 import type { DailyReviewMood } from "@/shared/types";
 import { isReviewableDate } from "./helpers";
 
-export function useDailyReviewCard(date: string) {
+export function useDailyReview(date: string) {
   const {
     useDailyReviewByDate,
     createDailyReview,
@@ -19,23 +19,24 @@ export function useDailyReviewCard(date: string) {
   const query = useDailyReviewByDate(date, reviewable);
   const review = query.data ?? null;
 
-  const [writing, setWriting] = useState(false);
+  const [open, setOpen] = useState(false);
   const [mood, setMood] = useState<DailyReviewMood | "">("");
   const [journal, setJournal] = useState("");
   const [error, setError] = useState("");
 
   const pending = isCreating || isUpdating;
-  const isEmpty = query.isSuccess && !review;
+  const filled = Boolean(review);
 
-  const startWrite = () => {
+  const openReview = () => {
     setMood(review?.mood ?? "");
     setJournal(review?.journal ?? "");
     setError("");
-    setWriting(true);
+    setOpen(true);
   };
 
-  const cancelWrite = () => {
-    setWriting(false);
+  const closeReview = () => {
+    if (pending) return;
+    setOpen(false);
     setError("");
   };
 
@@ -58,7 +59,7 @@ export function useDailyReviewCard(date: string) {
     try {
       if (review) await updateDailyReview(review._id, body);
       else await createDailyReview(body);
-      setWriting(false);
+      setOpen(false);
     } catch (err) {
       setError(getErrorMessage(err, "Could not save this review."));
     }
@@ -67,18 +68,17 @@ export function useDailyReviewCard(date: string) {
   return {
     reviewable,
     review,
-    isLoading: query.isLoading,
+    filled,
     isError: query.isError,
-    isEmpty,
-    writing,
+    open,
     mood,
     journal,
     error,
     pending,
     setMood,
     setJournal,
-    startWrite,
-    cancelWrite,
+    openReview,
+    closeReview,
     onSubmit,
   };
 }

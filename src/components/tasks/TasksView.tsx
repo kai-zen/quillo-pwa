@@ -9,7 +9,7 @@ import {
   Modal,
   PageHeader,
 } from "@/components/common";
-import { DailyReviewCard } from "@/components/daily-reviews";
+import { DailyReview } from "@/components/daily-reviews";
 import { LinkedNotes } from "@/components/notes";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
@@ -199,7 +199,7 @@ const TasksViewContent: FC = () => {
         onConfirm={confirmDelete}
       />
 
-      <DailyReviewCard key={`review-${selectedDate}`} date={selectedDate} />
+      <DailyReview key={`review-${selectedDate}`} date={selectedDate} />
 
       <LinkedNotes key={selectedDate} date={selectedDate} />
     </div>

@@ -1,1 +1,1 @@
-export { default as DailyReviewCard } from "./DailyReviewCard";
+export { default as DailyReview } from "./DailyReview";
