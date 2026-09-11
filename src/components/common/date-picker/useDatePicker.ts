@@ -16,10 +16,7 @@ import {
   todayIso,
   type DatePickerProps,
 } from "./helpers";
-import {
-  resolvePopoverPlacement,
-  type PopoverPlacement,
-} from "../placement";
+import { resolvePopoverPlacement, type PopoverPlacement } from "../placement";
 
 type UseDatePickerArgs = Pick<
   DatePickerProps,
@@ -34,7 +31,7 @@ type UseDatePickerArgs = Pick<
   | "max"
 >;
 
-export function useDatePicker({
+const useDatePicker = ({
   value,
   defaultValue,
   disabled,
@@ -44,7 +41,7 @@ export function useDatePicker({
   clearable = true,
   min,
   max,
-}: UseDatePickerArgs) {
+}: UseDatePickerArgs) => {
   const generatedId = useId();
   const popoverId = `${generatedId}-popover`;
   const triggerId = id ?? generatedId;
@@ -63,7 +60,9 @@ export function useDatePicker({
     return startOfMonth(parsed ?? new Date());
   });
 
-  const selectedValue = String(isControlled ? (value ?? "") : uncontrolledValue);
+  const selectedValue = String(
+    isControlled ? (value ?? "") : uncontrolledValue,
+  );
   const selectedDate = parseIsoDate(selectedValue);
 
   const close = () => setOpen(false);
@@ -189,4 +188,6 @@ export function useDatePicker({
     clear,
     selectToday,
   };
-}
+};
+
+export default useDatePicker;

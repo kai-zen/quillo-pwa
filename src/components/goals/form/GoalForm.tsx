@@ -152,6 +152,6 @@ const GoalForm: FC<Props> = ({ mode, onClose, onSaved }) => {
 
 export default GoalForm;
 
-export function goalFormTitle(mode: GoalFormMode): string {
+export const goalFormTitle = (mode: GoalFormMode): string => {
   return mode.type === "edit" ? "Edit goal" : "New goal";
-}
+};

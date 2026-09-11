@@ -9,7 +9,7 @@ import {
   type SelectProps,
 } from "./helpers";
 import SelectListbox from "./SelectListbox";
-import { useSelect } from "./useSelect";
+import useSelect from "./useSelect";
 
 const Select: FC<SelectProps> = ({
   className,

@@ -4,12 +4,10 @@ import { Plus, X } from "lucide-react";
 import { Fragment } from "react";
 import Button from "../Button";
 import { cn } from "../cn";
-import {
-  useCombobox,
+import useCombobox, {
   type ComboboxOption,
   type ComboboxProps,
 } from "./useCombobox";
-
 export type { ComboboxOption, ComboboxProps } from "./useCombobox";
 
 const DefaultChip = <TData,>({

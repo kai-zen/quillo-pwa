@@ -12,6 +12,8 @@ export { default as Combobox } from "./combobox/Combobox";
 export type { ComboboxOption, ComboboxProps } from "./combobox/useCombobox";
 export { default as ConfirmModal } from "./ConfirmModal";
 export { default as Select } from "./select-box/Select";
+export { default as Stepper } from "./Stepper";
+export type { StepperStep } from "./Stepper";
 export { default as Tabs } from "./Tabs";
 export {
   Table,

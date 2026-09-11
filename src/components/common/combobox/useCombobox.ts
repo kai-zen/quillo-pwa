@@ -10,10 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  resolvePopoverPlacement,
-  type PopoverPlacement,
-} from "../placement";
+import { resolvePopoverPlacement, type PopoverPlacement } from "../placement";
 
 export interface ComboboxOption<TData = unknown> {
   value: string;
@@ -22,7 +19,7 @@ export interface ComboboxOption<TData = unknown> {
   data?: TData;
 }
 
-export const defaultComboboxFilter = <TData,>(
+export const defaultComboboxFilter = <TData>(
   option: ComboboxOption<TData>,
   query: string,
   selected: string[],
@@ -47,7 +44,7 @@ export interface UseComboboxArgs<TData = unknown> {
   ) => boolean;
 }
 
-export function useCombobox<TData = unknown>({
+const useCombobox = <TData = unknown>({
   options,
   value,
   onChange,
@@ -55,7 +52,7 @@ export function useCombobox<TData = unknown>({
   id,
   disabled,
   filter = defaultComboboxFilter,
-}: UseComboboxArgs<TData>) {
+}: UseComboboxArgs<TData>) => {
   const generatedId = useId();
   const inputId = id ?? generatedId;
   const listId = `${generatedId}-listbox`;
@@ -237,7 +234,7 @@ export function useCombobox<TData = unknown>({
     onInputKeyDown,
     setActiveIndex,
   };
-}
+};
 
 export type ComboboxRenderState = { active: boolean };
 
@@ -257,3 +254,5 @@ export interface ComboboxProps<TData = unknown> extends UseComboboxArgs<TData> {
   ) => ReactNode;
   className?: string;
 }
+
+export default useCombobox;

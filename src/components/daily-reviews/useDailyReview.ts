@@ -11,10 +11,7 @@ interface UseDailyReviewOptions {
   closeOnSave?: boolean;
 }
 
-export function useDailyReview(
-  date: string,
-  options: UseDailyReviewOptions = {},
-) {
+const useDailyReview = (date: string, options: UseDailyReviewOptions = {}) => {
   const { closeOnSave = true } = options;
   const {
     useDailyReviewByDate,
@@ -92,4 +89,6 @@ export function useDailyReview(
     closeReview,
     onSubmit,
   };
-}
+};
+
+export default useDailyReview;

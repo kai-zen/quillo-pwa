@@ -5,7 +5,7 @@ import { cn } from "../cn";
 import Textarea from "../Textarea";
 import Markdown from "./Markdown";
 import MarkdownEditorToolbar from "./MarkdownEditorToolbar";
-import { useMarkdownEditor } from "./useMarkdownEditor";
+import useMarkdownEditor from "./useMarkdownEditor";
 
 interface Props {
   value: string;

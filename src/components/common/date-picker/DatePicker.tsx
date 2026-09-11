@@ -10,7 +10,7 @@ import {
   triggerSizeClass,
   type DatePickerProps,
 } from "./helpers";
-import { useDatePicker } from "./useDatePicker";
+import useDatePicker from "./useDatePicker";
 
 const DatePicker: FC<DatePickerProps> = ({
   className,

@@ -5,7 +5,7 @@ import { FC } from "react";
 import { cn } from "../cn";
 import IconButton from "../IconButton";
 import DatePickerCalendar from "./DatePickerCalendar";
-import { useDatePicker } from "./useDatePicker";
+import useDatePicker from "./useDatePicker";
 
 interface Props {
   value: string;

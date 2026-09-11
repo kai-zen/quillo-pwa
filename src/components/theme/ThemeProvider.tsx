@@ -8,10 +8,10 @@ import {
   useEffect,
   useSyncExternalStore,
 } from "react";
+import { applyTheme, THEME_STORAGE_KEY, type Theme } from "./helpers";
 
-export type Theme = "light" | "dark";
+export type { Theme };
 
-const STORAGE_KEY = "quillo_theme";
 const THEME_CHANGED_EVENT = "quillo-theme-changed";
 
 interface ThemeContextValue {
@@ -22,16 +22,8 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const applyTheme = (theme: Theme) => {
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  const color = theme === "dark" ? "#000000" : "#ffffff";
-  document
-    .querySelectorAll('meta[name="theme-color"]')
-    .forEach((meta) => meta.setAttribute("content", color));
-};
-
 const getStoredTheme = (): Theme | null => {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
   return null;
 };
@@ -44,7 +36,7 @@ const getServerTheme = (): Theme => "light";
 
 const subscribeTheme = (onStoreChange: () => void) => {
   const onStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY || event.key === null) onStoreChange();
+    if (event.key === THEME_STORAGE_KEY || event.key === null) onStoreChange();
   };
 
   window.addEventListener(THEME_CHANGED_EVENT, onStoreChange);
@@ -83,7 +75,7 @@ const ThemeProvider: FC<Props> = ({ children }) => {
   }, [theme]);
 
   const setTheme = (next: Theme) => {
-    localStorage.setItem(STORAGE_KEY, next);
+    localStorage.setItem(THEME_STORAGE_KEY, next);
     applyTheme(next);
     notifyThemeChanged();
   };

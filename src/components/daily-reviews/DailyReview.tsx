@@ -6,7 +6,7 @@ import { cn, Markdown } from "@/components/common";
 import FinishDayModal from "./FinishDayModal";
 import { formatMoodLabel, MOOD_TONE, MOOD_TONE_CLASSES } from "./helpers";
 import { MoodIcon } from "./MoodPicker";
-import { useFinishDay } from "./useFinishDay";
+import useFinishDay from "./useFinishDay";
 
 interface Props {
   date: string;

@@ -15,11 +15,14 @@ type Props = TextareaHTMLAttributes<HTMLTextAreaElement> & {
   maxRows?: number;
 };
 
-function assignRef<T>(ref: Ref<T> | undefined, value: T | null) {
+const assignRef = <T extends HTMLTextAreaElement | null>(
+  ref: Ref<T> | undefined,
+  value: T,
+) => {
   if (!ref) return;
   if (typeof ref === "function") ref(value);
   else ref.current = value;
-}
+};
 
 const Textarea = forwardRef<HTMLTextAreaElement, Props>(
   (

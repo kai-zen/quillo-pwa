@@ -36,11 +36,7 @@ interface Result {
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
-export function useMarkdownEditor({
-  value,
-  onChange,
-  disabled,
-}: Args): Result {
+const useMarkdownEditor = ({ value, onChange, disabled }: Args): Result => {
   const [tab, setTab] = useState<EditorTab>("write");
   const [active, setActive] = useState(EMPTY_FORMATS);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -172,4 +168,6 @@ export function useMarkdownEditor({
     onTextChange,
     onKeyDown,
   };
-}
+};
+
+export default useMarkdownEditor;

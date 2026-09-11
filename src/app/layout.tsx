@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, Newsreader } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { FC, ReactNode } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { InstallPrompt, SerwistProvider } from "@/components/pwa";
 import Providers from "@/components/providers";
+import {
+  THEME_BLOCKING_SCRIPT,
+  THEME_COLORS,
+} from "@/components/theme/helpers";
 import "@/styles/globals.css";
 
 const manrope = Manrope({
@@ -65,16 +69,14 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: THEME_COLORS.light },
+    { media: "(prefers-color-scheme: dark)", color: THEME_COLORS.dark },
   ],
 };
 
 interface Props {
   children: ReactNode;
 }
-
-const themeScript = `(function(){try{var t=localStorage.getItem("quillo_theme");var d=t==="dark"||(!t&&matchMedia("(prefers-color-scheme:dark)").matches);if(d)document.documentElement.classList.add("dark");var c=d?"#000000":"#ffffff";document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.setAttribute("content",c)})}catch(e){}})();`;
 
 const RootLayout: FC<Props> = ({ children }) => {
   return (
@@ -84,7 +86,7 @@ const RootLayout: FC<Props> = ({ children }) => {
       className={`${manrope.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BLOCKING_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col font-sans">
         <SerwistProvider

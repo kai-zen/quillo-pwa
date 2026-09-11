@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import type { AddDayTasksSource } from "@/components/tasks/add-day-tasks";
-import { useDailyReview } from "./useDailyReview";
+import useDailyReview from "./useDailyReview";
 
 export type FinishDayStep = 1 | 2;
 
-export function useFinishDay(date: string) {
+const useFinishDay = (date: string) => {
   const review = useDailyReview(date, { closeOnSave: false });
   const [step, setStep] = useState<FinishDayStep>(1);
   const [addPanel, setAddPanel] = useState<AddDayTasksSource>("none");
@@ -46,6 +46,8 @@ export function useFinishDay(date: string) {
     openCreateTask,
     closeCreateTask,
   };
-}
+};
 
 export type FinishDayViewModel = ReturnType<typeof useFinishDay>;
+
+export default useFinishDay;

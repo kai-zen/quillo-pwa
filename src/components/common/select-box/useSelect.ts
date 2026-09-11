@@ -9,10 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  resolvePopoverPlacement,
-  type PopoverPlacement,
-} from "../placement";
+import { resolvePopoverPlacement, type PopoverPlacement } from "../placement";
 import { readOptions, type SelectOption, type SelectProps } from "./helpers";
 
 type UseSelectArgs = Pick<
@@ -26,7 +23,7 @@ type UseSelectArgs = Pick<
   | "onChange"
 >;
 
-export function useSelect({
+const useSelect = ({
   children,
   value,
   defaultValue,
@@ -34,7 +31,7 @@ export function useSelect({
   id,
   name,
   onChange,
-}: UseSelectArgs) {
+}: UseSelectArgs) => {
   const generatedId = useId();
   const listboxId = `${generatedId}-listbox`;
   const triggerId = id ?? generatedId;
@@ -206,4 +203,6 @@ export function useSelect({
     setActiveOption,
     commit,
   };
-}
+};
+
+export default useSelect;
