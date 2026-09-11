@@ -10,7 +10,7 @@ import {
   MOOD_TONE_CLASSES,
 } from "@/components/daily-reviews/helpers";
 import { MoodIcon } from "@/components/daily-reviews/MoodPicker";
-import { useDailyReview } from "@/components/daily-reviews/useDailyReview";
+import useDailyReview from "@/components/daily-reviews/useDailyReview";
 import { formatDayHeading } from "@/components/tasks/helpers";
 
 interface Props {
