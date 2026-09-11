@@ -1,13 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { findProgresses, pickActiveSprint } from "@/components/sprints/helpers";
 import type { AddDayTasksSource } from "@/components/tasks/add-day-tasks";
+import { useProgressesApi, useSprintsApi } from "@/shared/hooks";
 import useDailyReview from "./useDailyReview";
 
-export type FinishDayStep = 1 | 2;
+export type FinishDayStep = 1 | 2 | 3;
 
 const useFinishDay = (date: string) => {
   const review = useDailyReview(date, { closeOnSave: false });
+  const { useSprintsList } = useSprintsApi();
+  const { useProgressesList } = useProgressesApi();
+  const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
+  const progressesQuery = useProgressesList({ page: 1, limit: 100 });
+
+  const activeSprint = useMemo(
+    () => pickActiveSprint(sprintsQuery.data?.items ?? []),
+    [sprintsQuery.data?.items],
+  );
+  const sprintProgresses = useMemo(
+    () =>
+      findProgresses(
+        activeSprint?.progress_ids,
+        progressesQuery.data?.items ?? [],
+      ),
+    [activeSprint?.progress_ids, progressesQuery.data?.items],
+  );
+  const hasProgressStep = sprintProgresses.length > 0;
+  const planStep: FinishDayStep = hasProgressStep ? 3 : 2;
+
   const [step, setStep] = useState<FinishDayStep>(1);
   const [addPanel, setAddPanel] = useState<AddDayTasksSource>("none");
   const [createOpen, setCreateOpen] = useState(false);
@@ -24,8 +46,10 @@ const useFinishDay = (date: string) => {
     setCreateOpen(false);
   };
 
-  const goToStep2 = () => setStep(2);
-  const backToStep1 = () => setStep(1);
+  const advanceFromReflect = () => setStep(hasProgressStep ? 2 : planStep);
+  const advanceFromProgress = () => setStep(planStep);
+  const backToReflect = () => setStep(1);
+  const backFromPlan = () => setStep(hasProgressStep ? 2 : 1);
   const openAddPanel = (panel: Exclude<AddDayTasksSource, "none">) =>
     setAddPanel(panel);
   const closeAddPanel = () => setAddPanel("none");
@@ -35,12 +59,20 @@ const useFinishDay = (date: string) => {
   return {
     ...review,
     step,
+    planStep,
+    hasProgressStep,
+    activeSprint,
+    sprintProgresses,
+    isProgressCatalogLoading:
+      !!activeSprint?.progress_ids?.length && progressesQuery.isLoading,
     addPanel,
     createOpen,
     openFinishDay,
     closeFinishDay,
-    goToStep2,
-    backToStep1,
+    advanceFromReflect,
+    advanceFromProgress,
+    backToReflect,
+    backFromPlan,
     openAddPanel,
     closeAddPanel,
     openCreateTask,
