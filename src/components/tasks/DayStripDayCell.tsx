@@ -1,6 +1,7 @@
 "use client";
 
-import { cn } from "@/components/common";
+import { Eye } from "lucide-react";
+import { cn, IconButton } from "@/components/common";
 import {
   formatMoodLabel,
   MOOD_TONE,
@@ -15,7 +16,9 @@ interface DayStripDayCellProps {
   mood?: DailyReviewMood;
   isSelected: boolean;
   isToday: boolean;
+  canOpenReview?: boolean;
   onSelect: (iso: string) => void;
+  onOpenReview?: () => void;
 }
 
 type MoodToneClasses =
@@ -63,7 +66,9 @@ const DayStripDayCell = ({
   mood,
   isSelected,
   isToday,
+  canOpenReview = false,
   onSelect,
+  onOpenReview,
 }: DayStripDayCellProps) => {
   const tone = mood ? MOOD_TONE[mood] : null;
   const toneClasses = tone ? MOOD_TONE_CLASSES[tone] : null;
@@ -71,74 +76,95 @@ const DayStripDayCell = ({
   const day = formatDayChipDay(iso);
 
   return (
-    <button
-      type="button"
-      role="option"
-      aria-selected={isSelected}
-      aria-current={isToday ? "date" : undefined}
-      aria-label={
-        mood ? `${weekday} ${day}, mood ${formatMoodLabel(mood)}` : undefined
-      }
-      onClick={() => onSelect(iso)}
-      className={cn(
-        DAY_CELL_BASE_CLASSES,
-        getDayCellVariantClasses({ isSelected, mood, toneClasses, isToday }),
-      )}
-    >
-      {mood && toneClasses ? (
-        <MoodIcon
-          mood={mood}
+    <div className="relative">
+      {canOpenReview && mood ? (
+        <IconButton
+          label="Open daily review"
+          size="sm"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenReview?.();
+          }}
           className={cn(
-            "pointer-events-none absolute -left-1.5 -bottom-1.5 h-10 w-10",
-            isSelected ? "opacity-20" : cn("opacity-20", toneClasses.icon),
+            "absolute -right-1.5 -top-1 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-surface p-0 shadow-sm !rounded-full",
+            isSelected
+              ? "text-foreground hover:bg-accent-soft"
+              : "text-muted hover:bg-accent-soft hover:text-foreground",
           )}
-        />
+        >
+          <Eye className="h-4 w-4" aria-hidden />
+        </IconButton>
       ) : null}
 
-      <span
+      <button
+        type="button"
+        role="option"
+        aria-selected={isSelected}
+        aria-current={isToday ? "date" : undefined}
+        aria-label={
+          mood ? `${weekday} ${day}, mood ${formatMoodLabel(mood)}` : undefined
+        }
+        onClick={() => onSelect(iso)}
         className={cn(
-          "text-xs font-bold uppercase leading-none mt-1",
-          isSelected && !mood
-            ? "text-background/70"
-            : mood
-              ? "opacity-70"
-              : isToday
-                ? "text-foreground/70"
-                : "text-muted",
+          DAY_CELL_BASE_CLASSES,
+          getDayCellVariantClasses({ isSelected, mood, toneClasses, isToday }),
         )}
       >
-        {weekday}
-      </span>
-      <span
-        className={cn(
-          "mt-1 text-xl font-semibold leading-none tabular-nums",
-          isSelected && !mood
-            ? "text-background"
-            : mood
-              ? "text-current"
-              : isToday
-                ? "text-foreground"
-                : "text-foreground/65",
-        )}
-      >
-        {day}
-      </span>
-      {isToday ? (
+        {mood && toneClasses ? (
+          <MoodIcon
+            mood={mood}
+            className={cn(
+              "pointer-events-none absolute -left-1.5 -bottom-1.5 h-10 w-10",
+              isSelected ? "opacity-20" : cn("opacity-20", toneClasses.icon),
+            )}
+          />
+        ) : null}
+
         <span
-          aria-hidden
           className={cn(
-            "mt-1.5 h-1 w-1 rounded-full",
-            isSelected
-              ? mood
-                ? "bg-current opacity-70"
-                : "bg-background/80"
-              : "bg-foreground",
+            "text-xs font-bold uppercase leading-none mt-1",
+            isSelected && !mood
+              ? "text-background/70"
+              : mood
+                ? "opacity-70"
+                : isToday
+                  ? "text-foreground/70"
+                  : "text-muted",
           )}
-        />
-      ) : (
-        <span className="mt-1.5 h-1 w-1" aria-hidden />
-      )}
-    </button>
+        >
+          {weekday}
+        </span>
+        <span
+          className={cn(
+            "mt-1 text-xl font-semibold leading-none tabular-nums",
+            isSelected && !mood
+              ? "text-background"
+              : mood
+                ? "text-current"
+                : isToday
+                  ? "text-foreground"
+                  : "text-foreground/65",
+          )}
+        >
+          {day}
+        </span>
+        {isToday ? (
+          <span
+            aria-hidden
+            className={cn(
+              "mt-1.5 h-1 w-1 rounded-full",
+              isSelected
+                ? mood
+                  ? "bg-current opacity-70"
+                  : "bg-background/80"
+                : "bg-foreground",
+            )}
+          />
+        ) : (
+          <span className="mt-1.5 h-1 w-1" aria-hidden />
+        )}
+      </button>
+    </div>
   );
 };
 

@@ -9,6 +9,7 @@ import {
   cn,
 } from "@/components/common";
 import { DailyReview } from "@/components/daily-reviews";
+import useFinishDay from "@/components/daily-reviews/useFinishDay";
 import type { LinkedNotesHandle } from "@/components/notes";
 import { ActiveSprintCard } from "@/components/sprints";
 import DayStrip from "../DayStrip";
@@ -32,6 +33,7 @@ const TasksViewContent: FC = () => {
   } = view;
 
   const linkedNotesRef = useRef<LinkedNotesHandle>(null);
+  const finishDay = useFinishDay(selectedDate);
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
@@ -40,16 +42,16 @@ const TasksViewContent: FC = () => {
           centerDate={stripCenter}
           selectedDate={selectedDate}
           onSelect={selectDate}
+          canOpenReview={finishDay.reviewable}
+          onOpenReview={finishDay.openFinishDay}
         />
       </div>
-
       <ActiveSprintCard
         sprints={sprints}
         selectedDate={selectedDate}
         onCreateTask={(sprintId) => openCreate(undefined, sprintId)}
         onEditTask={openEdit}
       />
-
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
@@ -92,12 +94,13 @@ const TasksViewContent: FC = () => {
           </div>
         </div>
       </div>
-
       <TasksDayBody view={view} linkedNotesRef={linkedNotesRef} />
-
       <TasksViewModals view={view} />
-
-      <DailyReview key={`review-${selectedDate}`} date={selectedDate} />
+      <DailyReview
+        key={`review-${selectedDate}`}
+        date={selectedDate}
+        view={finishDay}
+      />
     </div>
   );
 };

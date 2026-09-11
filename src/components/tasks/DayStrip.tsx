@@ -14,9 +14,17 @@ interface Props {
   centerDate: string;
   selectedDate: string;
   onSelect: (iso: string) => void;
+  canOpenReview?: boolean;
+  onOpenReview?: () => void;
 }
 
-const DayStrip: FC<Props> = ({ centerDate, selectedDate, onSelect }) => {
+const DayStrip: FC<Props> = ({
+  centerDate,
+  selectedDate,
+  onSelect,
+  canOpenReview = false,
+  onOpenReview,
+}) => {
   const today = todayIso();
   const days = useMemo(() => buildDayStrip(centerDate), [centerDate]);
   const rangeQuery = useMemo(
@@ -81,7 +89,9 @@ const DayStrip: FC<Props> = ({ centerDate, selectedDate, onSelect }) => {
               mood={moodByDate.get(iso)}
               isSelected={iso === selectedDate}
               isToday={iso === today}
+              canOpenReview={canOpenReview && iso === selectedDate}
               onSelect={onSelect}
+              onOpenReview={onOpenReview}
             />
           </SwiperSlide>
         );
