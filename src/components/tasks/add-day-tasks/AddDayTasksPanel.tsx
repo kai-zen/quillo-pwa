@@ -3,7 +3,7 @@
 import { Inbox, Plus, Repeat, Target } from "lucide-react";
 import { FC, ReactNode } from "react";
 import { Button, ConfirmModal, Modal } from "@/components/common";
-import TaskDayCards from "@/components/tasks/TaskDayCards";
+import TaskDayCards from "@/components/tasks/task-day-cards";
 import TaskForm, { taskFormTitle } from "@/components/tasks/form/TaskForm";
 import { formatDayShort } from "@/components/tasks/helpers";
 import type { Sprint } from "@/shared/types";
@@ -140,7 +140,8 @@ const AddDayTasksPanel: FC<Props> = ({
               view.formMode.type === "edit" && !view.formMode.task.parent_id
                 ? () => {
                     const mode = view.formMode;
-                    if (mode?.type === "edit") view.openCreateSubtask(mode.task);
+                    if (mode?.type === "edit")
+                      view.openCreateSubtask(mode.task);
                   }
                 : undefined
             }

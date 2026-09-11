@@ -6,7 +6,7 @@ import { Button } from "@/components/common";
 import { LinkedNotes, type LinkedNotesHandle } from "@/components/notes";
 import DayProgress from "../DayProgress";
 import { formatDayHeading } from "../helpers";
-import TaskDayCards from "../TaskDayCards";
+import TaskDayCards from "../task-day-cards";
 import type { TasksDayViewModel } from "../useTasksDayView";
 
 interface Props {
