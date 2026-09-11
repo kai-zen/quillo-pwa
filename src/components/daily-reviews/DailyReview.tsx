@@ -3,7 +3,7 @@
 import { ChevronRight, Moon, PenLine } from "lucide-react";
 import { FC } from "react";
 import { cn, Markdown } from "@/components/common";
-import FinishDayModal from "./FinishDayModal";
+import FinishDayModal from "./finish-day-modal/FinishDayModal";
 import { formatMoodLabel, MOOD_TONE, MOOD_TONE_CLASSES } from "./helpers";
 import { MoodIcon } from "./MoodPicker";
 import useFinishDay from "./useFinishDay";

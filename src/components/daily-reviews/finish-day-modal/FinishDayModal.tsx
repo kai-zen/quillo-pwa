@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useMemo } from "react";
-import { Button, Modal, Stepper, Tabs } from "@/components/common";
+import { Button, Modal, Stepper } from "@/components/common";
 import {
   AddDayTasksModals,
   AddDayTasksPanel,
@@ -11,11 +11,12 @@ import {
   formatDayHeading,
   formatDayShort,
 } from "@/components/tasks/helpers";
-import DailyReviewForm from "./DailyReviewForm";
-import type { FinishDayStep, FinishDayViewModel } from "./useFinishDay";
+import DailyReviewForm from "../DailyReviewForm";
+import type { FinishDayStep, FinishDayViewModel } from "../useFinishDay";
 import DailyProgressInputsForm, {
   useDailyProgressInputs,
-} from "./daily-progress-inputs-form";
+} from "../daily-progress-inputs-form";
+import ReviewFinishDayModal from "./ReviewFinishDayModal";
 
 interface Props {
   date: string;
@@ -60,53 +61,14 @@ const FinishDayModal: FC<Props> = ({ date, view }) => {
     ? `Continue to plan ${nextDateLabel}`
     : "Save & finish";
 
-  if (isReviewing) {
+  if (isReviewing)
     return (
-      <Modal
-        open={view.open}
-        onClose={view.closeFinishDay}
-        title={`Review ${formatDayHeading(date)}`}
-        className="max-w-3xl sm:max-h-[90vh]"
-      >
-        {view.isError ? (
-          <p className="text-sm text-foreground">
-            Could not load the review for this day. Try refreshing the page.
-          </p>
-        ) : (
-          <>
-            {view.hasProgressStep ? (
-              <Tabs
-                value={view.reviewTab}
-                onChange={(value) =>
-                  view.setReviewTab(value as "reflect" | "progress")
-                }
-                options={[
-                  { value: "reflect", label: "Reflect" },
-                  { value: "progress", label: "Progress" },
-                ]}
-                aria-label="Daily review sections"
-                className="mb-5"
-              />
-            ) : null}
-
-            {view.reviewTab === "reflect" || !view.hasProgressStep ? (
-              <DailyReviewForm
-                form={view}
-                submitLabel="Save changes"
-              />
-            ) : (
-              <DailyProgressInputsForm
-                dateLabel={dateLabel}
-                progresses={view.sprintProgresses}
-                form={progressForm}
-                submitLabel="Save changes"
-              />
-            )}
-          </>
-        )}
-      </Modal>
+      <ReviewFinishDayModal
+        date={date}
+        view={view}
+        progressForm={progressForm}
+      />
     );
-  }
 
   return (
     <>

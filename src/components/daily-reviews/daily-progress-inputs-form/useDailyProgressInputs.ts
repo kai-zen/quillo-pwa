@@ -7,6 +7,16 @@ import type { Progress, ProgressInput, RecordId } from "@/shared/types";
 
 export type ProgressDraftValue = boolean | number | string | null;
 
+export interface ProgressFormValues {
+  values: Record<string, ProgressDraftValue>;
+  error: string;
+  pending: boolean;
+  isLoading: boolean;
+  isError: boolean;
+  setValue: (progressId: RecordId, value: ProgressDraftValue) => void;
+  onSubmit: (event: SubmitEvent) => Promise<boolean>;
+}
+
 const isValueFilled = (
   progress: Progress,
   value: ProgressDraftValue,
@@ -171,7 +181,7 @@ const useDailyProgressInputs = (
     isError,
     setValue,
     onSubmit,
-  };
+  } as ProgressFormValues;
 };
 
 export default useDailyProgressInputs;
