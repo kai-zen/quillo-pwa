@@ -65,6 +65,7 @@ export function useTasksDayView() {
     [stripAnchor, selectedDate],
   );
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
+  const [addTasksOpen, setAddTasksOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
   const [pendingId, setPendingId] = useState<RecordId | null>(null);
   const [actionError, setActionError] = useState("");
@@ -124,7 +125,15 @@ export function useTasksDayView() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }, [pathname, router, searchParams, showNotes]);
 
+  const openAddTasks = () => setAddTasksOpen(true);
+  const closeAddTasks = () => setAddTasksOpen(false);
+
   const openCreate = (parent?: Task, sprintId?: RecordId | null) => {
+    if (!parent && sprintId == null) {
+      openAddTasks();
+      return;
+    }
+
     setFormMode({
       type: "create",
       parentId: parent?._id ?? null,
@@ -222,6 +231,7 @@ export function useTasksDayView() {
     showNotes,
     toggleNotes,
     formMode,
+    addTasksOpen,
     labels,
     sprints,
     tasks,
@@ -232,6 +242,8 @@ export function useTasksDayView() {
     pendingId,
     actionError,
     openCreate,
+    openAddTasks,
+    closeAddTasks,
     openEdit,
     closeForm,
     applyOpen,

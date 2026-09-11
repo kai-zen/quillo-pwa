@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { AddDayTasksSource } from "@/components/tasks/add-day-tasks";
 import { useDailyReview } from "./useDailyReview";
 
 export type FinishDayStep = 1 | 2;
@@ -8,7 +9,8 @@ export type FinishDayStep = 1 | 2;
 export function useFinishDay(date: string) {
   const review = useDailyReview(date, { closeOnSave: false });
   const [step, setStep] = useState<FinishDayStep>(1);
-  const [applyOpen, setApplyOpen] = useState(false);
+  const [addPanel, setAddPanel] = useState<AddDayTasksSource>("none");
+  const [createOpen, setCreateOpen] = useState(false);
 
   const openFinishDay = () => {
     review.openReview();
@@ -18,24 +20,31 @@ export function useFinishDay(date: string) {
   const closeFinishDay = () => {
     review.closeReview();
     setStep(1);
-    setApplyOpen(false);
+    setAddPanel("none");
+    setCreateOpen(false);
   };
 
   const goToStep2 = () => setStep(2);
   const backToStep1 = () => setStep(1);
-  const openApply = () => setApplyOpen(true);
-  const closeApply = () => setApplyOpen(false);
+  const openAddPanel = (panel: Exclude<AddDayTasksSource, "none">) =>
+    setAddPanel(panel);
+  const closeAddPanel = () => setAddPanel("none");
+  const openCreateTask = () => setCreateOpen(true);
+  const closeCreateTask = () => setCreateOpen(false);
 
   return {
     ...review,
     step,
-    applyOpen,
+    addPanel,
+    createOpen,
     openFinishDay,
     closeFinishDay,
     goToStep2,
     backToStep1,
-    openApply,
-    closeApply,
+    openAddPanel,
+    closeAddPanel,
+    openCreateTask,
+    closeCreateTask,
   };
 }
 

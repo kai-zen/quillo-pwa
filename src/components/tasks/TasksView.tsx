@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, StickyNote } from "lucide-react";
-import { FC, Suspense, useRef, useState } from "react";
+import { FC, Suspense, useMemo, useRef, useState } from "react";
 import {
   Button,
   ConfirmModal,
@@ -11,12 +11,14 @@ import {
 } from "@/components/common";
 import { DailyReview } from "@/components/daily-reviews";
 import { LinkedNotes, type LinkedNotesHandle } from "@/components/notes";
-import { ApplyRoutinesModal } from "@/components/routines";
 import { ActiveSprintCard } from "@/components/sprints";
 import type { Task } from "@/shared/types";
+import { AddDayTasksModal } from "./add-day-tasks";
 import DayProgress from "./DayProgress";
 import DayStrip from "./DayStrip";
 import TaskForm, { taskFormTitle } from "./form/TaskForm";
+import { pickActiveSprint } from "@/components/sprints/helpers";
+import { ApplyRoutinesModal } from "@/components/routines";
 import { formatDayHeading, formatDayShort } from "./helpers";
 import TaskDayCards from "./TaskDayCards";
 import { useTasksDayView } from "./useTasksDayView";
@@ -30,6 +32,7 @@ const TasksViewContent: FC = () => {
     showNotes,
     toggleNotes,
     formMode,
+    addTasksOpen,
     labels,
     sprints,
     tasks,
@@ -39,6 +42,7 @@ const TasksViewContent: FC = () => {
     pendingId,
     actionError,
     openCreate,
+    closeAddTasks,
     openEdit,
     closeForm,
     applyOpen,
@@ -52,6 +56,7 @@ const TasksViewContent: FC = () => {
   const linkedNotesRef = useRef<LinkedNotesHandle>(null);
 
   const heading = formatDayHeading(selectedDate);
+  const activeSprint = useMemo(() => pickActiveSprint(sprints), [sprints]);
 
   const confirmDelete = () => {
     if (!toDelete || pendingId) return;
@@ -173,6 +178,13 @@ const TasksViewContent: FC = () => {
         </>
       )}
 
+      <AddDayTasksModal
+        open={addTasksOpen}
+        doingDate={selectedDate}
+        activeSprint={activeSprint}
+        onClose={closeAddTasks}
+      />
+
       <Modal
         open={!!formMode}
         onClose={closeForm}
@@ -196,10 +208,14 @@ const TasksViewContent: FC = () => {
                 ? () => openCreate(formMode.task)
                 : undefined
             }
-            onAddFromRoutines={() => {
-              closeForm();
-              openApply();
-            }}
+            onAddFromRoutines={
+              formMode.type === "create" && formMode.sprintId
+                ? () => {
+                    closeForm();
+                    openApply();
+                  }
+                : undefined
+            }
           />
         )}
       </Modal>

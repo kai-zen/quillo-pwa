@@ -1,11 +1,15 @@
 "use client";
 
-import { FC } from "react";
-import { cn, Modal } from "@/components/common";
-import { ApplyRoutinesModal } from "@/components/routines";
+import { FC, useMemo } from "react";
+import { Button, cn, Modal } from "@/components/common";
+import { pickActiveSprint } from "@/components/sprints/helpers";
+import {
+  AddDayTasksModals,
+  AddDayTasksPanel,
+} from "@/components/tasks/add-day-tasks";
 import { addDays, formatDayHeading, formatDayShort } from "@/components/tasks/helpers";
+import { useSprintsApi } from "@/shared/hooks";
 import DailyReviewForm from "./DailyReviewForm";
-import NextDayTasksStep from "./NextDayTasksStep";
 import type { FinishDayStep, FinishDayViewModel } from "./useFinishDay";
 
 const STEPS: { step: FinishDayStep; label: string }[] = [
@@ -62,10 +66,18 @@ const StepIndicator: FC<{ step: FinishDayStep }> = ({ step }) => (
 
 const FinishDayModal: FC<Props> = ({ date, view }) => {
   const nextDate = addDays(date, 1);
+  const { useSprintsList } = useSprintsApi();
+  const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
+  const activeSprint = useMemo(
+    () => pickActiveSprint(sprintsQuery.data?.items ?? []),
+    [sprintsQuery.data?.items],
+  );
+  const nextDateLabel = formatDayShort(nextDate);
+
   const title =
     view.step === 1
       ? `Finish ${formatDayHeading(date)}`
-      : `Plan ${formatDayShort(nextDate)}`;
+      : `Plan ${nextDateLabel}`;
 
   return (
     <>
@@ -89,19 +101,38 @@ const FinishDayModal: FC<Props> = ({ date, view }) => {
             submitLabel="Continue"
           />
         ) : (
-          <NextDayTasksStep
-            nextDate={nextDate}
-            onBack={view.backToStep1}
-            onDone={view.closeFinishDay}
-            onApplyRoutines={view.openApply}
+          <AddDayTasksPanel
+            doingDate={nextDate}
+            activeSprint={activeSprint}
+            description={
+              <p className="text-sm text-muted">
+                What do you want to tackle on {nextDateLabel}? Add a few tasks
+                now so tomorrow starts with a plan.
+              </p>
+            }
+            onCreateNewTask={view.openCreateTask}
+            onAddFromRoutines={() => view.openAddPanel("routines")}
+            onAddFromBacklog={() => view.openAddPanel("backlog")}
+            onAddFromSprint={() => view.openAddPanel("sprint")}
+            footer={
+              <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+                <Button variant="ghost" onClick={view.backToStep1}>
+                  Back
+                </Button>
+                <Button onClick={view.closeFinishDay}>Done</Button>
+              </div>
+            }
           />
         )}
       </Modal>
 
-      <ApplyRoutinesModal
-        open={view.applyOpen}
+      <AddDayTasksModals
         doingDate={nextDate}
-        onClose={view.closeApply}
+        source={view.addPanel}
+        createOpen={view.createOpen}
+        activeSprint={activeSprint}
+        onCloseSource={view.closeAddPanel}
+        onCloseCreate={view.closeCreateTask}
       />
     </>
   );
