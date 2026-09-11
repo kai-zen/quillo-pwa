@@ -25,7 +25,7 @@ const DailyReview: FC<Props> = ({ date }) => {
             <button
               type="button"
               onClick={form.openFinishDay}
-              aria-label={`Edit daily review, mood ${formatMoodLabel(form.review.mood)}`}
+              aria-label={`View daily review, mood ${formatMoodLabel(form.review.mood)}`}
               className="group flex w-full cursor-pointer items-center justify-between gap-2 text-left"
             >
               <span
@@ -39,7 +39,7 @@ const DailyReview: FC<Props> = ({ date }) => {
               </span>
               <span className="inline-flex shrink-0 items-center gap-1 text-xs text-muted opacity-0 transition-opacity group-hover:opacity-100">
                 <PenLine className="h-3 w-3" aria-hidden />
-                Edit
+                Open
               </span>
             </button>
 

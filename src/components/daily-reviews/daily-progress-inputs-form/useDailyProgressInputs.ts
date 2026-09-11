@@ -14,6 +14,7 @@ export interface ProgressFormValues {
   isLoading: boolean;
   isError: boolean;
   setValue: (progressId: RecordId, value: ProgressDraftValue) => void;
+  resetEdits: () => void;
   onSubmit: (event: SubmitEvent) => Promise<boolean>;
 }
 
@@ -137,6 +138,16 @@ const useDailyProgressInputs = (
     setError("");
   };
 
+  const resetEdits = () => {
+    setEditsByDate((current) => {
+      if (!current[date]) return current;
+      const next = { ...current };
+      delete next[date];
+      return next;
+    });
+    setError("");
+  };
+
   const onSubmit = async (event: SubmitEvent): Promise<boolean> => {
     event.preventDefault();
     if (pending) return false;
@@ -180,6 +191,7 @@ const useDailyProgressInputs = (
     isLoading,
     isError,
     setValue,
+    resetEdits,
     onSubmit,
   } as ProgressFormValues;
 };

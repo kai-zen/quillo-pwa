@@ -46,6 +46,12 @@ const useDailyReview = (date: string, options: UseDailyReviewOptions = {}) => {
     setError("");
   };
 
+  const resetDraft = () => {
+    setMood(review?.mood ?? "");
+    setJournal(review?.journal ?? "");
+    setError("");
+  };
+
   const onSubmit = async (event: SubmitEvent): Promise<boolean> => {
     event.preventDefault();
     if (pending) return false;
@@ -87,6 +93,7 @@ const useDailyReview = (date: string, options: UseDailyReviewOptions = {}) => {
     setJournal,
     openReview,
     closeReview,
+    resetDraft,
     onSubmit,
   };
 };

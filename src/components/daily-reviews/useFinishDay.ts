@@ -41,6 +41,8 @@ const useFinishDay = (date: string) => {
 
   const [step, setStep] = useState<FinishDayStep>(1);
   const [reviewTab, setReviewTab] = useState<FinishDayReviewTab>("reflect");
+  const [reviewEditing, setReviewEditing] =
+    useState<FinishDayReviewTab | null>(null);
   const [addPanel, setAddPanel] = useState<AddDayTasksSource>("none");
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -48,14 +50,25 @@ const useFinishDay = (date: string) => {
     review.openReview();
     setStep(1);
     setReviewTab("reflect");
+    setReviewEditing(null);
   };
 
   const closeFinishDay = () => {
     review.closeReview();
     setStep(1);
     setReviewTab("reflect");
+    setReviewEditing(null);
     setAddPanel("none");
     setCreateOpen(false);
+  };
+
+  const startReviewEdit = (tab: FinishDayReviewTab) => setReviewEditing(tab);
+
+  const finishReviewEdit = () => setReviewEditing(null);
+
+  const cancelReviewEdit = (tab: FinishDayReviewTab) => {
+    if (tab === "reflect") review.resetDraft();
+    setReviewEditing(null);
   };
 
   const advanceFromReflect = () => {
@@ -85,6 +98,10 @@ const useFinishDay = (date: string) => {
     step,
     reviewTab,
     setReviewTab,
+    reviewEditing,
+    startReviewEdit,
+    finishReviewEdit,
+    cancelReviewEdit,
     planStep,
     hasProgressStep,
     activeSprint,
