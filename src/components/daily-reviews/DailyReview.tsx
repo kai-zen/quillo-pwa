@@ -79,19 +79,6 @@ const DailyReview: FC<Props> = ({ date }) => {
             />
           </button>
         )}
-
-        <Link
-          href="/journal"
-          className={cn(
-            "inline-flex items-center gap-1 text-xs text-muted transition-colors hover:text-foreground",
-            form.filled
-              ? "mt-2.5 border-t border-border/60 pt-2.5"
-              : "mt-2.5",
-          )}
-        >
-          <BookHeart className="h-3 w-3" aria-hidden />
-          View past reflections
-        </Link>
       </div>
 
       <DailyReviewModal date={date} form={form} />
