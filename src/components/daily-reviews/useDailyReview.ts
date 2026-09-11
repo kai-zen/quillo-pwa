@@ -6,7 +6,16 @@ import { useDailyReviewsApi } from "@/shared/hooks";
 import type { DailyReviewMood } from "@/shared/types";
 import { isReviewableDate } from "./helpers";
 
-export function useDailyReview(date: string) {
+interface UseDailyReviewOptions {
+  /** When false, a successful save keeps the modal open. Default true. */
+  closeOnSave?: boolean;
+}
+
+export function useDailyReview(
+  date: string,
+  options: UseDailyReviewOptions = {},
+) {
+  const { closeOnSave = true } = options;
   const {
     useDailyReviewByDate,
     createDailyReview,
@@ -59,7 +68,7 @@ export function useDailyReview(date: string) {
     try {
       if (review) await updateDailyReview(review._id, body);
       else await createDailyReview(body);
-      setOpen(false);
+      if (closeOnSave) setOpen(false);
       return true;
     } catch (err) {
       setError(getErrorMessage(err, "Could not save this review."));

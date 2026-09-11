@@ -1,20 +1,19 @@
 "use client";
 
-import { BookHeart, ChevronRight, Moon, PenLine } from "lucide-react";
-import Link from "next/link";
+import { ChevronRight, Moon, PenLine } from "lucide-react";
 import { FC } from "react";
 import { cn, Markdown } from "@/components/common";
-import DailyReviewModal from "./DailyReviewModal";
+import FinishDayModal from "./FinishDayModal";
 import { formatMoodLabel, MOOD_TONE, MOOD_TONE_CLASSES } from "./helpers";
 import { MoodIcon } from "./MoodPicker";
-import { useDailyReview } from "./useDailyReview";
+import { useFinishDay } from "./useFinishDay";
 
 interface Props {
   date: string;
 }
 
 const DailyReview: FC<Props> = ({ date }) => {
-  const form = useDailyReview(date);
+  const form = useFinishDay(date);
 
   if (!form.reviewable) return null;
 
@@ -25,7 +24,7 @@ const DailyReview: FC<Props> = ({ date }) => {
           <div className="flex flex-col gap-2.5">
             <button
               type="button"
-              onClick={form.openReview}
+              onClick={form.openFinishDay}
               aria-label={`Edit daily review, mood ${formatMoodLabel(form.review.mood)}`}
               className="group flex w-full cursor-pointer items-center justify-between gap-2 text-left"
             >
@@ -58,8 +57,8 @@ const DailyReview: FC<Props> = ({ date }) => {
         ) : (
           <button
             type="button"
-            onClick={form.openReview}
-            aria-label="Add daily review"
+            onClick={form.openFinishDay}
+            aria-label="Finish your day"
             className="group flex w-full cursor-pointer items-center gap-3 text-left"
           >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-foreground transition-colors group-hover:bg-foreground group-hover:text-background">
@@ -67,10 +66,10 @@ const DailyReview: FC<Props> = ({ date }) => {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-medium text-foreground">
-                How was today?
+                Finish your day
               </span>
               <span className="block text-xs text-muted">
-                Take a moment to reflect before you close the day.
+                Reflect on today, then plan what&apos;s next.
               </span>
             </span>
             <ChevronRight
@@ -81,7 +80,7 @@ const DailyReview: FC<Props> = ({ date }) => {
         )}
       </div>
 
-      <DailyReviewModal date={date} form={form} />
+      <FinishDayModal date={date} view={form} />
     </>
   );
 };
