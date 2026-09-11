@@ -7,7 +7,10 @@ import type { Progress, ProgressInput, RecordId } from "@/shared/types";
 
 export type ProgressDraftValue = boolean | number | string | null;
 
-const isValueFilled = (progress: Progress, value: ProgressDraftValue): boolean => {
+const isValueFilled = (
+  progress: Progress,
+  value: ProgressDraftValue,
+): boolean => {
   if (value === null || value === "") return false;
   if (progress.input_type === "boolean") return typeof value === "boolean";
   if (progress.input_type === "choice") return typeof value === "string";
@@ -42,7 +45,11 @@ const validateValue = (
     }
   }
 
-  if (progress.input_type === "duration" && typeof value === "number" && value < 0) {
+  if (
+    progress.input_type === "duration" &&
+    typeof value === "number" &&
+    value < 0
+  ) {
     return "Duration cannot be negative.";
   }
 

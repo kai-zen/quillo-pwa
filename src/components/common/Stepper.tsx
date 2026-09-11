@@ -23,46 +23,47 @@ const Stepper = <T extends string | number>({
 
   return (
     <ol
-      className={cn("flex items-center gap-2", className)}
+      className={cn("flex w-full min-w-0", className)}
       aria-label={ariaLabel}
     >
       {steps.map((item, index) => {
         const active = item.value === value;
         const complete = currentIndex > index;
+        const isLast = index === steps.length - 1;
 
         return (
           <li
             key={String(item.value)}
-            className="flex min-w-0 flex-1 items-center gap-2"
+            className="relative flex min-w-0 flex-1 flex-col items-center gap-1"
           >
-            <span
-              className={cn(
-                "inline-flex shrink-0 items-center gap-2",
-                active || complete ? "text-foreground" : "text-muted",
-              )}
-            >
+            {!isLast && (
               <span
                 className={cn(
-                  "flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold tabular-nums",
-                  active && "bg-foreground text-background",
-                  complete && "bg-foreground/15 text-foreground",
-                  !active && !complete && "bg-accent-soft text-muted",
-                )}
-                aria-current={active ? "step" : undefined}
-              >
-                {index + 1}
-              </span>
-              <span className="truncate text-xs font-medium">{item.label}</span>
-            </span>
-            {index < steps.length - 1 && (
-              <span
-                className={cn(
-                  "h-px min-w-4 flex-1",
+                  "pointer-events-none absolute top-3 left-[calc(50%+0.875rem)] right-[calc(-50%+0.875rem)] h-px",
                   complete ? "bg-foreground/30" : "bg-border",
                 )}
                 aria-hidden
               />
             )}
+            <span
+              className={cn(
+                "relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold tabular-nums",
+                active && "bg-foreground text-background",
+                complete && "bg-foreground/15 text-foreground",
+                !active && !complete && "bg-accent-soft text-muted",
+              )}
+              aria-current={active ? "step" : undefined}
+            >
+              {index + 1}
+            </span>
+            <span
+              className={cn(
+                "w-full px-0.5 text-center text-[11px] font-medium leading-tight break-words sm:text-xs",
+                active || complete ? "text-foreground" : "text-muted",
+              )}
+            >
+              {item.label}
+            </span>
           </li>
         );
       })}
