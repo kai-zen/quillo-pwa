@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, StickyNote } from "lucide-react";
+import { StickyNote, Plus } from "lucide-react";
 import { FC, Suspense, useMemo, useRef, useState } from "react";
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   DatePickerIconButton,
   IconButton,
   Modal,
+  cn,
 } from "@/components/common";
 import { DailyReview } from "@/components/daily-reviews";
 import { LinkedNotes, type LinkedNotesHandle } from "@/components/notes";
@@ -104,7 +105,13 @@ const TasksViewContent: FC = () => {
               aria-pressed={showNotes}
               onClick={toggleNotes}
             >
-              <StickyNote className="h-5 w-5" aria-hidden />
+              <StickyNote
+                className={cn(
+                  "h-5 w-5 origin-top transition-transform duration-200 ease-out",
+                  showNotes ? "" : "rotate-14 translate-y-px translate-x-[2px]",
+                )}
+                aria-hidden
+              />
             </IconButton>
             <Button
               onClick={() => {
