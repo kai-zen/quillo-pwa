@@ -42,21 +42,25 @@ export function useTasksDayView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+
   const { useTasksList, updateTask, deleteTask, sortDailyTasks } =
     useTasksApi();
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
+
   const reorderGen = useRef(0);
 
   const selectedDate = useMemo(
     () => selectedDateFromParams(searchParams),
     [searchParams],
   );
+  const [stripAnchor, setStripAnchor] = useState(selectedDate);
+
   const showNotes = useMemo(
     () => showNotesFromParams(searchParams),
     [searchParams],
   );
-  const [stripAnchor, setStripAnchor] = useState(selectedDate);
+
   const stripCenter = useMemo(
     () =>
       buildDayStrip(stripAnchor).includes(selectedDate)
@@ -64,9 +68,11 @@ export function useTasksDayView() {
         : selectedDate,
     [stripAnchor, selectedDate],
   );
+
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
   const [addTasksOpen, setAddTasksOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
+  const [toDelete, setToDelete] = useState<Task | null>(null);
   const [pendingId, setPendingId] = useState<RecordId | null>(null);
   const [actionError, setActionError] = useState("");
 
@@ -92,11 +98,9 @@ export function useTasksDayView() {
     (iso: string) => {
       if (!iso || !parseIsoDate(iso)) return;
       const params = new URLSearchParams(searchParams.toString());
-      if (iso === todayIso()) {
-        params.delete(TASKS_DATE_PARAM);
-      } else {
-        params.set(TASKS_DATE_PARAM, iso);
-      }
+      if (iso === todayIso()) params.delete(TASKS_DATE_PARAM);
+      else params.set(TASKS_DATE_PARAM, iso);
+
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
@@ -180,6 +184,15 @@ export function useTasksDayView() {
     }
   };
 
+  const requestDelete = (task: Task) => setToDelete(task);
+  const clearDelete = () => setToDelete(null);
+  const confirmDelete = () => {
+    if (!toDelete || pendingId) return;
+    const task = toDelete;
+    setToDelete(null);
+    void removeTask(task);
+  };
+
   const reorderTasks = useCallback(
     async (orderedIds: RecordId[]) => {
       if (orderedIds.length < 2) return;
@@ -251,6 +264,10 @@ export function useTasksDayView() {
     closeApply,
     toggleDone,
     removeTask,
+    toDelete,
+    requestDelete,
+    clearDelete,
+    confirmDelete,
     reorderTasks,
   };
 }
