@@ -52,10 +52,13 @@ const TasksViewContent: FC = () => {
     removeTask,
     reorderTasks,
   } = useTasksDayView();
-  const [toDelete, setToDelete] = useState<Task | null>(null);
+
   const linkedNotesRef = useRef<LinkedNotesHandle>(null);
 
+  const [toDelete, setToDelete] = useState<Task | null>(null);
+
   const heading = formatDayHeading(selectedDate);
+
   const activeSprint = useMemo(() => pickActiveSprint(sprints), [sprints]);
 
   const confirmDelete = () => {

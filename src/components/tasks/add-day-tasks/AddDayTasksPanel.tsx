@@ -40,9 +40,41 @@ const AddDayTasksPanel: FC<Props> = ({
         </p>
       )}
 
-      <Button onClick={onCreateNewTask} startIcon={<Plus className="h-4 w-4" aria-hidden />}>
-        New task
-      </Button>
+      <div className="flex flex-col gap-2">
+        <p className="text-sm text-muted">Add tasks from:</p>
+        {/* actions */}
+        <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={onCreateNewTask}
+            size="sm"
+            startIcon={<Plus className="h-4 w-4" aria-hidden />}
+          >
+            New task
+          </Button>
+          <Button variant="secondary" size="sm" onClick={onAddFromRoutines}>
+            <Repeat className="h-4 w-4" aria-hidden />
+            Routines
+          </Button>
+          <Button variant="secondary" size="sm" onClick={onAddFromBacklog}>
+            <Inbox className="h-4 w-4" aria-hidden />
+            Backlog
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={onAddFromSprint}
+            disabled={!activeSprint}
+            title={
+              activeSprint
+                ? `Add from ${activeSprint.name}`
+                : "No active sprint right now"
+            }
+          >
+            <Target className="h-4 w-4" aria-hidden />
+            Sprint
+          </Button>
+        </div>
+      </div>
 
       {view.isLoading && (
         <p className="text-sm text-muted">Loading tasks for {dateLabel}…</p>
@@ -69,37 +101,11 @@ const AddDayTasksPanel: FC<Props> = ({
 
       {!view.isLoading && view.tasks.length === 0 && (
         <div className="rounded-xl border border-dashed border-border bg-accent-soft/40 px-4 py-8 text-center">
-          <p className="text-sm text-muted">Nothing planned yet for {dateLabel}.</p>
+          <p className="text-sm text-muted">
+            Nothing planned yet for {dateLabel}.
+          </p>
         </div>
       )}
-
-      <div className="flex flex-col gap-2">
-        <p className="text-sm font-medium text-foreground">Add tasks from:</p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" onClick={onAddFromRoutines}>
-            <Repeat className="h-4 w-4" aria-hidden />
-            Routines
-          </Button>
-          <Button variant="secondary" size="sm" onClick={onAddFromBacklog}>
-            <Inbox className="h-4 w-4" aria-hidden />
-            Backlog
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onAddFromSprint}
-            disabled={!activeSprint}
-            title={
-              activeSprint
-                ? `Add from ${activeSprint.name}`
-                : "No active sprint right now"
-            }
-          >
-            <Target className="h-4 w-4" aria-hidden />
-            Sprint
-          </Button>
-        </div>
-      </div>
 
       {footer}
     </div>
