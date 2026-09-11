@@ -34,7 +34,7 @@
   --color-accent-soft: var(--accent-soft);
   --color-nav-active: var(--nav-active);
   --font-sans: var(--font-manrope);
-}
+ }
 
 body {
   background: var(--background);

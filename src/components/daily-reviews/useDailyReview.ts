@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import { useDailyReviewsApi } from "@/shared/hooks";
 import type { DailyReviewMood } from "@/shared/types";
@@ -40,14 +40,14 @@ export function useDailyReview(date: string) {
     setError("");
   };
 
-  const onSubmit = async (event: FormEvent) => {
+  const onSubmit = async (event: SubmitEvent): Promise<boolean> => {
     event.preventDefault();
-    if (pending) return;
+    if (pending) return false;
     setError("");
 
     if (!mood) {
       setError("Pick a mood for this day.");
-      return;
+      return false;
     }
 
     const body = {
@@ -60,8 +60,10 @@ export function useDailyReview(date: string) {
       if (review) await updateDailyReview(review._id, body);
       else await createDailyReview(body);
       setOpen(false);
+      return true;
     } catch (err) {
       setError(getErrorMessage(err, "Could not save this review."));
+      return false;
     }
   };
 

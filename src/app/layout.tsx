@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Newsreader } from "next/font/google";
 import { FC, ReactNode } from "react";
 import AuthGuard from "@/components/auth/AuthGuard";
 import { InstallPrompt, SerwistProvider } from "@/components/pwa";
