@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useMemo } from "react";
-import { Button, Modal, Stepper } from "@/components/common";
+import { Button, Modal, Stepper, Tabs } from "@/components/common";
 import {
   AddDayTasksModals,
   AddDayTasksPanel,
@@ -25,6 +25,7 @@ interface Props {
 const FinishDayModal: FC<Props> = ({ date, view }) => {
   const nextDate = addDays(date, 1);
   const nextDateLabel = formatDayShort(nextDate);
+  const dateLabel = formatDayShort(date);
   const progressForm = useDailyProgressInputs(
     date,
     view.sprintProgresses,
@@ -38,23 +39,81 @@ const FinishDayModal: FC<Props> = ({ date, view }) => {
     if (view.hasProgressStep) {
       items.push({ value: 2, label: "Track progress" });
     }
-    items.push({ value: view.planStep, label: "Plan ahead" });
+    if (view.hasPlanStep) {
+      items.push({ value: view.planStep, label: "Plan ahead" });
+    }
     return items;
-  }, [view.hasProgressStep, view.planStep]);
+  }, [view.hasPlanStep, view.hasProgressStep, view.planStep]);
 
-  const title =
+  const isReviewing = !view.isCreating;
+  const isProgressStep = view.step === 2 && view.hasProgressStep;
+  const isPlanStep = view.hasPlanStep && view.step === view.planStep;
+
+  const createTitle =
     view.step === 1
       ? `Finish ${formatDayHeading(date)}`
-      : view.step === 2 && view.hasProgressStep
-        ? `Track ${formatDayShort(date)}`
+      : isProgressStep
+        ? `Track ${dateLabel}`
         : `Plan ${nextDateLabel}`;
+
+  const progressSubmitLabel = view.hasPlanStep
+    ? `Continue to plan ${nextDateLabel}`
+    : "Save & finish";
+
+  if (isReviewing) {
+    return (
+      <Modal
+        open={view.open}
+        onClose={view.closeFinishDay}
+        title={`Review ${formatDayHeading(date)}`}
+        className="max-w-3xl sm:max-h-[90vh]"
+      >
+        {view.isError ? (
+          <p className="text-sm text-foreground">
+            Could not load the review for this day. Try refreshing the page.
+          </p>
+        ) : (
+          <>
+            {view.hasProgressStep ? (
+              <Tabs
+                value={view.reviewTab}
+                onChange={(value) =>
+                  view.setReviewTab(value as "reflect" | "progress")
+                }
+                options={[
+                  { value: "reflect", label: "Reflect" },
+                  { value: "progress", label: "Progress" },
+                ]}
+                aria-label="Daily review sections"
+                className="mb-5"
+              />
+            ) : null}
+
+            {view.reviewTab === "reflect" || !view.hasProgressStep ? (
+              <DailyReviewForm
+                form={view}
+                submitLabel="Save changes"
+              />
+            ) : (
+              <DailyProgressInputsForm
+                dateLabel={dateLabel}
+                progresses={view.sprintProgresses}
+                form={progressForm}
+                submitLabel="Save changes"
+              />
+            )}
+          </>
+        )}
+      </Modal>
+    );
+  }
 
   return (
     <>
       <Modal
         open={view.open}
         onClose={view.closeFinishDay}
-        title={title}
+        title={createTitle}
         className="max-w-3xl sm:max-h-[90vh]"
       >
         <Stepper
@@ -75,16 +134,17 @@ const FinishDayModal: FC<Props> = ({ date, view }) => {
             onSaved={view.advanceFromReflect}
             submitLabel="Continue"
           />
-        ) : view.step === 2 && view.hasProgressStep ? (
+        ) : isProgressStep ? (
           <DailyProgressInputsForm
-            dateLabel={formatDayShort(nextDate)}
+            dateLabel={dateLabel}
             progresses={view.sprintProgresses}
             form={progressForm}
             onCancel={view.closeFinishDay}
             onBack={view.backToReflect}
             onSaved={view.advanceFromProgress}
+            submitLabel={progressSubmitLabel}
           />
-        ) : (
+        ) : isPlanStep ? (
           <AddDayTasksPanel
             doingDate={nextDate}
             activeSprint={view.activeSprint}
@@ -107,17 +167,19 @@ const FinishDayModal: FC<Props> = ({ date, view }) => {
               </div>
             }
           />
-        )}
+        ) : null}
       </Modal>
 
-      <AddDayTasksModals
-        doingDate={nextDate}
-        source={view.addPanel}
-        createOpen={view.createOpen}
-        activeSprint={view.activeSprint}
-        onCloseSource={view.closeAddPanel}
-        onCloseCreate={view.closeCreateTask}
-      />
+      {view.hasPlanStep ? (
+        <AddDayTasksModals
+          doingDate={nextDate}
+          source={view.addPanel}
+          createOpen={view.createOpen}
+          activeSprint={view.activeSprint}
+          onCloseSource={view.closeAddPanel}
+          onCloseCreate={view.closeCreateTask}
+        />
+      ) : null}
     </>
   );
 };

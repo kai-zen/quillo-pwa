@@ -10,18 +10,19 @@ interface Props {
   dateLabel: string;
   progresses: Progress[];
   form: ReturnType<typeof useDailyProgressInputs>;
-  onCancel: () => void;
+  onCancel?: () => void;
   onBack?: () => void;
   onSaved?: () => void;
+  submitLabel?: string;
 }
 
 const DailyProgressInputsForm: FC<Props> = ({
-  dateLabel,
   progresses,
   form,
   onCancel,
   onBack,
   onSaved,
+  submitLabel = "Save progress",
 }) => {
   const handleSubmit = async (event: SubmitEvent) => {
     const saved = await form.onSubmit(event);
@@ -83,11 +84,13 @@ const DailyProgressInputsForm: FC<Props> = ({
             Back
           </Button>
         ) : null}
-        <Button variant="ghost" onClick={onCancel} disabled={form.pending}>
-          Cancel
-        </Button>
+        {onCancel ? (
+          <Button variant="ghost" onClick={onCancel} disabled={form.pending}>
+            Cancel
+          </Button>
+        ) : null}
         <Button type="submit" disabled={form.pending}>
-          {form.pending ? "Saving…" : `Continue to plan ${dateLabel}`}
+          {form.pending ? "Saving…" : submitLabel}
         </Button>
       </div>
     </form>

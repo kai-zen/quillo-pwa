@@ -7,7 +7,7 @@ import type useDailyReview from "./useDailyReview";
 
 interface Props {
   form: ReturnType<typeof useDailyReview>;
-  onCancel: () => void;
+  onCancel?: () => void;
   onSaved?: () => void;
   submitLabel?: string;
 }
@@ -57,9 +57,11 @@ const DailyReviewForm: FC<Props> = ({
       {form.error && <p className="text-sm text-rose-500">{form.error}</p>}
 
       <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
-        <Button variant="ghost" onClick={onCancel} disabled={form.pending}>
-          Cancel
-        </Button>
+        {onCancel ? (
+          <Button variant="ghost" onClick={onCancel} disabled={form.pending}>
+            Cancel
+          </Button>
+        ) : null}
         <Button type="submit" disabled={form.pending}>
           {form.pending ? "Saving…" : submitLabel}
         </Button>
