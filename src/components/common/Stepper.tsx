@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { FC, ReactNode } from "react";
 import { cn } from "./cn";
 
 export interface StepperStep<T extends string | number = string> {
@@ -13,19 +13,16 @@ interface Props<T extends string | number> {
   "aria-label": string;
 }
 
-const Stepper = <T extends string | number>({
+const Stepper: FC<Props<string | number>> = ({
   value,
   steps,
   className,
   "aria-label": ariaLabel,
-}: Props<T>) => {
+}) => {
   const currentIndex = steps.findIndex((step) => step.value === value);
 
   return (
-    <ol
-      className={cn("flex w-full min-w-0", className)}
-      aria-label={ariaLabel}
-    >
+    <ol className={cn("flex w-full min-w-0", className)} aria-label={ariaLabel}>
       {steps.map((item, index) => {
         const active = item.value === value;
         const complete = currentIndex > index;

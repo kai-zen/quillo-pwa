@@ -3,12 +3,11 @@
 import { FC } from "react";
 import { Button, MarkdownEditor } from "@/components/common";
 import MoodPicker from "./MoodPicker";
-import type { useDailyReview } from "./useDailyReview";
+import type useDailyReview from "./useDailyReview";
 
 interface Props {
   form: ReturnType<typeof useDailyReview>;
   onCancel: () => void;
-  /** Called after a successful save. */
   onSaved?: () => void;
   submitLabel?: string;
 }
@@ -19,11 +18,6 @@ const DailyReviewForm: FC<Props> = ({
   onSaved,
   submitLabel = "Save reflection",
 }) => {
-  const insertPrompt = (text: string) => {
-    const current = form.journal.trim();
-    form.setJournal(current ? `${current}\n\n${text}` : text);
-  };
-
   const handleSubmit = async (event: SubmitEvent) => {
     const saved = await form.onSubmit(event);
     if (saved) onSaved?.();
