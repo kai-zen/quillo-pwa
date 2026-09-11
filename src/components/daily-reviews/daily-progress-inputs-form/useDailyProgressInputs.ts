@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import { useProgressInputsApi } from "@/shared/hooks";
 import type { Progress, ProgressInput, RecordId } from "@/shared/types";
@@ -56,6 +56,22 @@ const validateValue = (
   return null;
 };
 
+const EMPTY_EDITS: Record<RecordId, ProgressDraftValue> = {};
+
+const buildValues = (
+  progresses: Progress[],
+  existingByProgressId: Map<RecordId, ProgressInput>,
+  edits: Record<RecordId, ProgressDraftValue>,
+): Record<RecordId, ProgressDraftValue> => {
+  const next: Record<RecordId, ProgressDraftValue> = {};
+  for (const progress of progresses) {
+    next[progress._id] = Object.hasOwn(edits, progress._id)
+      ? edits[progress._id]
+      : (existingByProgressId.get(progress._id)?.value ?? null);
+  }
+  return next;
+};
+
 const useDailyProgressInputs = (
   date: string,
   progresses: Progress[],
@@ -78,28 +94,29 @@ const useDailyProgressInputs = (
     return map;
   }, [inputsQuery.data?.items]);
 
-  const [values, setValues] = useState<Record<RecordId, ProgressDraftValue>>(
-    {},
-  );
-  const [error, setError] = useState("");
+  const [editsByDate, setEditsByDate] = useState<
+    Record<string, Record<RecordId, ProgressDraftValue>>
+  >({});
+  const [errorState, setErrorState] = useState({ date, message: "" });
+  const edits = editsByDate[date] ?? EMPTY_EDITS;
+  const error = errorState.date === date ? errorState.message : "";
 
-  useEffect(() => {
-    if (!enabled) return;
-    const next: Record<RecordId, ProgressDraftValue> = {};
-    for (const progress of progresses) {
-      const existing = existingByProgressId.get(progress._id);
-      next[progress._id] = existing?.value ?? null;
-    }
-    setValues(next);
-    setError("");
-  }, [enabled, progresses, existingByProgressId]);
+  const values = useMemo(
+    () => buildValues(progresses, existingByProgressId, edits),
+    [progresses, existingByProgressId, edits],
+  );
 
   const pending = isCreating || isUpdating;
   const isLoading = enabled && inputsQuery.isLoading;
   const isError = enabled && inputsQuery.isError;
 
+  const setError = (message: string) => setErrorState({ date, message });
+
   const setValue = (progressId: RecordId, value: ProgressDraftValue) => {
-    setValues((current) => ({ ...current, [progressId]: value }));
+    setEditsByDate((current) => ({
+      ...current,
+      [date]: { ...current[date], [progressId]: value },
+    }));
     setError("");
   };
 
