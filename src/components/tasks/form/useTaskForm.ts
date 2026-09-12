@@ -22,6 +22,7 @@ export type TaskFormMode =
       parentId?: RecordId | null;
       parentTitle?: string;
       sprintId?: RecordId | null;
+      projectId?: RecordId | null;
       doingDate?: string | null;
     }
   | { type: "edit"; task: Task };
@@ -72,6 +73,10 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
   const [sprintId, setSprintId] = useState<RecordId | "">(
     editing?.sprint_id ?? "",
   );
+  const [projectId, setProjectId] = useState<RecordId | "">(
+    editing?.project_id ??
+      (mode.type === "create" ? (mode.projectId ?? "") : ""),
+  );
   const initialDoingDate =
     editing?.doing_date ??
     (mode.type === "create" ? (mode.doingDate ?? null) : null);
@@ -110,6 +115,7 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
         label_ids: labelIds,
         status: "todo",
         sprint_id: mode.sprintId ?? null,
+        project_id: projectId || null,
         parent_id: mode.parentId ?? null,
         ...(isSubtaskCreate
           ? {}
@@ -127,6 +133,7 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
       description: description.trim(),
       label_ids: labelIds,
       sprint_id: sprintId || null,
+      project_id: projectId || null,
       doing_date: doingDate || null,
       parent_id: editing?.parent_id ?? null,
     };
@@ -217,6 +224,8 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     setLabelIds,
     sprintId,
     setSprintId,
+    projectId,
+    setProjectId,
     doingDate,
     setDoingDate,
     labelManagerOpen,

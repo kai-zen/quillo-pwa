@@ -7,12 +7,14 @@ import { getErrorMessage } from "@/shared/errors";
 import {
   queryKeys,
   useLabelsApi,
+  useProjectsApi,
   useSprintsApi,
   useTasksApi,
 } from "@/shared/hooks";
 import type {
   Label,
   PaginatedResponse,
+  Project,
   RecordId,
   Sprint,
   Task,
@@ -47,6 +49,7 @@ export function useTasksDayView() {
     useTasksApi();
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
+  const { useProjectsList } = useProjectsApi();
 
   const reorderGen = useRef(0);
 
@@ -78,6 +81,7 @@ export function useTasksDayView() {
 
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
+  const projectsQuery = useProjectsList({ page: 1, limit: 250 });
   const tasksQuery = useTasksList({
     page: 1,
     limit: PAGE_LIMIT,
@@ -86,6 +90,7 @@ export function useTasksDayView() {
 
   const labels: Label[] = labelsQuery.data?.items ?? [];
   const sprints: Sprint[] = sprintsQuery.data?.items ?? [];
+  const projects: Project[] = projectsQuery.data?.items ?? [];
   const tasks = tasksQuery.data?.items ?? [];
   const taskTotal = tasksQuery.data?.total ?? 0;
 
@@ -144,6 +149,7 @@ export function useTasksDayView() {
       parentTitle: parent?.title,
       doingDate: selectedDate,
       sprintId: sprintId ?? null,
+      projectId: parent?.project_id ?? null,
     });
   };
 
@@ -247,6 +253,7 @@ export function useTasksDayView() {
     addTasksOpen,
     labels,
     sprints,
+    projects,
     tasks,
     taskTotal,
     isLoading,

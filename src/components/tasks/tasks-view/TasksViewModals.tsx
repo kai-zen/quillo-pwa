@@ -19,9 +19,9 @@ const TasksViewModals: FC<Props> = ({ view }) => {
     addTasksOpen,
     labels,
     sprints,
+    projects,
     pendingId,
     closeAddTasks,
-    openCreate,
     closeForm,
     applyOpen,
     openApply,
@@ -58,6 +58,7 @@ const TasksViewModals: FC<Props> = ({ view }) => {
             mode={formMode}
             labels={labels}
             sprints={sprints}
+            projects={projects}
             onClose={closeForm}
             onSaved={closeForm}
             onAddFromRoutines={

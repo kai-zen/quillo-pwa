@@ -1,5 +1,6 @@
 import {
   Flag,
+  FolderKanban,
   Inbox,
   ListTodo,
   Repeat,
@@ -20,6 +21,12 @@ export const NAV_ITEMS: NavItem[] = [
   { is_primary: true, href: "/", label: "Tasks", icon: ListTodo },
   { is_primary: true, href: "/backlog", label: "Backlog", icon: Inbox },
   { is_primary: false, href: "/goals", label: "Goals", icon: Target },
+  {
+    is_primary: false,
+    href: "/projects",
+    label: "Projects",
+    icon: FolderKanban,
+  },
   { is_primary: true, href: "/sprints", label: "Sprints", icon: Flag },
   { is_primary: false, href: "/routines", label: "Routines", icon: Repeat },
   {

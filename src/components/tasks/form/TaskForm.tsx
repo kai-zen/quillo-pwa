@@ -12,7 +12,7 @@ import {
   cn,
 } from "@/components/common";
 import { LabelField, LabelManagerModal } from "@/components/labels";
-import type { Label, Sprint, Task } from "@/shared/types";
+import type { Label, Project, Sprint, Task } from "@/shared/types";
 import { isTaskSettled } from "../helpers";
 import SubtaskRow from "../task-day-cards/SubtaskRow";
 import TaskMetaFields from "./TaskMetaFields";
@@ -24,6 +24,7 @@ interface Props {
   mode: TaskFormMode;
   labels: Label[];
   sprints: Sprint[];
+  projects: Project[];
   onClose: () => void;
   onSaved: () => void;
   onAddFromRoutines?: () => void;
@@ -33,6 +34,7 @@ const TaskForm: FC<Props> = ({
   mode,
   labels,
   sprints,
+  projects,
   onClose,
   onSaved,
   onAddFromRoutines,
@@ -55,6 +57,7 @@ const TaskForm: FC<Props> = ({
         parentId: form.editing._id,
         parentTitle: form.editing.title,
         sprintId: form.editing.sprint_id,
+        projectId: form.editing.project_id,
         doingDate: form.editing.doing_date,
       });
     }
@@ -109,6 +112,7 @@ const TaskForm: FC<Props> = ({
         <TaskMetaFields
           editing={!!form.editing}
           isSubtaskCreate={form.isSubtaskCreate}
+          showProjectSelector={!form.editing?.parent_id}
           priority={form.priority}
           onPriorityChange={form.setPriority}
           status={form.status}
@@ -118,6 +122,9 @@ const TaskForm: FC<Props> = ({
           sprintId={form.sprintId}
           onSprintIdChange={form.setSprintId}
           sprints={sprints}
+          projectId={form.projectId}
+          onProjectIdChange={form.setProjectId}
+          projects={projects}
         />
 
         {form.editing && !form.editing.parent_id && (
@@ -243,6 +250,7 @@ const TaskForm: FC<Props> = ({
             mode={subtaskFormMode}
             labels={labels}
             sprints={sprints}
+            projects={projects}
             onClose={() => setSubtaskFormMode(null)}
             onSaved={() => setSubtaskFormMode(null)}
           />

@@ -9,7 +9,12 @@ import {
   PageHeader,
   Select,
 } from "@/components/common";
-import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
+import {
+  useLabelsApi,
+  useProjectsApi,
+  useSprintsApi,
+  useTasksApi,
+} from "@/shared/hooks";
 import type {
   Label,
   RecordId,
@@ -28,6 +33,7 @@ const BacklogView: FC = () => {
   const { useTasksList, updateTask, deleteTask } = useTasksApi();
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
+  const { useProjectsList } = useProjectsApi();
 
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "">("");
   const [labelFilter, setLabelFilter] = useState("");
@@ -48,10 +54,12 @@ const BacklogView: FC = () => {
   const tasksQuery = useTasksList(listQuery);
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
+  const projectsQuery = useProjectsList({ page: 1, limit: 250 });
 
   const tasks = tasksQuery.data?.items ?? [];
   const labels: Label[] = labelsQuery.data?.items ?? [];
   const sprints = sprintsQuery.data?.items ?? [];
+  const projects = projectsQuery.data?.items ?? [];
   const total = tasksQuery.data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
@@ -66,6 +74,7 @@ const BacklogView: FC = () => {
       type: "create",
       parentId: parent?._id ?? null,
       parentTitle: parent?.title,
+      projectId: parent?.project_id ?? null,
     });
   };
 
@@ -177,6 +186,7 @@ const BacklogView: FC = () => {
             mode={formMode}
             labels={labels}
             sprints={sprints}
+            projects={projects}
             onClose={() => setFormMode(null)}
             onSaved={() => setFormMode(null)}
           />

@@ -8,6 +8,7 @@ import { getErrorMessage } from "@/shared/errors";
 import {
   useGoalsApi,
   useLabelsApi,
+  useProjectsApi,
   useProgressesApi,
   useSprintsApi,
   useTasksApi,
@@ -16,6 +17,7 @@ import type {
   Goal,
   Label,
   Progress,
+  Project,
   RecordId,
   Sprint,
   Task,
@@ -37,6 +39,7 @@ export function useSprintDetail(sprintId: RecordId) {
   const { useProgressesList } = useProgressesApi();
   const { useTasksList, updateTask } = useTasksApi();
   const { useLabelsList } = useLabelsApi();
+  const { useProjectsList } = useProjectsApi();
 
   const [sprintFormMode, setSprintFormMode] = useState<SprintFormMode | null>(
     null,
@@ -52,6 +55,7 @@ export function useSprintDetail(sprintId: RecordId) {
   const goalsQuery = useGoalsList({ page: 1, limit: 100 });
   const progressesQuery = useProgressesList({ page: 1, limit: 100 });
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
+  const projectsQuery = useProjectsList({ page: 1, limit: 250 });
   const tasksQuery = useTasksList(
     { page: 1, limit: PAGE_LIMIT, sprint_id: sprintId },
     !!sprintId,
@@ -66,6 +70,7 @@ export function useSprintDetail(sprintId: RecordId) {
     ? findProgresses(sprint.progress_ids, progresses)
     : [];
   const labels: Label[] = labelsQuery.data?.items ?? [];
+  const projects: Project[] = projectsQuery.data?.items ?? [];
   const tasks = tasksQuery.data?.items ?? [];
   const taskTotal = tasksQuery.data?.total ?? 0;
 
@@ -99,6 +104,7 @@ export function useSprintDetail(sprintId: RecordId) {
       parentId: parent?._id ?? null,
       parentTitle: parent?.title,
       sprintId,
+      projectId: parent?.project_id ?? null,
     });
   };
 
@@ -156,6 +162,7 @@ export function useSprintDetail(sprintId: RecordId) {
     addProgressOpen,
     catalog,
     labels,
+    projects,
     tasks,
     taskTotal,
     isSprintLoading,

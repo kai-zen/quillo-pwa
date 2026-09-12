@@ -59,6 +59,7 @@ export const toUpdateBody = (task: Task): UpdateTaskBody => ({
   description: task.description,
   label_ids: task.label_ids,
   sprint_id: task.sprint_id,
+  project_id: task.project_id,
   doing_date: task.doing_date,
   parent_id: task.parent_id,
 });

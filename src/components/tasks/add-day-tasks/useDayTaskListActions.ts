@@ -6,12 +6,14 @@ import { getErrorMessage } from "@/shared/errors";
 import {
   queryKeys,
   useLabelsApi,
+  useProjectsApi,
   useSprintsApi,
   useTasksApi,
 } from "@/shared/hooks";
 import type {
   Label,
   PaginatedResponse,
+  Project,
   RecordId,
   Sprint,
   Task,
@@ -29,6 +31,7 @@ export function useDayTaskListActions(doingDate: string) {
     useTasksApi();
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
+  const { useProjectsList } = useProjectsApi();
   const reorderGen = useRef(0);
 
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
@@ -48,10 +51,12 @@ export function useDayTaskListActions(doingDate: string) {
   const tasksQuery = useTasksList(listQuery);
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
+  const projectsQuery = useProjectsList({ page: 1, limit: 250 });
 
   const tasks: Task[] = tasksQuery.data?.items ?? [];
   const labels: Label[] = labelsQuery.data?.items ?? [];
   const sprints: Sprint[] = sprintsQuery.data?.items ?? [];
+  const projects: Project[] = projectsQuery.data?.items ?? [];
 
   const isLoading =
     tasksQuery.isLoading || labelsQuery.isLoading || sprintsQuery.isLoading;
@@ -65,6 +70,7 @@ export function useDayTaskListActions(doingDate: string) {
       parentId: parent._id,
       parentTitle: parent.title,
       doingDate,
+      projectId: parent.project_id,
     });
   };
 
@@ -151,6 +157,7 @@ export function useDayTaskListActions(doingDate: string) {
     tasks,
     labels,
     sprints,
+    projects,
     isLoading,
     isError,
     pendingId,

@@ -22,6 +22,7 @@ const SprintDetailModals: FC<Props> = ({ view }) => {
     addProgressOpen,
     catalog,
     labels,
+    projects,
     closeSprintForm,
     onSprintSaved,
     openCreateTask,
@@ -87,6 +88,7 @@ const SprintDetailModals: FC<Props> = ({ view }) => {
             mode={taskFormMode}
             labels={labels}
             sprints={catalog}
+            projects={projects}
             onClose={closeTaskForm}
             onSaved={closeTaskForm}
           />

@@ -2,7 +2,13 @@
 
 import { FC } from "react";
 import { DatePicker, Field, Select } from "@/components/common";
-import type { RecordId, Sprint, TaskPriority, TaskStatus } from "@/shared/types";
+import type {
+  Project,
+  RecordId,
+  Sprint,
+  TaskPriority,
+  TaskStatus,
+} from "@/shared/types";
 import {
   PRIORITY_LABELS,
   PRIORITY_OPTIONS,
@@ -20,6 +26,10 @@ interface Props {
   sprintId: RecordId | "";
   onSprintIdChange: (value: RecordId | "") => void;
   sprints: Sprint[];
+  projectId: RecordId | "";
+  onProjectIdChange: (value: RecordId | "") => void;
+  projects: Project[];
+  showProjectSelector: boolean;
 }
 
 const TaskEditMetaFields: FC<Props> = ({
@@ -32,6 +42,10 @@ const TaskEditMetaFields: FC<Props> = ({
   sprintId,
   onSprintIdChange,
   sprints,
+  projectId,
+  onProjectIdChange,
+  projects,
+  showProjectSelector,
 }) => (
   <>
     <div className="grid gap-3 sm:grid-cols-2">
@@ -98,6 +112,25 @@ const TaskEditMetaFields: FC<Props> = ({
         </Select>
       </div>
     </div>
+
+    {showProjectSelector && (
+      <div>
+        <span className="mb-1.5 block text-sm text-muted">Project</span>
+        <Select
+          value={projectId}
+          onChange={(event) => onProjectIdChange(event.target.value)}
+          className="w-full"
+          aria-label="Project"
+        >
+          <option value="">None</option>
+          {projects.map((project) => (
+            <option key={project._id} value={project._id}>
+              {project.name}
+            </option>
+          ))}
+        </Select>
+      </div>
+    )}
   </>
 );
 

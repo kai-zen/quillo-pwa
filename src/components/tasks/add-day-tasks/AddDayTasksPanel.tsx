@@ -134,6 +134,7 @@ const AddDayTasksPanel: FC<Props> = ({
             mode={view.formMode}
             labels={view.labels}
             sprints={view.sprints}
+            projects={view.projects}
             onClose={view.closeForm}
             onSaved={view.closeForm}
           />

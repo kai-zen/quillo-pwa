@@ -3,7 +3,7 @@
 import { FC } from "react";
 import { Modal } from "@/components/common";
 import TaskForm from "@/components/tasks/form/TaskForm";
-import { useLabelsApi, useSprintsApi } from "@/shared/hooks";
+import { useLabelsApi, useProjectsApi, useSprintsApi } from "@/shared/hooks";
 import type { RecordId } from "@/shared/types";
 
 interface Props {
@@ -23,11 +23,14 @@ const CreateDayTaskModal: FC<Props> = ({
 }) => {
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
+  const { useProjectsList } = useProjectsApi();
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
+  const projectsQuery = useProjectsList({ page: 1, limit: 250 });
 
   const labels = labelsQuery.data?.items ?? [];
   const sprints = sprintsQuery.data?.items ?? [];
+  const projects = projectsQuery.data?.items ?? [];
 
   const handleSaved = () => {
     onSaved();
@@ -51,6 +54,7 @@ const CreateDayTaskModal: FC<Props> = ({
           }}
           labels={labels}
           sprints={sprints}
+          projects={projects}
           onClose={onClose}
           onSaved={handleSaved}
         />
