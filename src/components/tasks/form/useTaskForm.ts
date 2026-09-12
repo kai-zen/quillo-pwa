@@ -24,7 +24,7 @@ export type TaskFormMode =
   | { type: "edit"; task: Task };
 
 export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
-  const { createTask, updateTask, isCreating, isUpdating } = useTasksApi();
+  const { createTask, updateTask, deleteTask, isCreating, isUpdating, isDeleting } = useTasksApi();
 
   const editing = mode.type === "edit" ? mode.task : null;
   const isSubtaskCreate = mode.type === "create" && !!mode.parentId;
@@ -50,9 +50,10 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
   );
   const [labelManagerOpen, setLabelManagerOpen] = useState(false);
   const [labelDraftName, setLabelDraftName] = useState("");
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [error, setError] = useState("");
 
-  const pending = isCreating || isUpdating;
+  const pending = isCreating || isUpdating || isDeleting;
 
   const openLabelCreate = (draftName: string) => {
     setLabelDraftName(draftName);
@@ -135,6 +136,19 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     }
   };
 
+  const onDelete = async () => {
+    if (!editing) return;
+
+    setError("");
+    try {
+      await deleteTask(editing._id);
+      setDeleteConfirmOpen(false);
+      onSaved();
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not delete task."));
+    }
+  };
+
   return {
     editing,
     isSubtaskCreate,
@@ -155,6 +169,8 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     setDoingDate,
     labelManagerOpen,
     labelDraftName,
+    deleteConfirmOpen,
+    setDeleteConfirmOpen,
     error,
     pending,
     openLabelCreate,
@@ -162,5 +178,6 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     onLabelCreated,
     onLabelDeleted,
     onSubmit,
+    onDelete,
   };
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { Plus, Repeat } from "lucide-react";
+import { Plus, Repeat, Trash2 } from "lucide-react";
 import { FC, useId } from "react";
-import { Button, Field, Input, MarkdownEditor } from "@/components/common";
+import { Button, ConfirmModal, Field, Input, MarkdownEditor } from "@/components/common";
 import { LabelField, LabelManagerModal } from "@/components/labels";
 import type { Label, Sprint } from "@/shared/types";
 import TaskMetaFields from "./TaskMetaFields";
@@ -95,10 +95,22 @@ const TaskForm: FC<Props> = ({
         {form.error && <p className="text-sm text-foreground">{form.error}</p>}
 
         <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
+          {form.editing && (
+            <Button
+              type="button"
+              variant="secondary"
+              className="mr-auto text-destructive hover:text-destructive"
+              onClick={() => form.setDeleteConfirmOpen(true)}
+              disabled={form.pending}
+              aria-label="Delete task"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden />
+            </Button>
+          )}
           {canAddFromRoutines && (
             <Button
               variant="secondary"
-              className="mr-auto"
+              className={form.editing ? "" : "mr-auto"}
               onClick={onAddFromRoutines}
             >
               <Repeat className="h-4 w-4" aria-hidden />
@@ -108,7 +120,7 @@ const TaskForm: FC<Props> = ({
           {canCreateSubtask && (
             <Button
               variant="secondary"
-              className="mr-auto"
+              className={form.editing ? "" : "mr-auto"}
               onClick={onCreateSubtask}
             >
               <Plus className="h-4 w-4" aria-hidden />
@@ -137,6 +149,17 @@ const TaskForm: FC<Props> = ({
         onClose={form.closeLabelManager}
         onCreated={(label) => form.onLabelCreated(label._id)}
         onDeleted={form.onLabelDeleted}
+      />
+
+      <ConfirmModal
+        open={form.deleteConfirmOpen}
+        title="Delete task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
+        confirmLabel="Delete"
+        pending={form.pending}
+        pendingLabel="Deleting…"
+        onClose={() => form.setDeleteConfirmOpen(false)}
+        onConfirm={form.onDelete}
       />
     </>
   );
