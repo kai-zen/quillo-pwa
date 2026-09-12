@@ -1,33 +1,14 @@
 "use client";
 
 import { FolderKanban, ListFilter, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import {
-  Button,
-  Modal,
-  PageHeader,
-  Select,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  cn,
-} from "@/components/common";
+import { Button, Modal, PageHeader, Select } from "@/components/common";
 import type { ProjectStatus } from "@/shared/types";
+import ProjectCard from "./ProjectCard";
 import ProjectForm, { projectFormTitle } from "./form/ProjectForm";
-import {
-  PROJECT_STATUS_BADGE_CLASS,
-  PROJECT_STATUS_DOT_CLASS,
-  PROJECT_STATUS_LABELS,
-  PROJECT_STATUS_OPTIONS,
-  projectHref,
-} from "./helpers";
+import { PROJECT_STATUS_LABELS, PROJECT_STATUS_OPTIONS } from "./helpers";
 import type { ProjectsListViewModel } from "./hooks/useProjectsListView";
 
 export default function ProjectsList({ view }: { view: ProjectsListViewModel }) {
-  const router = useRouter();
   const {
     statusFilter, setStatusFilterAndResetPage, page, setPage, projectFormMode,
     projects, total, totalPages, isLoading, isError, isFetching, isEmpty,
@@ -100,45 +81,11 @@ export default function ProjectsList({ view }: { view: ProjectsListViewModel }) 
         </div>
       )}
       {!isLoading && !isError && projects.length > 0 && (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Project</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-32">Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {projects.map((project) => (
-              <TableRow
-                key={project._id}
-                onClick={() => router.push(projectHref(project))}
-                aria-label={`Open project ${project.name}`}
-              >
-                <TableCell>
-                  <span className="flex items-center gap-2 font-medium">
-                    <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: project.color }} aria-hidden />
-                    <span className="truncate">{project.name}</span>
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className="block max-w-xl truncate text-sm text-muted">
-                    {project.description || "No description"}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <span className={cn(
-                    "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold",
-                    PROJECT_STATUS_BADGE_CLASS[project.status],
-                  )}>
-                    <span className={cn("h-1.5 w-1.5 rounded-full", PROJECT_STATUS_DOT_CLASS[project.status])} aria-hidden />
-                    {PROJECT_STATUS_LABELS[project.status]}
-                  </span>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectCard key={project._id} project={project} />
+          ))}
+        </div>
       )}
       {totalPages > 1 && (
         <div className="flex items-center justify-between gap-3">
