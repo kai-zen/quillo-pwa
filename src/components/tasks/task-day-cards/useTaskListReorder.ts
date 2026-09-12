@@ -45,7 +45,7 @@ interface DragState {
 interface Options {
   ids: RecordId[];
   enabled?: boolean;
-  onReorder: (ids: RecordId[]) => void;
+  onReorder?: (ids: RecordId[]) => void;
 }
 
 export function useTaskListReorder({
@@ -77,7 +77,8 @@ export function useTaskListReorder({
 
     const from = ids.indexOf(state.activeId);
     const next = moveId(ids, from, slotToIndex(from, state.slot));
-    if (next.some((id, index) => id !== ids[index])) onReorder(next);
+    if (next.some((id, index) => id !== ids[index]) && onReorder)
+      onReorder(next);
   }, [ids, onReorder]);
 
   const onPointerDown = useCallback(
@@ -166,9 +167,8 @@ export function useTaskListReorder({
       event.preventDefault();
       event.stopPropagation();
       const next = moveId(ids, from, to);
-      if (next.some((item, index) => item !== ids[index])) {
+      if (next.some((item, index) => item !== ids[index]) && onReorder)
         onReorder(next);
-      }
     },
     [enabled, ids, onReorder],
   );

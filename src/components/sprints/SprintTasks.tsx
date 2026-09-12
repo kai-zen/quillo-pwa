@@ -4,8 +4,9 @@ import { Columns3, ListPlus, Table2 } from "lucide-react";
 import { FC, useState } from "react";
 import { Button, IconButton } from "@/components/common";
 import TaskKanbanBoard from "@/components/tasks/TaskKanbanBoard";
-import TaskSummaryTable from "@/components/tasks/TaskSummaryTable";
+import TaskDayCards from "@/components/tasks/task-day-cards/TaskDayCards";
 import type { SprintDetailViewModel } from "./hooks/useSprintDetail";
+import { RecordId } from "@/shared/types";
 
 interface Props {
   view: SprintDetailViewModel;
@@ -103,10 +104,24 @@ const SprintTasks: FC<Props> = ({ view }) => {
             onStatusChange={changeTaskStatus}
           />
         ) : (
-          <TaskSummaryTable
+          <TaskDayCards
             tasks={tasks}
             labels={labels}
             onEdit={openEditTask}
+            onToggleDone={(id) => {
+              const taskId = (id?._id || id) as RecordId;
+              const task = tasks.find((t) => t._id === taskId);
+              if (task)
+                changeTaskStatus(
+                  task,
+                  task.status === "done" ? "todo" : "done",
+                );
+            }}
+            onDelete={(task) => {
+              openEditTask(task);
+            }}
+            onCreateSubtask={openAddTasks}
+            pendingId={pendingId}
           />
         ))}
     </>

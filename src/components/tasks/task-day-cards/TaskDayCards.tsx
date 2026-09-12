@@ -21,7 +21,7 @@ interface Props {
   onCreateSubtask: (parent: Task) => void;
   onToggleDone: (task: Task) => void;
   onDelete: (task: Task) => void;
-  onReorder: (orderedIds: RecordId[]) => void;
+  onReorder?: (orderedIds: RecordId[]) => void;
 }
 
 const TaskDayCards: FC<Props> = ({
@@ -48,7 +48,7 @@ const TaskDayCards: FC<Props> = ({
   const ids = groups.map((group) => group.task._id);
   const { listRef, activeId, dropSlot, bindHandle } = useTaskListReorder({
     ids,
-    enabled: ids.length > 1,
+    enabled: ids.length > 1 && !!onReorder,
     onReorder,
   });
 
@@ -81,11 +81,15 @@ const TaskDayCards: FC<Props> = ({
             onCreateSubtask={onCreateSubtask}
             onToggleDone={onToggleDone}
             onDelete={onDelete}
-            reorderHandle={{
-              ...bindHandle(task._id),
-              disabled: ids.length < 2 || isTaskSettled(task),
-              dragging: activeId === task._id,
-            }}
+            reorderHandle={
+              onReorder
+                ? {
+                    ...bindHandle(task._id),
+                    disabled: ids.length < 2 || isTaskSettled(task),
+                    dragging: activeId === task._id,
+                  }
+                : null
+            }
           />
           {index === groups.length - 1 && dropSlot === groups.length ? (
             <div

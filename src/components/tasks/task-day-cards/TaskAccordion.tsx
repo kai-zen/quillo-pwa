@@ -24,9 +24,11 @@ interface Props {
   onCreateSubtask: (parent: Task) => void;
   onToggleDone: (task: Task) => void;
   onDelete: (task: Task) => void;
-  reorderHandle?: ButtonHTMLAttributes<HTMLButtonElement> & {
-    dragging?: boolean;
-  };
+  reorderHandle?:
+    | (ButtonHTMLAttributes<HTMLButtonElement> & {
+        dragging?: boolean;
+      })
+    | null;
 }
 
 const TaskAccordion: FC<Props> = ({

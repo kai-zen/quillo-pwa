@@ -60,12 +60,6 @@ const TasksViewModals: FC<Props> = ({ view }) => {
             sprints={sprints}
             onClose={closeForm}
             onSaved={closeForm}
-            onCreateSubtask={
-              formMode.type === "edit" && !formMode.task.parent_id
-                ? () => openCreate(formMode.task)
-                : undefined
-            }
-            onEditSubtask={(task) => view.openEdit(task)}
             onAddFromRoutines={
               formMode.type === "create" && formMode.sprintId
                 ? () => {

@@ -89,12 +89,6 @@ const SprintDetailModals: FC<Props> = ({ view }) => {
             sprints={catalog}
             onClose={closeTaskForm}
             onSaved={closeTaskForm}
-            onCreateSubtask={
-              taskFormMode.type === "edit" && !taskFormMode.task.parent_id
-                ? () => openCreateTask(taskFormMode.task)
-                : undefined
-            }
-            onEditSubtask={(task) => view.openEditTask(task)}
           />
         )}
       </Modal>

@@ -2,18 +2,30 @@
 
 import { Inbox, ListFilter, Plus } from "lucide-react";
 import { FC, useState } from "react";
-import { Button, Modal, PageHeader, Select } from "@/components/common";
+import {
+  Button,
+  ConfirmModal,
+  Modal,
+  PageHeader,
+  Select,
+} from "@/components/common";
 import { useLabelsApi, useSprintsApi, useTasksApi } from "@/shared/hooks";
-import type { Label, Task, TaskListQuery, TaskStatus } from "@/shared/types";
+import type {
+  Label,
+  RecordId,
+  Task,
+  TaskListQuery,
+  TaskStatus,
+} from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
-import { STATUS_LABELS } from "./helpers";
+import { STATUS_LABELS, toUpdateBody } from "./helpers";
 import TaskForm, { taskFormTitle, type TaskFormMode } from "./form/TaskForm";
-import TaskSummaryTable from "./TaskSummaryTable";
+import TaskDayCards from "./task-day-cards/TaskDayCards";
 
 const PAGE_LIMIT = 50;
 
 const BacklogView: FC = () => {
-  const { useTasksList } = useTasksApi();
+  const { useTasksList, updateTask, deleteTask } = useTasksApi();
   const { useLabelsList } = useLabelsApi();
   const { useSprintsList } = useSprintsApi();
 
@@ -21,6 +33,8 @@ const BacklogView: FC = () => {
   const [labelFilter, setLabelFilter] = useState("");
   const [page, setPage] = useState(1);
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
+  const [toDelete, setToDelete] = useState<Task | null>(null);
+  const [pendingId, setPendingId] = useState<RecordId | null>(null);
 
   const listQuery: TaskListQuery = {
     page,
@@ -57,6 +71,31 @@ const BacklogView: FC = () => {
 
   const openEdit = (task: Task) => {
     setFormMode({ type: "edit", task });
+  };
+
+  const toggleDone = async (task: Task) => {
+    if (pendingId) return;
+    setPendingId(task._id);
+    try {
+      const newStatus = task.status === "done" ? "todo" : "done";
+      await updateTask(task._id, {
+        ...toUpdateBody(task),
+        status: newStatus,
+      });
+    } finally {
+      setPendingId(null);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!toDelete || pendingId) return;
+    setPendingId(toDelete._id);
+    try {
+      await deleteTask(toDelete._id);
+      setToDelete(null);
+    } finally {
+      setPendingId(null);
+    }
   };
 
   return (
@@ -140,12 +179,6 @@ const BacklogView: FC = () => {
             sprints={sprints}
             onClose={() => setFormMode(null)}
             onSaved={() => setFormMode(null)}
-            onCreateSubtask={
-              formMode.type === "edit" && !formMode.task.parent_id
-                ? () => openCreate(formMode.task)
-                : undefined
-            }
-            onEditSubtask={openEdit}
           />
         )}
       </Modal>
@@ -176,7 +209,15 @@ const BacklogView: FC = () => {
       )}
 
       {hasTasks && (
-        <TaskSummaryTable tasks={tasks} labels={labels} onEdit={openEdit} />
+        <TaskDayCards
+          tasks={tasks}
+          labels={labels}
+          pendingId={pendingId}
+          onEdit={openEdit}
+          onCreateSubtask={openCreate}
+          onToggleDone={toggleDone}
+          onDelete={setToDelete}
+        />
       )}
 
       {totalPages > 1 && (
@@ -204,6 +245,17 @@ const BacklogView: FC = () => {
           </Button>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!toDelete}
+        title="Delete task"
+        description={toDelete ? `Delete “${toDelete.title}”?` : undefined}
+        confirmLabel="Delete"
+        pending={!!pendingId}
+        pendingLabel="Deleting…"
+        onClose={() => setToDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

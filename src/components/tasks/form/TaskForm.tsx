@@ -1,8 +1,16 @@
 "use client";
 
 import { Plus, Repeat, Trash2 } from "lucide-react";
-import { FC, useId } from "react";
-import { Button, ConfirmModal, Field, Input, MarkdownEditor, cn } from "@/components/common";
+import { FC, useId, useState } from "react";
+import {
+  Button,
+  ConfirmModal,
+  Field,
+  Input,
+  MarkdownEditor,
+  Modal,
+  cn,
+} from "@/components/common";
 import { LabelField, LabelManagerModal } from "@/components/labels";
 import type { Label, Sprint, Task } from "@/shared/types";
 import { isTaskSettled } from "../helpers";
@@ -18,8 +26,6 @@ interface Props {
   sprints: Sprint[];
   onClose: () => void;
   onSaved: () => void;
-  onCreateSubtask?: () => void;
-  onEditSubtask?: (task: Task) => void;
   onAddFromRoutines?: () => void;
 }
 
@@ -29,16 +35,34 @@ const TaskForm: FC<Props> = ({
   sprints,
   onClose,
   onSaved,
-  onCreateSubtask,
-  onEditSubtask,
   onAddFromRoutines,
 }) => {
   const titleId = useId();
   const form = useTaskForm(mode, onSaved);
+  const [subtaskFormMode, setSubtaskFormMode] = useState<TaskFormMode | null>(
+    null,
+  );
+
   const canCreateSubtask =
-    !!form.editing && !form.editing.parent_id && !!onCreateSubtask;
+    !!form.editing && !form.editing.parent_id;
   const canAddFromRoutines =
     !!onAddFromRoutines && !form.editing && !form.isSubtaskCreate;
+
+  const handleCreateSubtask = () => {
+    if (form.editing) {
+      setSubtaskFormMode({
+        type: "create",
+        parentId: form.editing._id,
+        parentTitle: form.editing.title,
+        sprintId: form.editing.sprint_id,
+        doingDate: form.editing.doing_date,
+      });
+    }
+  };
+
+  const handleEditSubtask = (task: Task) => {
+    setSubtaskFormMode({ type: "edit", task });
+  };
 
   return (
     <>
@@ -100,8 +124,8 @@ const TaskForm: FC<Props> = ({
           <section className="space-y-1.5 pt-2">
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted">
-                {form.editing.children.length > 0
-                  ? `Subtasks · ${form.editing.children.filter(isTaskSettled).length}/${form.editing.children.length}`
+                {form.childrenTasks.length > 0
+                  ? `Subtasks · ${form.childrenTasks.filter(isTaskSettled).length}/${form.childrenTasks.length}`
                   : "Subtasks"}
               </h3>
               {canCreateSubtask && (
@@ -110,7 +134,7 @@ const TaskForm: FC<Props> = ({
                   variant="secondary"
                   size="sm"
                   disabled={form.pending}
-                  onClick={onCreateSubtask}
+                  onClick={handleCreateSubtask}
                   startIcon={<Plus className="h-3.5 w-3.5" aria-hidden />}
                   className="h-7 px-2 text-xs"
                 >
@@ -119,9 +143,9 @@ const TaskForm: FC<Props> = ({
               )}
             </div>
 
-            {form.editing.children.length > 0 ? (
+            {form.childrenTasks.length > 0 ? (
               <ul className="rounded-lg border border-border bg-accent-soft/35">
-                {form.editing.children.map((child, index) => (
+                {form.childrenTasks.map((child, index) => (
                   <li
                     key={child._id}
                     className={cn(index > 0 && "border-t border-border/80")}
@@ -129,7 +153,7 @@ const TaskForm: FC<Props> = ({
                     <SubtaskRow
                       task={child}
                       pending={form.pending}
-                      onEdit={onEditSubtask || (() => {})}
+                      onEdit={handleEditSubtask}
                       onToggleDone={form.onToggleSubtaskDone}
                       onDelete={form.onDeleteSubtask}
                     />
@@ -202,6 +226,28 @@ const TaskForm: FC<Props> = ({
         onClose={() => form.setDeleteConfirmOpen(false)}
         onConfirm={form.onDelete}
       />
+
+      <Modal
+        open={!!subtaskFormMode}
+        onClose={() => setSubtaskFormMode(null)}
+        title={subtaskFormMode ? taskFormTitle(subtaskFormMode) : ""}
+        className="max-w-3xl"
+      >
+        {subtaskFormMode && (
+          <TaskForm
+            key={
+              subtaskFormMode.type === "edit"
+                ? subtaskFormMode.task._id
+                : `create-subtask-${form.editing?._id ?? "root"}`
+            }
+            mode={subtaskFormMode}
+            labels={labels}
+            sprints={sprints}
+            onClose={() => setSubtaskFormMode(null)}
+            onSaved={() => setSubtaskFormMode(null)}
+          />
+        )}
+      </Modal>
     </>
   );
 };

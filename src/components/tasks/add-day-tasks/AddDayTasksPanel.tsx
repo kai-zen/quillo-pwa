@@ -136,16 +136,6 @@ const AddDayTasksPanel: FC<Props> = ({
             sprints={view.sprints}
             onClose={view.closeForm}
             onSaved={view.closeForm}
-            onCreateSubtask={
-              view.formMode.type === "edit" && !view.formMode.task.parent_id
-                ? () => {
-                    const mode = view.formMode;
-                    if (mode?.type === "edit")
-                      view.openCreateSubtask(mode.task);
-                  }
-                : undefined
-            }
-            onEditSubtask={(task) => view.openEdit(task)}
           />
         )}
       </Modal>

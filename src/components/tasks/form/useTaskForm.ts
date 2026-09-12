@@ -1,17 +1,20 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
+import { queryKeys } from "@/shared/hooks/keys";
 import type {
   CreateTaskBody,
+  PaginatedResponse,
   RecordId,
   Task,
   TaskPriority,
   TaskStatus,
   UpdateTaskBody,
 } from "@/shared/types";
-import { toDateInputValue, toUpdateBody } from "../helpers";
+import { groupTasks, toDateInputValue, toUpdateBody } from "../helpers";
 
 export type TaskFormMode =
   | {
@@ -24,9 +27,36 @@ export type TaskFormMode =
   | { type: "edit"; task: Task };
 
 export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
-  const { createTask, updateTask, deleteTask, isCreating, isUpdating, isDeleting } = useTasksApi();
+  const {
+    createTask,
+    updateTask,
+    deleteTask,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useTasksApi();
+  const queryClient = useQueryClient();
 
   const editing = mode.type === "edit" ? mode.task : null;
+  const taskId = editing?._id;
+
+  let liveTask = editing;
+  if (taskId) {
+    const listQueries = queryClient.getQueriesData<PaginatedResponse<Task>>({
+      queryKey: queryKeys.tasks.list(),
+    });
+    
+    for (const [, data] of listQueries) {
+      if (!data) continue;
+      const grouped = groupTasks(data.items);
+      const foundGroup = grouped.find((g) => g.task._id === taskId);
+      if (foundGroup) {
+        liveTask = { ...foundGroup.task, children: foundGroup.children };
+        break;
+      }
+    }
+  }
+
   const isSubtaskCreate = mode.type === "create" && !!mode.parentId;
   const parentTitle = mode.type === "create" ? (mode.parentTitle ?? "") : "";
 
@@ -169,8 +199,10 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     }
   };
 
+  const childrenTasks = liveTask?.children || [];
+
   return {
-    editing,
+    editing: liveTask,
     isSubtaskCreate,
     parentTitle,
     title,
@@ -201,5 +233,6 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     onDelete,
     onDeleteSubtask,
     onToggleSubtaskDone,
+    childrenTasks,
   };
 }
