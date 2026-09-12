@@ -5,6 +5,7 @@ import type {
   LabelListQuery,
   NoteFolderListQuery,
   NoteListQuery,
+  ProjectListQuery,
   ProgressInputListQuery,
   ProgressInputRangeQuery,
   ProgressListQuery,
@@ -23,6 +24,11 @@ export const queryKeys = {
     all: ["labels"] as const,
     list: (query?: LabelListQuery) => ["labels", "list", query] as const,
     detail: (id: RecordId) => ["labels", "detail", id] as const,
+  },
+  projects: {
+    all: ["projects"] as const,
+    list: (query?: ProjectListQuery) => ["projects", "list", query] as const,
+    detail: (id: RecordId) => ["projects", "detail", id] as const,
   },
   goals: {
     all: ["goals"] as const,

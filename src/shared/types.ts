@@ -54,6 +54,9 @@ export type SprintStatus = (typeof SPRINT_STATUSES)[number];
 export const GOAL_STATUSES = ["active", "completed", "cancelled"] as const;
 export type GoalStatus = (typeof GOAL_STATUSES)[number];
 
+export const PROJECT_STATUSES = ["active", "completed", "archived"] as const;
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+
 export const ROUTINE_REPEATS = ["everyday", "weekly"] as const;
 export type RoutineRepeat = (typeof ROUTINE_REPEATS)[number];
 
@@ -125,6 +128,15 @@ export interface Label extends Timestamps {
   color: string;
 }
 
+export interface Project extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  name: string;
+  description: string;
+  status: ProjectStatus;
+  color: string;
+}
+
 export interface GoalObjective {
   _id: RecordId;
   title: string;
@@ -185,6 +197,7 @@ export interface Task extends Timestamps {
   description: string;
   label_ids: RecordId[];
   sprint_id: RecordId | null;
+  project_id: RecordId | null;
   doing_date: string | null;
   parent_id: RecordId | null;
   task_number: number;
@@ -285,6 +298,23 @@ export type UpdateLabelBody = CreateLabelBody;
 export type LabelListQuery = PaginationQuery;
 
 // ---------------------------------------------------------------------------
+// Projects — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateProjectBody {
+  name: string;
+  description?: string;
+  status?: ProjectStatus;
+  color: string;
+}
+
+export type UpdateProjectBody = CreateProjectBody;
+
+export interface ProjectListQuery extends PaginationQuery {
+  status?: ProjectStatus;
+}
+
+// ---------------------------------------------------------------------------
 // Goals — request bodies & queries
 // ---------------------------------------------------------------------------
 
@@ -374,6 +404,7 @@ export interface CreateTaskBody {
   description?: string;
   label_ids?: RecordId[];
   sprint_id?: RecordId | null;
+  project_id?: RecordId | null;
   doing_date?: string | null;
   parent_id?: RecordId | null;
 }
@@ -392,6 +423,7 @@ export interface SortDailyTasksBody {
 export interface TaskListQuery extends PaginationQuery {
   doing_date?: string;
   sprint_id?: RecordId;
+  project_id?: RecordId;
   parent_id?: RecordId;
   status?: TaskStatus;
   /** Comma-separated label ids */

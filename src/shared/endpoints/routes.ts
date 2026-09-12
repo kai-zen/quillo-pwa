@@ -22,6 +22,11 @@ export const ROUTES = {
     byId: ({ id }: IdParam) => `/labels/${id}`,
   },
 
+  projects: {
+    base: "/projects",
+    byId: ({ id }: IdParam) => `/projects/${id}`,
+  },
+
   goals: {
     base: "/goals",
     byId: ({ id }: IdParam) => `/goals/${id}`,

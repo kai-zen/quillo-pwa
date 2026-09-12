@@ -6,13 +6,14 @@ This is version 1. Keep the product small. The API contract lives in the sibling
 
 ## Goal
 
-Let one person keep tasks, group them with labels, optionally put them in a sprint, optionally tie sprints to a goal, and optionally schedule tasks for a day.
+Let one person keep tasks, group related work into projects, categorize it with labels, optionally put it in a sprint, optionally tie sprints to a goal, and optionally schedule tasks for a day.
 
-Three ways to look at the same tasks:
+Four ways to look at the same tasks:
 
 - **Backlog** — every task
 - **Daily** — tasks for a given day
 - **Sprint** — tasks that belong to a given sprint
+- **Project** — tasks that belong to a given project
 
 These are filters on `GET /tasks`, not separate screens with separate data stores.
 
@@ -20,7 +21,7 @@ These are filters on `GET /tasks`, not separate screens with separate data store
 
 Stay minimal. Do not add UI surface, state, or shared helpers unless a v1 screen needs them.
 
-Eleven domain modules: users, labels, goals, sprints, routines, tasks, note folders, notes, daily reviews, progresses, progress inputs. Match the API. Prefer shared types and one data-access path so components stay thin.
+Twelve domain modules: users, labels, projects, goals, sprints, routines, tasks, note folders, notes, daily reviews, progresses, progress inputs. Match the API. Prefer shared types and one data-access path so components stay thin.
 
 ## Stack
 
@@ -35,7 +36,7 @@ Components do not call Axios directly. Flow is:
 
 ```
 component
-  → module hook (useUsersApi / useLabelsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi / useNoteFoldersApi / useNotesApi / useDailyReviewsApi / useProgressesApi / useProgressInputsApi)
+  → module hook (useUsersApi / useLabelsApi / useProjectsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi / useNoteFoldersApi / useNotesApi / useDailyReviewsApi / useProgressesApi / useProgressInputsApi)
     → request() + module endpoint def
       → apiClient (Axios)
         → Quillo API
@@ -58,6 +59,7 @@ Each module entry is a static definition. Example:
 
 ```ts
 labelsModule.list; // GET /labels → PaginatedResponse<Label>
+projectsModule.list; // GET /projects → PaginatedResponse<Project>
 goalsModule.toggleObjective; // PATCH /goals/:id/objectives/:objectiveId/toggle → Goal
 notesModule.togglePinned; // PATCH /notes/:id/pinned/toggle → Note
 notesModule.toggleArchived; // PATCH /notes/:id/archived/toggle → Note
@@ -104,6 +106,15 @@ Auth and the current account.
 
 Categories on tasks and notes (`name`, `color`). Unique name per user.
 
+### Projects
+
+Named buckets for related tasks.
+
+- `name`, optional `description`, `color`
+- `status` — `active` | `completed` | `archived`
+- list may filter by `status`
+- deleting a project clears `project_id` from its tasks; tasks stay
+
 ### Goals
 
 Longer-term outcomes with embedded objectives (checklist items).
@@ -132,7 +143,7 @@ Named lists of task drafts. Applying routines for a day creates normal tasks wit
 
 ### Tasks
 
-The work item. Optional `label_ids`, `sprint_id`, `doing_date`, `parent_id`.
+The work item. Optional `label_ids`, `sprint_id`, `project_id`, `doing_date`, `parent_id`.
 
 Priorities: `unset` | `low` | `medium` | `high` | `urgent`  
 Statuses: `todo` | `doing` | `done` | `paused` | `cancelled`
@@ -198,6 +209,7 @@ One nesting level only. Parent/child `done` is linked on the API; the UI just se
 | Backlog | `GET /tasks` with no special filter |
 | Daily   | `GET /tasks?doing_date=YYYY-MM-DD`  |
 | Sprint  | `GET /tasks?sprint_id=<id>`         |
+| Project | `GET /tasks?project_id=<id>`        |
 
 A task can appear in more than one view.
 
@@ -216,6 +228,12 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 
 - Name unique per user.
 - Deleting a label does not delete tasks or notes; label ids are cleared from tasks, routine drafts, and notes.
+
+### Projects
+
+- A task may belong to zero or one project.
+- Completing or archiving a project keeps task associations.
+- Deleting a project clears `project_id` on its tasks; tasks stay.
 
 ### Goals
 
@@ -239,7 +257,8 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 
 ### Tasks
 
-- Updates use full resource bodies (`PUT`), including `null` to clear `sprint_id`, `doing_date`, or `parent_id`.
+- Updates use full resource bodies (`PUT`), including `null` to clear `sprint_id`, `project_id`, `doing_date`, or `parent_id`.
+- `project_id`, if set, must reference a project owned by the user.
 - Subtasks cannot have subtasks.
 - Deleting a task clears `parent_id` on its children; children stay.
 
