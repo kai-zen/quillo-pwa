@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Inbox, Menu, X } from "lucide-react";
 import { FC, ReactNode, useState } from "react";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import AppBrand from "./AppBrand";
 import { MOBILE_PRIMARY_NAV_ITEMS, NAV_ITEMS } from "./constants";
 import SidebarUser from "./SidebarUser";
+import { IconButton } from "../common";
 
 interface Props {
   children: ReactNode;
@@ -29,7 +30,10 @@ const AppShell: FC<Props> = ({ children }) => {
           <AppBrand />
         </div>
 
-        <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto" aria-label="Main">
+        <nav
+          className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto"
+          aria-label="Main"
+        >
           {NAV_ITEMS.map((item) => {
             const active = isActive(pathname, item.href);
             const Icon = item.icon;
@@ -76,6 +80,12 @@ const AppShell: FC<Props> = ({ children }) => {
             <AppBrand />
           </div>
           <div className="flex items-center gap-1">
+            <Link href="/backlog" prefetch={false}>
+              <IconButton label="Backlog">
+                <Inbox size={20} />
+              </IconButton>
+            </Link>
+
             <ThemeToggle />
           </div>
         </header>

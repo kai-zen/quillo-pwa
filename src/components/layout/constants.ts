@@ -19,15 +19,15 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { is_primary: true, href: "/", label: "Tasks", icon: ListTodo },
-  { is_primary: true, href: "/backlog", label: "Backlog", icon: Inbox },
+  { is_primary: true, href: "/notes", label: "Notes", icon: StickyNote },
+  { is_primary: true, href: "/sprints", label: "Sprints", icon: Flag },
   { is_primary: false, href: "/goals", label: "Goals", icon: Target },
   {
-    is_primary: false,
+    is_primary: true,
     href: "/projects",
     label: "Projects",
     icon: FolderKanban,
   },
-  { is_primary: true, href: "/sprints", label: "Sprints", icon: Flag },
   { is_primary: false, href: "/routines", label: "Routines", icon: Repeat },
   {
     is_primary: false,
@@ -35,7 +35,6 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Progress",
     icon: TrendingUp,
   },
-  { is_primary: true, href: "/notes", label: "Notes", icon: StickyNote },
 ];
 
 export const MOBILE_PRIMARY_NAV_ITEMS = NAV_ITEMS.filter(
