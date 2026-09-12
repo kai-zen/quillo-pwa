@@ -2,9 +2,11 @@
 
 import { Plus, Repeat, Trash2 } from "lucide-react";
 import { FC, useId } from "react";
-import { Button, ConfirmModal, Field, Input, MarkdownEditor } from "@/components/common";
+import { Button, ConfirmModal, Field, Input, MarkdownEditor, cn } from "@/components/common";
 import { LabelField, LabelManagerModal } from "@/components/labels";
-import type { Label, Sprint } from "@/shared/types";
+import type { Label, Sprint, Task } from "@/shared/types";
+import { isTaskSettled } from "../helpers";
+import SubtaskRow from "../task-day-cards/SubtaskRow";
 import TaskMetaFields from "./TaskMetaFields";
 import { useTaskForm, type TaskFormMode } from "./useTaskForm";
 
@@ -17,6 +19,7 @@ interface Props {
   onClose: () => void;
   onSaved: () => void;
   onCreateSubtask?: () => void;
+  onEditSubtask?: (task: Task) => void;
   onAddFromRoutines?: () => void;
 }
 
@@ -27,6 +30,7 @@ const TaskForm: FC<Props> = ({
   onClose,
   onSaved,
   onCreateSubtask,
+  onEditSubtask,
   onAddFromRoutines,
 }) => {
   const titleId = useId();
@@ -92,6 +96,52 @@ const TaskForm: FC<Props> = ({
           sprints={sprints}
         />
 
+        {form.editing && !form.editing.parent_id && (
+          <section className="space-y-1.5 pt-2">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+                {form.editing.children.length > 0
+                  ? `Subtasks · ${form.editing.children.filter(isTaskSettled).length}/${form.editing.children.length}`
+                  : "Subtasks"}
+              </h3>
+              {canCreateSubtask && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={form.pending}
+                  onClick={onCreateSubtask}
+                  startIcon={<Plus className="h-3.5 w-3.5" aria-hidden />}
+                  className="h-7 px-2 text-xs"
+                >
+                  Add subtask
+                </Button>
+              )}
+            </div>
+
+            {form.editing.children.length > 0 ? (
+              <ul className="rounded-lg border border-border bg-accent-soft/35">
+                {form.editing.children.map((child, index) => (
+                  <li
+                    key={child._id}
+                    className={cn(index > 0 && "border-t border-border/80")}
+                  >
+                    <SubtaskRow
+                      task={child}
+                      pending={form.pending}
+                      onEdit={onEditSubtask || (() => {})}
+                      onToggleDone={form.onToggleSubtaskDone}
+                      onDelete={form.onDeleteSubtask}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-muted">No subtasks yet.</p>
+            )}
+          </section>
+        )}
+
         {form.error && <p className="text-sm text-foreground">{form.error}</p>}
 
         <div className="flex flex-wrap items-center justify-end gap-2 pt-1">
@@ -109,25 +159,16 @@ const TaskForm: FC<Props> = ({
           )}
           {canAddFromRoutines && (
             <Button
+              type="button"
               variant="secondary"
-              className={form.editing ? "" : "mr-auto"}
+              className="mr-auto"
               onClick={onAddFromRoutines}
             >
               <Repeat className="h-4 w-4" aria-hidden />
               Add from routines
             </Button>
           )}
-          {canCreateSubtask && (
-            <Button
-              variant="secondary"
-              className={form.editing ? "" : "mr-auto"}
-              onClick={onCreateSubtask}
-            >
-              <Plus className="h-4 w-4" aria-hidden />
-              Create subtask
-            </Button>
-          )}
-          <Button variant="ghost" onClick={onClose}>
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
           </Button>
           <Button type="submit" disabled={form.pending}>

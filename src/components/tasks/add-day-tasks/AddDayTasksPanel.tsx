@@ -145,6 +145,7 @@ const AddDayTasksPanel: FC<Props> = ({
                   }
                 : undefined
             }
+            onEditSubtask={(task) => view.openEdit(task)}
           />
         )}
       </Modal>

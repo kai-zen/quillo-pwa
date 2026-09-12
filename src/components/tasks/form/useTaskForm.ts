@@ -149,6 +149,26 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     }
   };
 
+  const onDeleteSubtask = async (task: Task) => {
+    try {
+      await deleteTask(task._id);
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not delete subtask."));
+    }
+  };
+
+  const onToggleSubtaskDone = async (task: Task) => {
+    try {
+      const newStatus = task.status === "done" ? "todo" : "done";
+      await updateTask(task._id, {
+        ...toUpdateBody(task),
+        status: newStatus,
+      });
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not update subtask."));
+    }
+  };
+
   return {
     editing,
     isSubtaskCreate,
@@ -179,5 +199,7 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     onLabelDeleted,
     onSubmit,
     onDelete,
+    onDeleteSubtask,
+    onToggleSubtaskDone,
   };
 }

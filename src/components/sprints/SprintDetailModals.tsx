@@ -94,6 +94,7 @@ const SprintDetailModals: FC<Props> = ({ view }) => {
                 ? () => openCreateTask(taskFormMode.task)
                 : undefined
             }
+            onEditSubtask={(task) => view.openEditTask(task)}
           />
         )}
       </Modal>

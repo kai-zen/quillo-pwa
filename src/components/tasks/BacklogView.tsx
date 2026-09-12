@@ -145,6 +145,7 @@ const BacklogView: FC = () => {
                 ? () => openCreate(formMode.task)
                 : undefined
             }
+            onEditSubtask={openEdit}
           />
         )}
       </Modal>
