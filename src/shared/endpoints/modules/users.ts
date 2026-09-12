@@ -3,6 +3,8 @@ import { ROUTES } from "../routes";
 import type {
   AuthResponse,
   ChangePasswordBody,
+  DeleteUserDataBody,
+  DeleteUserDataResponse,
   LoginBody,
   RegisterBody,
   User,
@@ -36,6 +38,12 @@ export const usersModule = {
   deleteMe: defineEndpoint<void>({
     method: "DELETE",
     path: ROUTES.users.deleteMe,
+    auth: true,
+  }),
+
+  deleteMyData: defineEndpoint<DeleteUserDataResponse, DeleteUserDataBody>({
+    method: "DELETE",
+    path: ROUTES.users.deleteMyData,
     auth: true,
   }),
 } as const;

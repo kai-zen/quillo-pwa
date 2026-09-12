@@ -1,5 +1,4 @@
 import {
-  BookHeart,
   Flag,
   Inbox,
   ListTodo,

@@ -101,6 +101,14 @@ export const DAILY_REVIEW_MOODS = [
 ] as const;
 export type DailyReviewMood = (typeof DAILY_REVIEW_MOODS)[number];
 
+export const USER_DATA_DELETE_TYPES = [
+  "daily_tasks",
+  "daily_notes",
+  "progress_inputs",
+  "daily_reviews",
+] as const;
+export type UserDataDeleteType = (typeof USER_DATA_DELETE_TYPES)[number];
+
 // ---------------------------------------------------------------------------
 // Entities
 // ---------------------------------------------------------------------------
@@ -248,6 +256,14 @@ export interface LoginBody {
 export interface ChangePasswordBody {
   current_password: string;
   new_password: string;
+}
+
+export interface DeleteUserDataBody {
+  types: UserDataDeleteType[];
+}
+
+export interface DeleteUserDataResponse {
+  deleted: Partial<Record<UserDataDeleteType, number>>;
 }
 
 export interface AuthResponse {

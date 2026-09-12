@@ -14,6 +14,7 @@ export const ROUTES = {
     me: "/users/me",
     changePassword: "/users/me/password",
     deleteMe: "/users/me",
+    deleteMyData: "/users/me/data",
   },
 
   labels: {

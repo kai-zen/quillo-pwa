@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { FC, ReactNode, useState } from "react";
-import LogoutButton from "@/components/auth/LogoutButton";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import AppBrand from "./AppBrand";
 import { MOBILE_PRIMARY_NAV_ITEMS, NAV_ITEMS } from "./constants";
+import SidebarUser from "./SidebarUser";
 
 interface Props {
   children: ReactNode;
@@ -24,12 +24,12 @@ const AppShell: FC<Props> = ({ children }) => {
 
   return (
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
-      <aside className="hidden w-52 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
+      <aside className="sticky top-0 hidden h-svh w-52 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
         <div className="mb-10">
           <AppBrand />
         </div>
 
-        <nav className="flex flex-col gap-1" aria-label="Main">
+        <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto" aria-label="Main">
           {NAV_ITEMS.map((item) => {
             const active = isActive(pathname, item.href);
             const Icon = item.icon;
@@ -56,6 +56,8 @@ const AppShell: FC<Props> = ({ children }) => {
             );
           })}
         </nav>
+
+        <SidebarUser />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -74,7 +76,6 @@ const AppShell: FC<Props> = ({ children }) => {
             <AppBrand />
           </div>
           <div className="flex items-center gap-1">
-            <LogoutButton />
             <ThemeToggle />
           </div>
         </header>
@@ -109,7 +110,7 @@ const AppShell: FC<Props> = ({ children }) => {
               </button>
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
               {NAV_ITEMS.map((item) => {
                 const active = isActive(pathname, item.href);
                 const Icon = item.icon;
@@ -137,6 +138,8 @@ const AppShell: FC<Props> = ({ children }) => {
                 );
               })}
             </div>
+
+            <SidebarUser />
           </nav>
         </div>
       )}
