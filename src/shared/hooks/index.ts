@@ -9,3 +9,4 @@ export { useProgressInputsApi } from "./useProgressInputsApi";
 export { useRoutinesApi } from "./useRoutinesApi";
 export { useSprintsApi } from "./useSprintsApi";
 export { useTasksApi } from "./useTasksApi";
+export { useUsersApi } from "./useUsersApi";

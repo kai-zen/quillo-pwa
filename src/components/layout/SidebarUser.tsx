@@ -1,6 +1,7 @@
 "use client";
 
 import { FC } from "react";
+import DeleteUserDataButton from "@/components/auth/DeleteUserDataButton";
 import LogoutButton from "@/components/auth/LogoutButton";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -28,7 +29,10 @@ const SidebarUser: FC = () => {
         >
           {username || "…"}
         </span>
-        <LogoutButton />
+        <div className="flex shrink-0 items-center">
+          <DeleteUserDataButton />
+          <LogoutButton />
+        </div>
       </div>
     </div>
   );
