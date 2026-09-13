@@ -60,7 +60,7 @@ const NoteCard: FC<Props> = ({
         "group relative flex min-h-48 min-w-0 w-full rotate-[var(--tilt)] flex-col rounded-sm border p-4 pt-6 shadow-[2px_4px_10px_-2px_rgba(0,0,0,0.18)]",
         "transition-all duration-200 ease-out will-change-transform",
         "hover:z-10 hover:rotate-0 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[2px_10px_20px_-4px_rgba(0,0,0,0.25)]",
-        "focus-within:z-20 has-aria-expanded:z-20",
+        "focus-within:z-20 has-aria-expanded:z-20 overflow-hidden",
         sticky.cardClassName,
         note.archived && "opacity-70",
       )}
@@ -100,9 +100,7 @@ const NoteCard: FC<Props> = ({
       <div className="absolute right-3 top-3 flex">
         <IconButton
           label={
-            note.archived
-              ? `Unarchive ${note.title}`
-              : `Archive ${note.title}`
+            note.archived ? `Unarchive ${note.title}` : `Archive ${note.title}`
           }
           size="sm"
           active={note.archived}

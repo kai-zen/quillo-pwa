@@ -103,7 +103,9 @@ const NotesList: FC<Props> = ({ view }) => {
                 <ArrowLeft className="h-4 w-4" aria-hidden />
                 Notes
               </Button>
-              <span className="text-sm font-medium text-foreground">Folder</span>
+              <span className="text-sm font-medium text-foreground">
+                Folder
+              </span>
               <span className="ml-auto pr-1 text-xs font-medium tabular-nums text-muted">
                 {total} note{total === 1 ? "" : "s"}
               </span>
@@ -141,7 +143,7 @@ const NotesList: FC<Props> = ({ view }) => {
         )}
 
         {!isLoading && !isError && notes.length > 0 && (
-          <div className="grid min-w-0 gap-x-4 gap-y-6 pt-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid min-w-0 w-full gap-x-4 gap-y-6 pt-3 sm:grid-cols-2 xl:grid-cols-3">
             {notes.map((note) => (
               <NoteCard
                 key={note._id}
