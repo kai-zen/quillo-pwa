@@ -45,8 +45,7 @@ const TaskForm: FC<Props> = ({
     null,
   );
 
-  const canCreateSubtask =
-    !!form.editing && !form.editing.parent_id;
+  const canCreateSubtask = !!form.editing && !form.editing.parent_id;
   const canAddFromRoutines =
     !!onAddFromRoutines && !form.editing && !form.isSubtaskCreate;
 
@@ -179,13 +178,13 @@ const TaskForm: FC<Props> = ({
           {form.editing && (
             <Button
               type="button"
-              variant="secondary"
+              variant="ghost"
               className="mr-auto text-destructive hover:text-destructive"
               onClick={() => form.setDeleteConfirmOpen(true)}
               disabled={form.pending}
               aria-label="Delete task"
             >
-              <Trash2 className="h-4 w-4" aria-hidden />
+              Delete
             </Button>
           )}
           {canAddFromRoutines && (

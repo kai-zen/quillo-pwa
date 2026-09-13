@@ -33,12 +33,11 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
   } = view;
 
   const heading = formatDayHeading(selectedDate);
+  const showProgress = !isLoading && !isError && tasks.length > 0;
 
   return (
     <>
-      {!isLoading && !isError && tasks.length > 0 && (
-        <DayProgress tasks={tasks} />
-      )}
+      {showProgress ? <DayProgress tasks={tasks} /> : null}
 
       {showNotes ? (
         <LinkedNotes
