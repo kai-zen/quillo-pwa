@@ -220,6 +220,7 @@ export interface Note extends Timestamps {
   label_ids: RecordId[];
   goal_id: RecordId | null;
   sprint_id: RecordId | null;
+  project_id: RecordId | null;
   date: string | null;
   pinned: boolean;
   archived: boolean;
@@ -453,6 +454,7 @@ export interface CreateNoteBody {
   label_ids?: RecordId[];
   goal_id?: RecordId | null;
   sprint_id?: RecordId | null;
+  project_id?: RecordId | null;
   date?: string | null;
   pinned?: boolean;
   archived?: boolean;
@@ -464,6 +466,7 @@ export interface NoteListQuery extends PaginationQuery {
   folder_id?: RecordId;
   goal_id?: RecordId;
   sprint_id?: RecordId;
+  project_id?: RecordId;
   date?: string;
   archived?: boolean;
   pinned?: boolean;

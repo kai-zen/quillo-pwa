@@ -85,6 +85,7 @@ export const toUpdateBody = (note: Note): UpdateNoteBody => ({
   label_ids: note.label_ids,
   goal_id: note.goal_id,
   sprint_id: note.sprint_id,
+  project_id: note.project_id,
   date: note.date ? toDateInputValue(note.date) : null,
   pinned: note.pinned,
   archived: note.archived,

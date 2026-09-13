@@ -57,10 +57,13 @@ const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
   const form = useNoteForm(mode, onSaved);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const hasRelatedItems =
+    form.date || form.goalId || form.sprintId || form.projectId;
+
   return (
     <>
       <form onSubmit={form.onSubmit} className="flex w-full flex-col gap-3">
-        {(form.date || form.goalId || form.sprintId) && (
+        {hasRelatedItems && (
           <div className="flex flex-wrap items-center gap-1.5">
             {form.date && (
               <Chip
@@ -81,6 +84,13 @@ const NoteForm: FC<Props> = ({ mode, onClose, onSaved }) => {
                 label={form.sprintName || "Sprint"}
                 onRemove={form.clearSprint}
                 removeLabel="Remove sprint"
+              />
+            )}
+            {form.projectId && (
+              <Chip
+                label={form.projectName || "Project"}
+                onRemove={form.clearProject}
+                removeLabel="Remove project"
               />
             )}
           </div>

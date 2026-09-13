@@ -8,6 +8,7 @@ import {
   PageHeader,
   cn,
 } from "@/components/common";
+import { LinkedNotes } from "@/components/notes";
 import type { RecordId } from "@/shared/types";
 import {
   PROJECT_STATUS_BADGE_CLASS,
@@ -100,6 +101,9 @@ export default function ProjectDetail({ projectId }: { projectId: RecordId }) {
         ) : null}
       </PageHeader>
       <ProjectTasks view={view} />
+
+      <LinkedNotes of={project.name} projectId={projectId} />
+
       <ProjectDetailModals view={view} />
     </div>
   );

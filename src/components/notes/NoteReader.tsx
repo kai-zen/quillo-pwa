@@ -3,7 +3,12 @@
 import { Pin } from "lucide-react";
 import { FC } from "react";
 import { Markdown } from "@/components/common";
-import { useGoalsApi, useLabelsApi, useSprintsApi } from "@/shared/hooks";
+import {
+  useGoalsApi,
+  useLabelsApi,
+  useProjectsApi,
+  useSprintsApi,
+} from "@/shared/hooks";
 import type { Label, Note } from "@/shared/types";
 import { formatNoteDate, labelsById } from "./helpers";
 
@@ -21,10 +26,12 @@ const NoteReader: FC<Props> = ({ note }) => {
   const { useLabelsList } = useLabelsApi();
   const { useGoal } = useGoalsApi();
   const { useSprint } = useSprintsApi();
+  const { useProject } = useProjectsApi();
 
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const goalQuery = useGoal(note.goal_id ?? "", !!note.goal_id);
   const sprintQuery = useSprint(note.sprint_id ?? "", !!note.sprint_id);
+  const projectQuery = useProject(note.project_id ?? "", !!note.project_id);
 
   const labelMap = labelsById(labelsQuery.data?.items ?? []);
   const labels = note.label_ids
@@ -32,7 +39,14 @@ const NoteReader: FC<Props> = ({ note }) => {
     .filter((label): label is Label => !!label);
   const goalTitle = goalQuery.data?.title ?? "Goal";
   const sprintName = sprintQuery.data?.name ?? "Sprint";
-  const hasMeta = !!(note.date || note.goal_id || note.sprint_id || note.pinned);
+  const projectName = projectQuery.data?.name ?? "Project";
+  const hasMeta = !!(
+    note.date ||
+    note.goal_id ||
+    note.sprint_id ||
+    note.project_id ||
+    note.pinned
+  );
 
   return (
     <div className="flex w-full flex-col gap-3">
@@ -47,6 +61,7 @@ const NoteReader: FC<Props> = ({ note }) => {
           {note.date && <Chip label={formatNoteDate(note.date)} />}
           {note.goal_id && <Chip label={goalTitle} />}
           {note.sprint_id && <Chip label={sprintName} />}
+          {note.project_id && <Chip label={projectName} />}
         </div>
       )}
 

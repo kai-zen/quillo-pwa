@@ -11,6 +11,7 @@ export type LinkedNotesFilter = {
   date?: string;
   goalId?: RecordId;
   sprintId?: RecordId;
+  projectId?: RecordId;
 };
 
 export function useLinkedNotes(filter: LinkedNotesFilter) {
@@ -24,12 +25,14 @@ export function useLinkedNotes(filter: LinkedNotesFilter) {
     ...(filter.date ? { date: filter.date } : {}),
     ...(filter.goalId ? { goal_id: filter.goalId } : {}),
     ...(filter.sprintId ? { sprint_id: filter.sprintId } : {}),
+    ...(filter.projectId ? { project_id: filter.projectId } : {}),
   };
 
   const create: NoteCreateContext = {
     date: filter.date ?? null,
     goalId: filter.goalId ?? null,
     sprintId: filter.sprintId ?? null,
+    projectId: filter.projectId ?? null,
   };
 
   const notesQuery = useNotesList(listQuery);

@@ -6,6 +6,7 @@ import {
   useGoalsApi,
   useLabelsApi,
   useNotesApi,
+  useProjectsApi,
   useSprintsApi,
 } from "@/shared/hooks";
 import type { CreateNoteBody, Note, RecordId } from "@/shared/types";
@@ -16,6 +17,7 @@ export type NoteCreateContext = {
   date?: string | null;
   goalId?: RecordId | null;
   sprintId?: RecordId | null;
+  projectId?: RecordId | null;
 };
 
 export type NoteFormMode =
@@ -43,6 +45,7 @@ export function useNoteForm(
   const { useLabelsList } = useLabelsApi();
   const { useGoal } = useGoalsApi();
   const { useSprint } = useSprintsApi();
+  const { useProject } = useProjectsApi();
 
   const editing = mode.type === "edit" ? mode.note : null;
   const create = mode.type === "create" ? mode : null;
@@ -50,6 +53,7 @@ export function useNoteForm(
   const initialFolderId = editing?.folder_id ?? create?.folderId ?? null;
   const initialGoalId = editing?.goal_id ?? create?.goalId ?? null;
   const initialSprintId = editing?.sprint_id ?? create?.sprintId ?? null;
+  const initialProjectId = editing?.project_id ?? create?.projectId ?? null;
   const initialDate = toDateInputValue(editing?.date ?? create?.date ?? null);
 
   const [title, setTitle] = useState(editing?.title ?? "");
@@ -62,6 +66,9 @@ export function useNoteForm(
   const [sprintId, setSprintId] = useState<RecordId | "">(
     initialSprintId ?? "",
   );
+  const [projectId, setProjectId] = useState<RecordId | "">(
+    initialProjectId ?? "",
+  );
   const [date, setDate] = useState(initialDate);
   const [pinned, setPinned] = useState(editing?.pinned ?? false);
   const [labelManagerOpen, setLabelManagerOpen] = useState(false);
@@ -71,11 +78,13 @@ export function useNoteForm(
   const labelsQuery = useLabelsList({ page: 1, limit: 100 });
   const goalQuery = useGoal(goalId, !!goalId);
   const sprintQuery = useSprint(sprintId, !!sprintId);
+  const projectQuery = useProject(projectId, !!projectId);
 
   const pending = isCreating || isUpdating || isDeleting;
   const labels = labelsQuery.data?.items ?? [];
   const goalTitle = goalQuery.data?.title ?? "";
   const sprintName = sprintQuery.data?.name ?? "";
+  const projectName = projectQuery.data?.name ?? "";
 
   const openLabelCreate = (draftName: string) => {
     setLabelDraftName(draftName);
@@ -101,6 +110,7 @@ export function useNoteForm(
     label_ids: labelIds,
     goal_id: goalId || null,
     sprint_id: sprintId || null,
+    project_id: projectId || null,
     date: date || null,
     pinned,
   });
@@ -163,6 +173,9 @@ export function useNoteForm(
     sprintId,
     sprintName,
     clearSprint: () => setSprintId(""),
+    projectId,
+    projectName,
+    clearProject: () => setProjectId(""),
     date,
     clearDate: () => setDate(""),
     pinned,
