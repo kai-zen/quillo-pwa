@@ -8,13 +8,12 @@ import {
   STATUS_DOT_CLASS,
   STATUS_LABELS,
 } from "@/components/tasks/helpers";
-import type { RecordId, Sprint, Task } from "@/shared/types";
+import type { RecordId, Task } from "@/shared/types";
 import { useAddTasksToSprint } from "./hooks/useAddTasksToSprint";
 
 interface Props {
   open: boolean;
   sprintId: RecordId;
-  sprints: Sprint[];
   onClose: () => void;
   onCreateTask?: () => void;
 }
@@ -22,7 +21,6 @@ interface Props {
 const AddTasksToSprintModal: FC<Props> = ({
   open,
   sprintId,
-  sprints,
   onClose,
   onCreateTask,
 }) => (
@@ -35,7 +33,6 @@ const AddTasksToSprintModal: FC<Props> = ({
     {open && (
       <AddTasksToSprintBody
         sprintId={sprintId}
-        sprints={sprints}
         onClose={onClose}
         onCreateTask={onCreateTask}
       />
@@ -45,12 +42,11 @@ const AddTasksToSprintModal: FC<Props> = ({
 
 const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
   sprintId,
-  sprints,
   onClose,
   onCreateTask,
 }) => {
   const searchId = useId();
-  const view = useAddTasksToSprint(sprintId, sprints, onClose);
+  const view = useAddTasksToSprint(sprintId, onClose);
   const {
     search,
     setSearch,
@@ -67,7 +63,6 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
     error,
     toggle,
     toggleAllVisible,
-    currentSprintLabel,
     onSubmit,
   } = view;
 
@@ -75,8 +70,8 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted">
         {onCreateTask
-          ? "Find existing tasks to add, or create a new one for this sprint."
-          : "Find existing tasks and add them to this sprint."}
+          ? "Pick from the backlog, or create a new task for this sprint."
+          : "Pick backlog tasks to add to this sprint."}
       </p>
 
       <div className="flex items-center gap-2">
@@ -134,9 +129,9 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
 
       {isEmpty && (
         <div className="rounded-xl border border-dashed border-border bg-accent-soft/40 px-4 py-10 text-center">
-          <p className="font-medium text-foreground">No tasks to add</p>
+          <p className="font-medium text-foreground">No backlog tasks</p>
           <p className="mt-1 text-sm text-muted">
-            Every task is already in this sprint, or you have no tasks yet.
+            Tasks without a sprint or a scheduled date will show up here.
           </p>
         </div>
       )}
@@ -162,7 +157,6 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
               key={task._id}
               task={task}
               selected={selectedIds.has(task._id)}
-              sprintLabel={currentSprintLabel(task)}
               disabled={pending}
               onToggle={() => toggle(task._id)}
             />
@@ -172,7 +166,7 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
 
       {isTruncated && (
         <p className="text-xs text-muted">
-          Showing the first 100 tasks. Tasks already in this sprint are hidden.
+          Showing the first 100 backlog tasks.
         </p>
       )}
 
@@ -199,7 +193,6 @@ const AddTasksToSprintBody: FC<Omit<Props, "open">> = ({
 interface TaskOptionProps {
   task: Task;
   selected: boolean;
-  sprintLabel: string | null;
   disabled: boolean;
   onToggle: () => void;
 }
@@ -207,7 +200,6 @@ interface TaskOptionProps {
 const TaskOption: FC<TaskOptionProps> = ({
   task,
   selected,
-  sprintLabel,
   disabled,
   onToggle,
 }) => (
@@ -269,11 +261,6 @@ const TaskOption: FC<TaskOptionProps> = ({
       <p className="mt-0.5 truncate text-sm font-medium text-foreground">
         {task.title}
       </p>
-      {sprintLabel ? (
-        <p className="mt-0.5 text-xs text-muted">Currently in {sprintLabel}</p>
-      ) : (
-        <p className="mt-0.5 text-xs text-muted">Backlog</p>
-      )}
     </div>
   </li>
 );

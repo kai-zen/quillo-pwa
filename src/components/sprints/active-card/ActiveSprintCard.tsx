@@ -195,7 +195,6 @@ const ActiveSprintCard: FC<Props> = ({
       <AddTasksToSprintModal
         open={addTasksOpen}
         sprintId={sprint._id}
-        sprints={sprints}
         onClose={closeAddTasks}
         onCreateTask={() => {
           closeAddTasks();

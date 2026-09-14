@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
-import type { RecordId, Sprint, Task } from "@/shared/types";
+import type { RecordId, Task } from "@/shared/types";
 
 const PAGE_LIMIT = 100;
 
@@ -34,7 +34,6 @@ const matchesSearch = (task: Task, query: string): boolean => {
 
 export function useAddTasksToSprint(
   sprintId: RecordId,
-  sprints: Sprint[],
   onClose: () => void,
 ) {
   const { useTasksList, assignToSprint, isAssigning } = useTasksApi();
@@ -42,20 +41,20 @@ export function useAddTasksToSprint(
   const [selectedIds, setSelectedIds] = useState<Set<RecordId>>(new Set());
   const [error, setError] = useState("");
 
-  const tasksQuery = useTasksList({ page: 1, limit: PAGE_LIMIT });
+  const tasksQuery = useTasksList({
+    page: 1,
+    limit: PAGE_LIMIT,
+    doing_date: "null",
+    sprint_id: "null",
+  });
   const listTotal = tasksQuery.data?.total ?? 0;
-
-  const sprintNameById = useMemo(
-    () => new Map(sprints.map((sprint) => [sprint._id, sprint.name])),
-    [sprints],
-  );
 
   const available = useMemo(
     () =>
       flattenTasks(tasksQuery.data?.items ?? []).filter(
-        (task) => task.sprint_id !== sprintId,
+        (task) => !task.sprint_id && !task.doing_date,
       ),
-    [tasksQuery.data?.items, sprintId],
+    [tasksQuery.data?.items],
   );
 
   const query = search.trim().toLowerCase();
@@ -100,11 +99,6 @@ export function useAddTasksToSprint(
     });
   };
 
-  const currentSprintLabel = (task: Task): string | null => {
-    if (!task.sprint_id) return null;
-    return sprintNameById.get(task.sprint_id) ?? "Another sprint";
-  };
-
   const onSubmit = async () => {
     if (selectedCount === 0 || isAssigning) return;
     setError("");
@@ -136,7 +130,6 @@ export function useAddTasksToSprint(
     error,
     toggle,
     toggleAllVisible,
-    currentSprintLabel,
     onSubmit,
   };
 }

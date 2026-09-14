@@ -58,7 +58,6 @@ const SprintDetailModals: FC<Props> = ({ view }) => {
       <AddTasksToSprintModal
         open={addTasksOpen}
         sprintId={sprintId}
-        sprints={catalog}
         onClose={closeAddTasks}
         onCreateTask={() => {
           closeAddTasks();
