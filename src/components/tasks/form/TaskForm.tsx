@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Repeat, Trash2 } from "lucide-react";
+import { Plus, Repeat } from "lucide-react";
 import { FC, useId, useState } from "react";
 import {
   Button,
