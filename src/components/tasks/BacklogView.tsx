@@ -37,6 +37,7 @@ const BacklogView: FC = () => {
 
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "">("");
   const [labelFilter, setLabelFilter] = useState("");
+  const [projectFilter, setProjectFilter] = useState("");
   const [page, setPage] = useState(1);
   const [formMode, setFormMode] = useState<TaskFormMode | null>(null);
   const [toDelete, setToDelete] = useState<Task | null>(null);
@@ -49,6 +50,7 @@ const BacklogView: FC = () => {
     sprint_id: "null",
     ...(statusFilter ? { status: statusFilter } : {}),
     ...(labelFilter ? { label_ids: labelFilter } : {}),
+    ...(projectFilter ? { project_id: projectFilter } : {}),
   };
 
   const tasksQuery = useTasksList(listQuery);
@@ -64,17 +66,26 @@ const BacklogView: FC = () => {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
   const isLoading =
-    tasksQuery.isLoading || labelsQuery.isLoading || sprintsQuery.isLoading;
+    tasksQuery.isLoading ||
+    labelsQuery.isLoading ||
+    sprintsQuery.isLoading ||
+    projectsQuery.isLoading;
   const isError = tasksQuery.isError;
   const isEmpty = !isLoading && !isError && tasks.length === 0;
   const hasTasks = !isLoading && !isError && tasks.length > 0;
 
   const openCreate = (parent?: Task) => {
+    const projectId = parent?.project_id
+      ? typeof parent?.project_id === "object"
+        ? (parent.project_id?._id ?? null)
+        : (parent.project_id ?? null)
+      : null;
+
     setFormMode({
       type: "create",
       parentId: parent?._id ?? null,
       parentTitle: parent?.title,
-      projectId: parent?.project_id ?? null,
+      projectId,
     });
   };
 
@@ -162,6 +173,25 @@ const BacklogView: FC = () => {
           {labels.map((label: Label) => (
             <option key={label._id} value={label._id}>
               {label.name}
+            </option>
+          ))}
+        </Select>
+        <label className="sr-only" htmlFor="backlog-project-filter">
+          Filter by project
+        </label>
+        <Select
+          id="backlog-project-filter"
+          value={projectFilter}
+          onChange={(event) => {
+            setProjectFilter(event.target.value);
+            setPage(1);
+          }}
+          sizeVariant="sm"
+        >
+          <option value="">All projects</option>
+          {projects.map((project) => (
+            <option key={project._id} value={project._id}>
+              {project.name}
             </option>
           ))}
         </Select>

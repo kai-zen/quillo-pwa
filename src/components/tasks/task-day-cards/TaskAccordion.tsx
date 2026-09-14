@@ -136,6 +136,16 @@ const TaskAccordion: FC<Props> = ({
                 {subtasksDone}/{childrenTasks.length} sub
               </span>
             )}
+            {task.project_id && typeof task.project_id === "object" ? (
+              <span className="inline-flex items-center gap-1 text-[11px] text-muted">
+                <span
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: task.project_id.color }}
+                  aria-hidden
+                />
+                {task.project_id.name}
+              </span>
+            ) : null}
             {labels.map((label) => (
               <span
                 key={label._id}

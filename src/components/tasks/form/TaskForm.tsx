@@ -50,16 +50,22 @@ const TaskForm: FC<Props> = ({
     !!onAddFromRoutines && !form.editing && !form.isSubtaskCreate;
 
   const handleCreateSubtask = () => {
-    if (form.editing) {
-      setSubtaskFormMode({
-        type: "create",
-        parentId: form.editing._id,
-        parentTitle: form.editing.title,
-        sprintId: form.editing.sprint_id,
-        projectId: form.editing.project_id,
-        doingDate: form.editing.doing_date,
-      });
-    }
+    if (!form.editing) return;
+
+    const taskProjectId = form.editing?.project_id
+      ? typeof form.editing.project_id === "object"
+        ? (form.editing.project_id?._id ?? null)
+        : form.editing.project_id
+      : null;
+
+    setSubtaskFormMode({
+      type: "create",
+      parentId: form.editing._id,
+      parentTitle: form.editing.title,
+      sprintId: form.editing.sprint_id,
+      projectId: taskProjectId,
+      doingDate: form.editing.doing_date,
+    });
   };
 
   const handleEditSubtask = (task: Task) => {

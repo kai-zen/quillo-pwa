@@ -9,10 +9,7 @@ import type {
   TaskPriority,
   TaskStatus,
 } from "@/shared/types";
-import {
-  PRIORITY_LABELS,
-  PRIORITY_OPTIONS,
-} from "../helpers";
+import { PRIORITY_LABELS, PRIORITY_OPTIONS } from "../helpers";
 import TaskEditMetaFields from "./TaskEditMetaFields";
 
 interface Props {
@@ -50,7 +47,7 @@ const TaskMetaFields: FC<Props> = ({
   onProjectIdChange,
   projects,
 }) => {
-  if (editing) {
+  if (editing)
     return (
       <TaskEditMetaFields
         priority={priority}
@@ -68,7 +65,6 @@ const TaskMetaFields: FC<Props> = ({
         showProjectSelector={showProjectSelector}
       />
     );
-  }
 
   if (isSubtaskCreate) return null;
 

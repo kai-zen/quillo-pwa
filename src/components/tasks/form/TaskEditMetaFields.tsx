@@ -46,92 +46,95 @@ const TaskEditMetaFields: FC<Props> = ({
   onProjectIdChange,
   projects,
   showProjectSelector,
-}) => (
-  <>
-    <div className="grid gap-3 sm:grid-cols-2">
-      <div>
-        <span className="mb-1.5 block text-sm text-muted">Status</span>
-        <Select
-          value={status}
-          onChange={(event) =>
-            onStatusChange(event.target.value as TaskStatus)
-          }
-          className="w-full"
-          aria-label="Status"
-        >
-          {STATUS_OPTIONS.map((value) => (
-            <option key={value} value={value}>
-              {STATUS_LABELS[value]}
-            </option>
-          ))}
-        </Select>
+}) => {
+  const projectRecordId = (projectId as unknown as Project)?._id || projectId;
+  return (
+    <>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <span className="mb-1.5 block text-sm text-muted">Status</span>
+          <Select
+            value={status}
+            onChange={(event) =>
+              onStatusChange(event.target.value as TaskStatus)
+            }
+            className="w-full"
+            aria-label="Status"
+          >
+            {STATUS_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {STATUS_LABELS[value]}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <span className="mb-1.5 block text-sm text-muted">Priority</span>
+          <Select
+            value={priority}
+            onChange={(event) =>
+              onPriorityChange(event.target.value as TaskPriority)
+            }
+            className="w-full"
+            aria-label="Priority"
+          >
+            {PRIORITY_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {PRIORITY_LABELS[value]}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
-      <div>
-        <span className="mb-1.5 block text-sm text-muted">Priority</span>
-        <Select
-          value={priority}
-          onChange={(event) =>
-            onPriorityChange(event.target.value as TaskPriority)
-          }
-          className="w-full"
-          aria-label="Priority"
-        >
-          {PRIORITY_OPTIONS.map((value) => (
-            <option key={value} value={value}>
-              {PRIORITY_LABELS[value]}
-            </option>
-          ))}
-        </Select>
-      </div>
-    </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Doing date">
+          <DatePicker
+            value={doingDate}
+            onChange={onDoingDateChange}
+            aria-label="Doing date"
+          />
+        </Field>
 
-    <div className="grid gap-3 sm:grid-cols-2">
-      <Field label="Doing date">
-        <DatePicker
-          value={doingDate}
-          onChange={onDoingDateChange}
-          aria-label="Doing date"
-        />
-      </Field>
-
-      <div>
-        <span className="mb-1.5 block text-sm text-muted">Sprint</span>
-        <Select
-          value={sprintId}
-          onChange={(event) => onSprintIdChange(event.target.value)}
-          className="w-full"
-          aria-label="Sprint"
-        >
-          <option value="">None</option>
-          {sprints.map((sprint) => (
-            <option key={sprint._id} value={sprint._id}>
-              {sprint.name}
-            </option>
-          ))}
-        </Select>
+        <div>
+          <span className="mb-1.5 block text-sm text-muted">Sprint</span>
+          <Select
+            value={sprintId}
+            onChange={(event) => onSprintIdChange(event.target.value)}
+            className="w-full"
+            aria-label="Sprint"
+          >
+            <option value="">None</option>
+            {sprints.map((sprint) => (
+              <option key={sprint._id} value={sprint._id}>
+                {sprint.name}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
-    </div>
 
-    {showProjectSelector && (
-      <div>
-        <span className="mb-1.5 block text-sm text-muted">Project</span>
-        <Select
-          value={projectId}
-          onChange={(event) => onProjectIdChange(event.target.value)}
-          className="w-full"
-          aria-label="Project"
-        >
-          <option value="">None</option>
-          {projects.map((project) => (
-            <option key={project._id} value={project._id}>
-              {project.name}
-            </option>
-          ))}
-        </Select>
-      </div>
-    )}
-  </>
-);
+      {showProjectSelector && (
+        <div>
+          <span className="mb-1.5 block text-sm text-muted">Project</span>
+          <Select
+            value={projectRecordId}
+            onChange={(event) => onProjectIdChange(event.target.value)}
+            className="w-full"
+            aria-label="Project"
+          >
+            <option value="">None</option>
+            {projects.map((project) => (
+              <option key={project._id} value={project._id}>
+                {project.name}
+              </option>
+            ))}
+          </Select>
+        </div>
+      )}
+    </>
+  );
+};
 
 export default TaskEditMetaFields;

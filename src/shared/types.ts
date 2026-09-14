@@ -197,7 +197,7 @@ export interface Task extends Timestamps {
   description: string;
   label_ids: RecordId[];
   sprint_id: RecordId | null;
-  project_id: RecordId | null;
+  project_id: Project | RecordId | null;
   doing_date: string | null;
   parent_id: RecordId | null;
   task_number: number;
