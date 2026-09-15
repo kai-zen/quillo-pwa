@@ -1,9 +1,16 @@
 "use client";
 
-import { ChevronDown, GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  FolderKanban,
+  GripVertical,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { ButtonHTMLAttributes, FC } from "react";
 import { Button, Markdown, cn } from "@/components/common";
-import type { Label, RecordId, Task } from "@/shared/types";
+import type { Label, Project, RecordId, Task } from "@/shared/types";
 import {
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS,
@@ -31,6 +38,13 @@ interface Props {
     | null;
 }
 
+const MetaSep: FC = () => (
+  <span
+    className="mx-1.5 h-2.5 w-px shrink-0 self-center bg-gray-300"
+    aria-hidden
+  />
+);
+
 const TaskAccordion: FC<Props> = ({
   task,
   childrenTasks,
@@ -48,6 +62,10 @@ const TaskAccordion: FC<Props> = ({
   const description = task.description.trim();
   const hasSubtasks = childrenTasks.length > 0;
   const subtasksDone = childrenTasks.filter(isTaskSettled).length;
+  const project: Project | null =
+    task.project_id && typeof task.project_id === "object"
+      ? task.project_id
+      : null;
   const { dragging: reorderDragging, ...reorderHandleProps } =
     reorderHandle ?? {};
 
@@ -93,72 +111,92 @@ const TaskAccordion: FC<Props> = ({
         />
 
         <div className="min-w-0 flex-1">
-          <p
-            className={cn(
-              "text-sm font-medium leading-snug text-foreground",
-              settled && "text-muted line-through",
-            )}
-          >
-            {task.title}
-          </p>
-
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="font-mono text-[11px] font-semibold tabular-nums text-muted">
+          <div className="leading-snug text-foreground flex items-center mb-1.5">
+            <p className="mr-1.5 font-mono text-xs tabular-nums">
               #{task.task_number}
-            </span>
-            <span
+            </p>
+            <p
               className={cn(
-                "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
-                STATUS_BADGE_CLASS[task.status],
+                "font-medium",
+                settled && "text-muted line-through",
               )}
             >
+              {task.title}
+            </p>
+          </div>
+
+          <div className="mt-1 flex flex-wrap items-center gap-y-1">
+            <span className="inline-flex items-center gap-1">
               <span
                 className={cn(
-                  "h-1 w-1 rounded-full",
-                  STATUS_DOT_CLASS[task.status],
+                  "inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
+                  STATUS_BADGE_CLASS[task.status],
                 )}
-                aria-hidden
-              />
-              {STATUS_LABELS[task.status]}
+              >
+                <span
+                  className={cn(
+                    "h-1 w-1 rounded-full",
+                    STATUS_DOT_CLASS[task.status],
+                  )}
+                  aria-hidden
+                />
+                {STATUS_LABELS[task.status]}
+              </span>
+              {task.priority !== "unset" && (
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
+                    PRIORITY_BADGE_CLASS[task.priority],
+                  )}
+                >
+                  {PRIORITY_LABELS[task.priority]}
+                </span>
+              )}
+              {hasSubtasks && (
+                <span className="pl-0.5 text-xs tabular-nums text-muted">
+                  {subtasksDone}/{childrenTasks.length} sub
+                </span>
+              )}
             </span>
-            {task.priority !== "unset" && (
-              <span
-                className={cn(
-                  "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold",
-                  PRIORITY_BADGE_CLASS[task.priority],
-                )}
-              >
-                {PRIORITY_LABELS[task.priority]}
-              </span>
-            )}
-            {hasSubtasks && (
-              <span className="text-[11px] tabular-nums text-muted">
-                {subtasksDone}/{childrenTasks.length} sub
-              </span>
-            )}
-            {task.project_id && typeof task.project_id === "object" ? (
-              <span className="inline-flex items-center gap-1 text-[11px] text-muted">
+
+            {project ? (
+              <>
+                <MetaSep />
                 <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ backgroundColor: task.project_id.color }}
-                  aria-hidden
-                />
-                {task.project_id.name}
-              </span>
+                  className="inline-flex max-w-44 items-center gap-1 text-xs font-medium text-foreground"
+                  title={`Project: ${project.name}`}
+                >
+                  <FolderKanban
+                    className="h-3 w-3 shrink-0"
+                    style={{ color: project.color }}
+                    strokeWidth={1.5}
+                    aria-hidden
+                  />
+                  <span className="truncate">{project.name}</span>
+                </span>
+              </>
             ) : null}
-            {labels.map((label) => (
-              <span
-                key={label._id}
-                className="inline-flex items-center gap-1 text-[11px] text-muted"
-              >
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ backgroundColor: label.color }}
-                  aria-hidden
-                />
-                {label.name}
-              </span>
-            ))}
+
+            {labels.length > 0 ? (
+              <>
+                <MetaSep />
+                <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                  {labels.map((label) => (
+                    <span
+                      key={label._id}
+                      className="inline-flex items-center gap-1 text-[11px] text-muted"
+                    >
+                      <span
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{ backgroundColor: label.color }}
+                        aria-hidden
+                      />
+                      {label.name}
+                    </span>
+                  ))}
+                </span>
+              </>
+            ) : null}
           </div>
         </div>
 
