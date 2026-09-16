@@ -7,6 +7,7 @@ import { cn } from "./cn";
 import IconButton from "./IconButton";
 
 let openModalCount = 0;
+let savedBodyOverflow: string | null = null;
 
 interface Props {
   open: boolean;
@@ -40,13 +41,20 @@ const Modal: FC<Props> = ({
     };
 
     document.addEventListener("keydown", onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+
+    // Lock scroll only for the first open modal; unlock only when none remain.
+    if (openModalCount === 1) {
+      savedBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+    }
 
     return () => {
       openModalCount -= 1;
       document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
+      if (openModalCount === 0) {
+        document.body.style.overflow = savedBodyOverflow ?? "";
+        savedBodyOverflow = null;
+      }
     };
   }, [open, onClose]);
 
