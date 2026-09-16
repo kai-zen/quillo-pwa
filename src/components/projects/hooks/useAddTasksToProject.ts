@@ -32,10 +32,12 @@ export function useAddTasksToProject(
   const [selectedIds, setSelectedIds] = useState<Set<RecordId>>(new Set());
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+
   const projectNames = useMemo(
     () => new Map(projects.map((project) => [project._id, project.name])),
     [projects],
   );
+
   const available = useMemo(
     () =>
       flattenTasks(tasksQuery.data?.items ?? []).filter(
@@ -76,10 +78,18 @@ export function useAddTasksToProject(
       );
       return next;
     });
-  const currentProjectLabel = (task: Task) =>
-    task.project_id
-      ? projectNames.get(task.project_id) ?? "another project"
-      : null;
+  const currentProjectLabel = (task: Task) => {
+    const defaultOutput = "another project";
+    if (!task?.project_id) return defaultOutput;
+
+    const projectName =
+      typeof task?.project_id === "object"
+        ? task.project_id?.name || defaultOutput
+        : defaultOutput;
+    if (projectName) return projectName ?? defaultOutput;
+
+    return projectNames.get(task.project_id as string) ?? defaultOutput;
+  };
 
   const onSubmit = async () => {
     if (!selectedIds.size || pending) return;

@@ -8,6 +8,7 @@ import { queryKeys } from "@/shared/hooks/keys";
 import type {
   CreateTaskBody,
   PaginatedResponse,
+  Project,
   RecordId,
   Task,
   TaskPriority,
@@ -26,6 +27,12 @@ export type TaskFormMode =
       doingDate?: string | null;
     }
   | { type: "edit"; task: Task };
+
+const getProjectId = (project?: Project | string | null): RecordId | null => {
+  if (!project) return null;
+  if (typeof project === "object") return project._id;
+  return project as string;
+};
 
 export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
   const {
@@ -46,7 +53,7 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     const listQueries = queryClient.getQueriesData<PaginatedResponse<Task>>({
       queryKey: queryKeys.tasks.list(),
     });
-    
+
     for (const [, data] of listQueries) {
       if (!data) continue;
       const grouped = groupTasks(data.items);
@@ -74,8 +81,7 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     editing?.sprint_id ?? "",
   );
   const [projectId, setProjectId] = useState<RecordId | "">(
-    editing?.project_id ??
-      (mode.type === "create" ? (mode.projectId ?? "") : ""),
+    getProjectId(editing?.project_id) ?? "",
   );
   const initialDoingDate =
     editing?.doing_date ??

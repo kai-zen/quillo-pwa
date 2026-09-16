@@ -65,12 +65,17 @@ export function useDayTaskListActions(doingDate: string) {
   const openEdit = (task: Task) => setFormMode({ type: "edit", task });
 
   const openCreateSubtask = (parent: Task) => {
+    const projectId =
+      parent.project_id && typeof parent.project_id === "object"
+        ? parent.project_id._id
+        : (parent.project_id as string) || null;
+
     setFormMode({
       type: "create",
       parentId: parent._id,
       parentTitle: parent.title,
       doingDate,
-      projectId: parent.project_id,
+      projectId,
     });
   };
 

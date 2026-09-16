@@ -11,11 +11,7 @@ import {
   useSprintsApi,
   useTasksApi,
 } from "@/shared/hooks";
-import type {
-  RecordId,
-  Task,
-  TaskStatus,
-} from "@/shared/types";
+import type { Project, RecordId, Task, TaskStatus } from "@/shared/types";
 import type { ProjectFormMode } from "../form/ProjectForm";
 
 const PAGE_LIMIT = 50;
@@ -50,13 +46,19 @@ export function useProjectDetail(projectId: RecordId) {
 
   const openCreateTask = (parent?: Task) => {
     setActionError("");
+
+    const projectId: RecordId | null =
+      (parent?.project_id as Project)?._id ||
+      (parent?.project_id as string) ||
+      null;
+
     setTaskFormMode({
       type: "create",
       parentId: parent?._id ?? null,
       parentTitle: parent?.title,
       sprintId: parent?.sprint_id,
       doingDate: parent?.doing_date,
-      projectId: parent?.project_id ?? projectId,
+      projectId,
     });
   };
   const changeTaskStatus = async (task: Task, status: TaskStatus) => {
@@ -86,7 +88,8 @@ export function useProjectDetail(projectId: RecordId) {
     sprints: sprintsQuery.data?.items ?? [],
     projects: projectsQuery.data?.items ?? [],
     projectsTruncated:
-      (projectsQuery.data?.total ?? 0) > (projectsQuery.data?.items.length ?? 0),
+      (projectsQuery.data?.total ?? 0) >
+      (projectsQuery.data?.items.length ?? 0),
     projectFormMode,
     taskFormMode,
     addTasksOpen,

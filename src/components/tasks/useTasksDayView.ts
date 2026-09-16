@@ -143,13 +143,18 @@ export function useTasksDayView() {
       return;
     }
 
+    const projectId =
+      parent?.project_id && typeof parent.project_id === "object"
+        ? parent.project_id._id
+        : (parent?.project_id as string) || null;
+
     setFormMode({
       type: "create",
       parentId: parent?._id ?? null,
       parentTitle: parent?.title,
       doingDate: selectedDate,
       sprintId: sprintId ?? null,
-      projectId: parent?.project_id ?? null,
+      projectId,
     });
   };
 

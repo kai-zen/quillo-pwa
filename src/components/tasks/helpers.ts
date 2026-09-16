@@ -52,17 +52,24 @@ export const PRIORITY_BADGE_CLASS: Record<TaskPriority, string> = {
 export const STATUS_OPTIONS = TASK_STATUSES;
 export const PRIORITY_OPTIONS = TASK_PRIORITIES;
 
-export const toUpdateBody = (task: Task): UpdateTaskBody => ({
-  title: task.title,
-  priority: task.priority,
-  status: task.status,
-  description: task.description,
-  label_ids: task.label_ids,
-  sprint_id: task.sprint_id,
-  project_id: task.project_id,
-  doing_date: task.doing_date,
-  parent_id: task.parent_id,
-});
+export const toUpdateBody = (task: Task): UpdateTaskBody => {
+  const projectId =
+    task.project_id && typeof task.project_id === "object"
+      ? task.project_id._id
+      : (task.project_id as string) || null;
+
+  return {
+    title: task.title,
+    priority: task.priority,
+    status: task.status,
+    description: task.description,
+    label_ids: task.label_ids,
+    sprint_id: task.sprint_id,
+    project_id: projectId ?? null,
+    doing_date: task.doing_date,
+    parent_id: task.parent_id,
+  };
+};
 
 export const toDateInputValue = (value: string | null): string => {
   if (!value) return "";

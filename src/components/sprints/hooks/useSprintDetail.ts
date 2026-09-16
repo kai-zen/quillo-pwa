@@ -99,12 +99,17 @@ export function useSprintDetail(sprintId: RecordId) {
   };
 
   const openCreateTask = (parent?: Task) => {
+    const projectId: RecordId | null =
+      (parent?.project_id as Project)?._id ||
+      (parent?.project_id as string) ||
+      null;
+
     setTaskFormMode({
       type: "create",
       parentId: parent?._id ?? null,
       parentTitle: parent?.title,
       sprintId,
-      projectId: parent?.project_id ?? null,
+      projectId,
     });
   };
 
