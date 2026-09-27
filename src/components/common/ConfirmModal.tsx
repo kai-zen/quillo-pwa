@@ -37,7 +37,7 @@ const ConfirmModal: FC<Props> = ({
       open={open}
       onClose={close}
       title={title}
-      className="max-w-md"
+      className="max-w-lg"
       overlayClassName="z-90"
     >
       <div className="flex flex-col gap-3">

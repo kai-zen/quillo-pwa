@@ -78,7 +78,7 @@ const Modal: FC<Props> = ({
         aria-modal="true"
         aria-labelledby={titleId}
         className={cn(
-          "relative z-10 flex max-h-[85vh] w-full flex-col rounded-t-xl border border-border bg-surface shadow-xl sm:max-w-md lg:max-w-xl sm:rounded-xl",
+          "relative z-10 flex max-h-[85vh] w-full flex-col rounded-t-xl border border-border bg-surface shadow-xl md:max-w-2xl lg:max-w-3xl sm:rounded-xl",
           className,
         )}
       >
