@@ -33,12 +33,6 @@ const GoalForm: FC<Props> = ({ mode, onClose, onSaved }) => {
         onSubmit={(e) => form.onSubmit(e as unknown as SubmitEvent)}
         className="flex w-full flex-col gap-3"
       >
-        <p className="text-sm text-muted">
-          {form.editing
-            ? "Update this goal and its objectives."
-            : "Define a longer-term outcome and optional checklist steps."}
-        </p>
-
         <Field label="Title" htmlFor={titleId}>
           <Input
             id={titleId}
