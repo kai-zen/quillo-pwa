@@ -4,19 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import { useGoalsApi } from "@/shared/hooks";
-import type {
-  GoalDetail,
-  GoalObjective,
-  GoalStatus,
-  RecordId,
-} from "@/shared/types";
+import type { GoalDetail, GoalObjective, RecordId } from "@/shared/types";
 import type { GoalFormMode } from "../form/GoalForm";
 import type { SprintFormMode } from "@/components/sprints";
-import { toUpdateBody } from "../helpers";
 
 export function useGoalDetail(goalId: RecordId) {
   const router = useRouter();
-  const { useGoal, toggleObjective, updateGoal } = useGoalsApi();
+  const { useGoal, toggleObjective } = useGoalsApi();
 
   const [goalFormMode, setGoalFormMode] = useState<GoalFormMode | null>(null);
   const [sprintFormMode, setSprintFormMode] = useState<SprintFormMode | null>(
@@ -25,7 +19,6 @@ export function useGoalDetail(goalId: RecordId) {
   const [pendingObjectiveId, setPendingObjectiveId] = useState<RecordId | null>(
     null,
   );
-  const [pendingStatus, setPendingStatus] = useState(false);
   const [actionError, setActionError] = useState("");
 
   const goalQuery = useGoal(goalId);
@@ -67,22 +60,6 @@ export function useGoalDetail(goalId: RecordId) {
     }
   };
 
-  const onChangeStatus = async (status: GoalStatus) => {
-    if (!goal || pendingStatus || goal.status === status) return;
-    setActionError("");
-    setPendingStatus(true);
-    try {
-      await updateGoal(goal._id, {
-        ...toUpdateBody(goal),
-        status,
-      });
-    } catch (err) {
-      setActionError(getErrorMessage(err, "Could not update goal status."));
-    } finally {
-      setPendingStatus(false);
-    }
-  };
-
   return {
     goalId,
     goal,
@@ -90,7 +67,6 @@ export function useGoalDetail(goalId: RecordId) {
     goalFormMode,
     sprintFormMode,
     pendingObjectiveId,
-    pendingStatus,
     actionError,
     isGoalLoading,
     isGoalError,
@@ -102,7 +78,6 @@ export function useGoalDetail(goalId: RecordId) {
     onSprintSaved,
     onGoalSaved,
     onToggleObjective,
-    onChangeStatus,
   };
 }
 
