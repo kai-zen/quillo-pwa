@@ -16,7 +16,8 @@ import type { Label, Project, Sprint, Task } from "@/shared/types";
 import { isTaskSettled } from "../helpers";
 import SubtaskRow from "../task-day-cards/SubtaskRow";
 import TaskMetaFields from "./TaskMetaFields";
-import { useTaskForm, type TaskFormMode } from "./useTaskForm";
+import type { TaskFormMode } from "./helpers";
+import { useTaskForm } from "./useTaskForm";
 
 export type { TaskFormMode };
 

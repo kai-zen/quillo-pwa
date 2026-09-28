@@ -47,7 +47,7 @@ export function useProjectDetail(projectId: RecordId) {
   const openCreateTask = (parent?: Task) => {
     setActionError("");
 
-    const projectId: RecordId | null =
+    const parentProjectId: RecordId | null =
       (parent?.project_id as Project)?._id ||
       (parent?.project_id as string) ||
       null;
@@ -58,7 +58,7 @@ export function useProjectDetail(projectId: RecordId) {
       parentTitle: parent?.title,
       sprintId: parent?.sprint_id,
       doingDate: parent?.doing_date,
-      projectId,
+      projectId: parentProjectId ?? projectId,
     });
   };
   const changeTaskStatus = async (task: Task, status: TaskStatus) => {

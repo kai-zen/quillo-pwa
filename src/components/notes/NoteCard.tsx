@@ -57,10 +57,10 @@ const NoteCard: FC<Props> = ({
     <article
       style={style}
       className={cn(
-        "group relative flex min-h-48 min-w-0 w-full rotate-[var(--tilt)] flex-col rounded-sm border p-4 pt-6 shadow-[2px_4px_10px_-2px_rgba(0,0,0,0.18)]",
+        "group relative flex min-h-48 min-w-0 w-full rotate-(--tilt) flex-col rounded-sm border p-4 pt-6 shadow-[2px_4px_10px_-2px_rgba(0,0,0,0.18)]",
         "transition-all duration-200 ease-out will-change-transform",
         "hover:z-10 hover:rotate-0 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[2px_10px_20px_-4px_rgba(0,0,0,0.25)]",
-        "focus-within:z-20 has-aria-expanded:z-20 overflow-hidden",
+        "focus-within:z-20 has-aria-expanded:z-20",
         sticky.cardClassName,
         note.archived && "opacity-70",
       )}
@@ -69,7 +69,7 @@ const NoteCard: FC<Props> = ({
         aria-hidden
         style={{ transform: tapeTransform(sticky.tapeSide) }}
         className={cn(
-          "pointer-events-none absolute -top-3 h-5 w-14 rounded-[2px] border shadow-sm backdrop-blur-[1px]",
+          "pointer-events-none absolute -top-3 h-5 w-14 rounded-xs border shadow-sm backdrop-blur-[1px]",
           tapePositionClass[sticky.tapeSide],
           sticky.tapeClassName,
         )}

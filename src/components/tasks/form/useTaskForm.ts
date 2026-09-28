@@ -1,40 +1,23 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useReducer, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
-import { queryKeys } from "@/shared/hooks/keys";
-import type {
-  CreateTaskBody,
-  PaginatedResponse,
-  Project,
-  RecordId,
-  Task,
-  TaskPriority,
-  TaskStatus,
-  UpdateTaskBody,
-} from "@/shared/types";
-import { groupTasks, toDateInputValue, toUpdateBody } from "../helpers";
+import type { RecordId, Task, TaskPriority, TaskStatus } from "@/shared/types";
+import { toUpdateBody } from "../helpers";
+import {
+  buildTaskFormBody,
+  createTaskFormFieldsState,
+  resolveLiveTask,
+  taskFormFieldsReducer,
+  type TaskFormFieldsState,
+  type TaskFormMode,
+} from "./helpers";
 
-export type TaskFormMode =
-  | {
-      type: "create";
-      parentId?: RecordId | null;
-      parentTitle?: string;
-      sprintId?: RecordId | null;
-      projectId?: RecordId | null;
-      doingDate?: string | null;
-    }
-  | { type: "edit"; task: Task };
+export type { TaskFormMode };
 
-const getProjectId = (project?: Project | string | null): RecordId | null => {
-  if (!project) return null;
-  if (typeof project === "object") return project._id;
-  return project as string;
-};
-
-export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
+export const useTaskForm = (mode: TaskFormMode, onSaved: () => void) => {
   const {
     createTask,
     updateTask,
@@ -46,55 +29,35 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
   const queryClient = useQueryClient();
 
   const editing = mode.type === "edit" ? mode.task : null;
-  const taskId = editing?._id;
-
-  let liveTask = editing;
-  if (taskId) {
-    const listQueries = queryClient.getQueriesData<PaginatedResponse<Task>>({
-      queryKey: queryKeys.tasks.list(),
-    });
-
-    for (const [, data] of listQueries) {
-      if (!data) continue;
-      const grouped = groupTasks(data.items);
-      const foundGroup = grouped.find((g) => g.task._id === taskId);
-      if (foundGroup) {
-        liveTask = { ...foundGroup.task, children: foundGroup.children };
-        break;
-      }
-    }
-  }
-
+  const liveTask = resolveLiveTask(queryClient, editing);
   const isSubtaskCreate = mode.type === "create" && !!mode.parentId;
   const parentTitle = mode.type === "create" ? (mode.parentTitle ?? "") : "";
 
-  const [title, setTitle] = useState(editing?.title ?? "");
-  const [description, setDescription] = useState(editing?.description ?? "");
-  const [priority, setPriority] = useState<TaskPriority>(
-    editing?.priority ?? "unset",
+  const [fields, dispatch] = useReducer(
+    taskFormFieldsReducer,
+    { mode, editing },
+    ({ mode, editing }) => createTaskFormFieldsState(mode, editing),
   );
-  const [status, setStatus] = useState<TaskStatus>(editing?.status ?? "todo");
-  const [labelIds, setLabelIds] = useState<RecordId[]>(
-    editing?.label_ids ?? [],
-  );
-  const [sprintId, setSprintId] = useState<RecordId | "">(
-    editing?.sprint_id ?? "",
-  );
-  const [projectId, setProjectId] = useState<RecordId | "">(
-    getProjectId(editing?.project_id) ?? "",
-  );
-  const initialDoingDate =
-    editing?.doing_date ??
-    (mode.type === "create" ? (mode.doingDate ?? null) : null);
-  const [doingDate, setDoingDate] = useState(
-    toDateInputValue(initialDoingDate),
-  );
+
   const [labelManagerOpen, setLabelManagerOpen] = useState(false);
   const [labelDraftName, setLabelDraftName] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [error, setError] = useState("");
 
   const pending = isCreating || isUpdating || isDeleting;
+
+  const updateFields = (patch: Partial<TaskFormFieldsState>) =>
+    dispatch({ type: "update", patch });
+
+  const setTitle = (value: string) => updateFields({ title: value });
+  const setDescription = (value: string) => updateFields({ description: value });
+  const setPriority = (value: TaskPriority) => updateFields({ priority: value });
+  const setStatus = (value: TaskStatus) => updateFields({ status: value });
+  const setLabelIds = (value: RecordId[]) => updateFields({ labelIds: value });
+  const setSprintId = (value: RecordId | "") => updateFields({ sprintId: value });
+  const setProjectId = (value: RecordId | "") =>
+    updateFields({ projectId: value });
+  const setDoingDate = (value: string) => updateFields({ doingDate: value });
 
   const openLabelCreate = (draftName: string) => {
     setLabelDraftName(draftName);
@@ -103,53 +66,17 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
 
   const closeLabelManager = () => setLabelManagerOpen(false);
 
-  const onLabelCreated = (id: RecordId) => {
-    setLabelIds((current) =>
-      current.includes(id) ? current : [...current, id],
-    );
-  };
+  const onLabelCreated = (id: RecordId) =>
+    dispatch({ type: "labelCreated", id });
 
-  const onLabelDeleted = (id: RecordId) => {
-    setLabelIds((current) => current.filter((item) => item !== id));
-  };
-
-  const buildBody = (): CreateTaskBody | UpdateTaskBody => {
-    if (mode.type === "create") {
-      return {
-        title: title.trim(),
-        description: description.trim(),
-        label_ids: labelIds,
-        status: "todo",
-        sprint_id: mode.sprintId ?? null,
-        project_id: projectId || null,
-        parent_id: mode.parentId ?? null,
-        ...(isSubtaskCreate
-          ? {}
-          : {
-              priority,
-              doing_date: doingDate || null,
-            }),
-      };
-    }
-
-    return {
-      title: title.trim(),
-      priority,
-      status,
-      description: description.trim(),
-      label_ids: labelIds,
-      sprint_id: sprintId || null,
-      project_id: projectId || null,
-      doing_date: doingDate || null,
-      parent_id: editing?.parent_id ?? null,
-    };
-  };
+  const onLabelDeleted = (id: RecordId) =>
+    dispatch({ type: "labelDeleted", id });
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
 
-    const body = buildBody();
+    const body = buildTaskFormBody({ mode, fields, editing, isSubtaskCreate });
     if (!body.title) {
       setError("Title is required.");
       return;
@@ -218,21 +145,21 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     editing: liveTask,
     isSubtaskCreate,
     parentTitle,
-    title,
+    title: fields.title,
     setTitle,
-    description,
+    description: fields.description,
     setDescription,
-    priority,
+    priority: fields.priority,
     setPriority,
-    status,
+    status: fields.status,
     setStatus,
-    labelIds,
+    labelIds: fields.labelIds,
     setLabelIds,
-    sprintId,
+    sprintId: fields.sprintId,
     setSprintId,
-    projectId,
+    projectId: fields.projectId,
     setProjectId,
-    doingDate,
+    doingDate: fields.doingDate,
     setDoingDate,
     labelManagerOpen,
     labelDraftName,
@@ -250,4 +177,4 @@ export function useTaskForm(mode: TaskFormMode, onSaved: () => void) {
     onToggleSubtaskDone,
     childrenTasks,
   };
-}
+};
