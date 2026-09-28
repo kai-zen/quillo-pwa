@@ -46,7 +46,7 @@ const GoalObjectiveSection: FC<Props> = ({ objective, pending, onToggle }) => {
             }
             onClick={() => onToggle(objective)}
             className={cn(
-              "shrink-0 rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
+              "cursor-pointer shrink-0 rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30",
               "disabled:cursor-not-allowed disabled:opacity-50",
               done

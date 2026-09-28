@@ -2,12 +2,7 @@
 
 import { Pencil } from "lucide-react";
 import { FC } from "react";
-import {
-  IconButton,
-  Markdown,
-  PageHeader,
-  cn,
-} from "@/components/common";
+import { IconButton, Markdown, PageHeader, cn } from "@/components/common";
 import { LinkedNotes } from "@/components/notes";
 import GoalDetailModals from "./GoalDetailModals";
 import GoalObjectivesPanel from "./GoalObjectivesPanel";
