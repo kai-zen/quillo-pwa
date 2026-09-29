@@ -20,6 +20,7 @@ export interface NavItem {
 export const NAV_ITEMS: NavItem[] = [
   { is_primary: true, href: "/", label: "Tasks", icon: ListTodo },
   { is_primary: true, href: "/notes", label: "Notes", icon: StickyNote },
+  { is_primary: false, href: "/backlog", label: "Backlog", icon: Inbox },
   { is_primary: true, href: "/sprints", label: "Sprints", icon: Flag },
   { is_primary: false, href: "/goals", label: "Goals", icon: Target },
   {

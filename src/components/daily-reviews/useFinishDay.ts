@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { findProgresses, pickActiveSprint } from "@/components/sprints/helpers";
 import type { AddDayTasksSource } from "@/components/tasks/add-day-tasks";
 import { todayIso } from "@/components/tasks/helpers";
@@ -12,7 +12,9 @@ export type FinishDayReviewTab = "reflect" | "progress";
 
 const useFinishDay = (date: string) => {
   const review = useDailyReview(date, { closeOnSave: false });
-  const isCreating = !review.filled;
+  // Locked when the modal opens so saving the first step does not flip into view mode.
+  const [createFlow, setCreateFlow] = useState(false);
+  const isCreating = createFlow;
   const hasPlanStep = isCreating && date === todayIso();
   const { useSprintsList } = useSprintsApi();
   const { useProgressesList } = useProgressesApi();
@@ -46,7 +48,12 @@ const useFinishDay = (date: string) => {
   const [addPanel, setAddPanel] = useState<AddDayTasksSource>("none");
   const [createOpen, setCreateOpen] = useState(false);
 
+  useEffect(() => {
+    setCreateFlow(false);
+  }, [date]);
+
   const openFinishDay = () => {
+    setCreateFlow(!review.filled);
     review.openReview();
     setStep(1);
     setReviewTab("reflect");
@@ -55,6 +62,7 @@ const useFinishDay = (date: string) => {
 
   const closeFinishDay = () => {
     review.closeReview();
+    setCreateFlow(false);
     setStep(1);
     setReviewTab("reflect");
     setReviewEditing(null);

@@ -96,14 +96,16 @@ const SprintProgresses: FC<Props> = ({
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-foreground">
-                    {progress.title}
+                    {progress.title}{" "}
+                    <span className="mt-0.5 truncate text-xs text-muted">
+                      ({meta})
+                    </span>
                   </p>
                   {progress.description ? (
                     <p className="mt-0.5 truncate text-sm text-muted">
                       {progress.description}
                     </p>
                   ) : null}
-                  <p className="mt-0.5 truncate text-xs text-muted">{meta}</p>
                 </div>
                 <IconButton
                   label={`Remove ${progress.title} from this sprint`}
