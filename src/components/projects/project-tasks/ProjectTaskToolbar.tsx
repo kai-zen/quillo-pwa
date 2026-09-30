@@ -1,6 +1,6 @@
 "use client";
 
-import { Columns3, List, Search, X } from "lucide-react";
+import { Columns3, LayoutGrid, List, Search, X } from "lucide-react";
 import { Button, IconButton, Select, cn } from "@/components/common";
 import { TaskProgressBar } from "@/components/tasks/DayProgress";
 import {
@@ -75,46 +75,54 @@ export default function ProjectTaskToolbar({
         <TaskProgressBar done={doneCount} total={doneCount + openCount} />
       ) : null}
 
-      <div
-        className="flex gap-1.5 overflow-x-auto pb-0.5"
-        role="radiogroup"
-        aria-label="Group tasks by status"
-      >
-        {PROJECT_TASK_FOCUS_OPTIONS.map((option) => {
-          const selected = focus === option;
-          const count =
-            option === "open" ? openCount : countByStatus[option];
-          return (
-            <button
-              key={option}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => setFocus(option)}
-              className={cn(
-                "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                selected
-                  ? "border-transparent bg-foreground text-background"
-                  : "border-border bg-surface text-muted hover:border-foreground/30 hover:text-foreground",
-              )}
-            >
-              {option !== "open" ? (
+      {layout === "start" ? (
+        <p className="text-xs leading-relaxed text-muted">
+          Only to-do tasks. High priority comes before low priority, and smaller
+          story points come before larger ones.
+        </p>
+      ) : (
+        <div
+          className="flex gap-1.5 overflow-x-auto pb-0.5"
+          role="radiogroup"
+          aria-label="Group tasks by status"
+        >
+          {PROJECT_TASK_FOCUS_OPTIONS.map((option) => {
+            const selected = focus === option;
+            const count = option === "open" ? openCount : countByStatus[option];
+            return (
+              <button
+                key={option}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => setFocus(option)}
+                className={cn(
+                  "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                  selected
+                    ? "border-transparent bg-foreground text-background"
+                    : "border-border bg-surface text-muted hover:border-foreground/30 hover:text-foreground",
+                )}
+              >
+                {option !== "open" ? (
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      selected ? "bg-background" : STATUS_DOT_CLASS[option],
+                    )}
+                    aria-hidden
+                  />
+                ) : null}
+                {focusName(option)}
                 <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    selected ? "bg-background" : STATUS_DOT_CLASS[option],
-                  )}
-                  aria-hidden
-                />
-              ) : null}
-              {focusName(option)}
-              <span className={cn("tabular-nums", selected ? "opacity-80" : "")}>
-                {count === null ? "…" : formatTaskCount(count)}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                  className={cn("tabular-nums", selected ? "opacity-80" : "")}
+                >
+                  {count === null ? "…" : formatTaskCount(count)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-2">
         <label className="relative min-w-44 flex-1">
@@ -216,6 +224,15 @@ export default function ProjectTaskToolbar({
             onClick={() => setLayout("board")}
           >
             <Columns3 className="h-3.5 w-3.5" aria-hidden />
+          </IconButton>
+          <IconButton
+            label="Start next"
+            size="sm"
+            active={layout === "start"}
+            aria-pressed={layout === "start"}
+            onClick={() => setLayout("start")}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" aria-hidden />
           </IconButton>
         </div>
       </div>

@@ -81,8 +81,8 @@ export default function ProjectTaskBoard({
   };
 
   return (
-    <div className="-mx-1 min-w-0 overflow-x-auto px-1 pb-1">
-      <div className="flex min-w-full gap-3">
+    <div className="min-w-0 overflow-x-auto pb-1">
+      <div className="flex w-max gap-3">
         {slices.map((slice) => {
           const isOver = overStatus === slice.status;
 
@@ -91,7 +91,7 @@ export default function ProjectTaskBoard({
               key={slice.status}
               aria-label={STATUS_LABELS[slice.status]}
               className={cn(
-                "flex max-h-[32rem] min-w-60 flex-1 flex-col rounded-xl border bg-accent-soft/40",
+                "flex max-h-[32rem] w-72 shrink-0 flex-col rounded-xl border bg-accent-soft/40",
                 isOver ? "border-foreground/25 bg-accent-soft" : "border-border",
               )}
               onDragOver={handleDragOver(slice.status)}

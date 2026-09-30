@@ -7,6 +7,7 @@ import { useTasksApi } from "@/shared/hooks";
 import type { RecordId, Task, TaskPriority, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
 import {
+  BOARD_STATUSES,
   hasProjectTaskFilters,
   PROJECT_TASK_PAGE_LIMIT,
   projectTaskQuery,
@@ -15,6 +16,7 @@ import {
   type ProjectTaskFocus,
   type ProjectTaskLayout,
 } from "./helpers";
+import { useProjectStartNext } from "./useProjectStartNext";
 
 const INITIAL_PAGES: Record<TaskStatus, number> = {
   todo: 1,
@@ -78,6 +80,13 @@ export function useProjectTaskBrowser(projectId: RecordId) {
 
   const enabled = !!projectId;
   const shown = visibleStatuses(focus);
+  const listed = (status: TaskStatus) =>
+    shown.includes(status) || layout === "board";
+  const startNext = useProjectStartNext(
+    projectId,
+    filters,
+    enabled && layout === "start",
+  );
 
   const todoList = useTasksList(
     projectTaskQuery(
@@ -87,7 +96,7 @@ export function useProjectTaskBrowser(projectId: RecordId) {
       PROJECT_TASK_PAGE_LIMIT,
       filters,
     ),
-    enabled && shown.includes("todo"),
+    enabled && listed("todo"),
   );
   const doingList = useTasksList(
     projectTaskQuery(
@@ -97,7 +106,7 @@ export function useProjectTaskBrowser(projectId: RecordId) {
       PROJECT_TASK_PAGE_LIMIT,
       filters,
     ),
-    enabled && shown.includes("doing"),
+    enabled && listed("doing"),
   );
   const pausedList = useTasksList(
     projectTaskQuery(
@@ -107,7 +116,7 @@ export function useProjectTaskBrowser(projectId: RecordId) {
       PROJECT_TASK_PAGE_LIMIT,
       filters,
     ),
-    enabled && shown.includes("paused"),
+    enabled && listed("paused"),
   );
   const doneList = useTasksList(
     projectTaskQuery(
@@ -117,7 +126,7 @@ export function useProjectTaskBrowser(projectId: RecordId) {
       PROJECT_TASK_PAGE_LIMIT,
       filters,
     ),
-    enabled && shown.includes("done"),
+    enabled && listed("done"),
   );
   const cancelledList = useTasksList(
     projectTaskQuery(
@@ -127,28 +136,28 @@ export function useProjectTaskBrowser(projectId: RecordId) {
       PROJECT_TASK_PAGE_LIMIT,
       filters,
     ),
-    enabled && shown.includes("cancelled"),
+    enabled && listed("cancelled"),
   );
 
   const todoCount = useTasksList(
     projectTaskQuery(projectId, "todo", 1, 1, filters),
-    enabled && !shown.includes("todo"),
+    enabled && !listed("todo"),
   );
   const doingCount = useTasksList(
     projectTaskQuery(projectId, "doing", 1, 1, filters),
-    enabled && !shown.includes("doing"),
+    enabled && !listed("doing"),
   );
   const pausedCount = useTasksList(
     projectTaskQuery(projectId, "paused", 1, 1, filters),
-    enabled && !shown.includes("paused"),
+    enabled && !listed("paused"),
   );
   const doneCountQuery = useTasksList(
     projectTaskQuery(projectId, "done", 1, 1, filters),
-    enabled && !shown.includes("done"),
+    enabled && !listed("done"),
   );
   const cancelledCount = useTasksList(
     projectTaskQuery(projectId, "cancelled", 1, 1, filters),
-    enabled && !shown.includes("cancelled"),
+    enabled && !listed("cancelled"),
   );
 
   const lists = {
@@ -182,7 +191,7 @@ export function useProjectTaskBrowser(projectId: RecordId) {
     {} as Record<TaskStatus, number | null>,
   );
 
-  const slices: ProjectStatusSlice[] = shown.map((status) => {
+  const toSlice = (status: TaskStatus): ProjectStatusSlice => {
     const query = lists[status];
     const total = query.data?.total ?? 0;
     return {
@@ -195,7 +204,10 @@ export function useProjectTaskBrowser(projectId: RecordId) {
       isFetching: query.isFetching,
       isError: query.isError,
     };
-  });
+  };
+
+  const slices: ProjectStatusSlice[] = shown.map(toSlice);
+  const boardSlices: ProjectStatusSlice[] = BOARD_STATUSES.map(toSlice);
 
   const openCount = (["doing", "todo", "paused"] as const).reduce<number | null>(
     (sum, status) => {
@@ -278,7 +290,9 @@ export function useProjectTaskBrowser(projectId: RecordId) {
     doneCount: countByStatus.done,
     projectTotal,
     slices,
+    boardSlices,
     listState,
+    startNext,
     pendingId,
     actionError,
     setStatusPage,

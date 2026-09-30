@@ -6,6 +6,7 @@ import type { Task } from "@/shared/types";
 import type { ProjectDetailViewModel } from "./hooks/useProjectDetail";
 import ProjectTaskBoard from "./project-tasks/ProjectTaskBoard";
 import ProjectTaskSections from "./project-tasks/ProjectTaskSections";
+import ProjectTaskStart from "./project-tasks/ProjectTaskStart";
 import ProjectTaskToolbar from "./project-tasks/ProjectTaskToolbar";
 
 export default function ProjectTasks({
@@ -26,7 +27,9 @@ export default function ProjectTasks({
     focus,
     setFocus,
     slices,
+    boardSlices,
     listState,
+    startNext,
     doneCount,
     pendingId,
     actionError,
@@ -41,15 +44,15 @@ export default function ProjectTasks({
   };
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex min-w-0 w-full flex-col gap-3">
       <ProjectTaskToolbar browser={taskBrowser} labels={labels} sprints={sprints} />
       {actionError ? <p className="text-sm text-rose-500">{actionError}</p> : null}
 
-      {listState === "loading" ? (
+      {layout === "list" && listState === "loading" ? (
         <p className="text-sm text-muted">Loading tasks…</p>
       ) : null}
 
-      {listState === "error" ? (
+      {layout === "list" && listState === "error" ? (
         <p className="text-sm">
           Could not load project tasks. Try refreshing the page.
         </p>
@@ -79,7 +82,7 @@ export default function ProjectTasks({
         </div>
       ) : null}
 
-      {listState === "empty-focus" ? (
+      {layout === "list" && listState === "empty-focus" ? (
         <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-10 text-center">
           <p className="font-medium">
             {focus === "open" ? "No open tasks" : "Nothing in this group"}
@@ -101,7 +104,7 @@ export default function ProjectTasks({
         </div>
       ) : null}
 
-      {listState === "empty-filter" ? (
+      {layout === "list" && listState === "empty-filter" ? (
         <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-10 text-center">
           <p className="font-medium">No tasks match</p>
           <p className="mt-1 text-sm text-muted">
@@ -115,9 +118,21 @@ export default function ProjectTasks({
         </div>
       ) : null}
 
-      {listState === "ready" && layout === "board" ? (
+      {layout === "start" && listState !== "empty-project" ? (
+        <ProjectTaskStart
+          startNext={startNext}
+          labels={labels}
+          sprints={sprints}
+          pendingId={pendingId}
+          hasFilters={hasFilters}
+          onEdit={openEditTask}
+          onStart={(task) => changeTaskStatus(task, "doing")}
+        />
+      ) : null}
+
+      {layout === "board" && listState !== "empty-project" ? (
         <ProjectTaskBoard
-          slices={slices}
+          slices={boardSlices}
           labels={labels}
           sprints={sprints}
           pendingId={pendingId}
@@ -127,7 +142,7 @@ export default function ProjectTasks({
         />
       ) : null}
 
-      {listState === "ready" && layout === "list" ? (
+      {layout === "list" && listState === "ready" ? (
         <ProjectTaskSections
           slices={slices}
           labels={labels}
