@@ -26,15 +26,21 @@ function dayProgressStats(tasks: Task[]) {
 
   const done = actionable.filter((task) => task.status === "done").length;
   const total = actionable.length;
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
 
-  return { done, total, percent, complete: total > 0 && done === total };
+  return { done, total };
 }
 
-const DayProgress: FC<Props> = ({ tasks }) => {
-  const { done, total, percent, complete } = dayProgressStats(tasks);
+export function TaskProgressBar({
+  done,
+  total,
+}: {
+  done: number;
+  total: number;
+}) {
+  if (total <= 0) return null;
 
-  if (total === 0) return null;
+  const percent = Math.round((done / total) * 100);
+  const complete = done === total;
 
   return (
     <div
@@ -57,6 +63,11 @@ const DayProgress: FC<Props> = ({ tasks }) => {
       </div>
     </div>
   );
+}
+
+const DayProgress: FC<Props> = ({ tasks }) => {
+  const { done, total } = dayProgressStats(tasks);
+  return <TaskProgressBar done={done} total={total} />;
 };
 
 export default DayProgress;

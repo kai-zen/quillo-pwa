@@ -432,6 +432,9 @@ export interface TaskListQuery extends PaginationQuery {
   project_id?: RecordId;
   parent_id?: RecordId;
   status?: TaskStatus;
+  priority?: TaskPriority;
+  /** Case-insensitive match on title or description. A number also matches task_number. */
+  q?: string;
   /** Comma-separated label ids */
   label_ids?: string;
 }
