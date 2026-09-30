@@ -75,45 +75,46 @@ const TaskForm: FC<Props> = ({
 
   return (
     <>
-      <form onSubmit={form.onSubmit} className="flex flex-col gap-3 w-full">
-        <p className="text-sm text-muted">
-          {form.editing
-            ? "Update the task details."
-            : form.isSubtaskCreate
-              ? form.parentTitle
-                ? `Nested under “${form.parentTitle}”.`
-                : "A shorter form for a nested task."
-              : "Add something to your backlog."}
-        </p>
+      <form onSubmit={form.onSubmit} className="flex w-full flex-col gap-5">
+        {form.isSubtaskCreate && (
+          <p className="text-sm text-muted">
+            {form.parentTitle
+              ? `Nested under “${form.parentTitle}”.`
+              : "A shorter form for a nested task."}
+          </p>
+        )}
 
-        <Field label="Title" htmlFor={titleId}>
-          <Input
-            id={titleId}
-            value={form.title}
-            onChange={(event) => form.setTitle(event.target.value)}
-            required
-            maxLength={200}
-            autoFocus
-            placeholder="What needs doing?"
+        <div className="space-y-3">
+          <Field label="Title" htmlFor={titleId}>
+            <Input
+              id={titleId}
+              value={form.title}
+              onChange={(event) => form.setTitle(event.target.value)}
+              required
+              maxLength={200}
+              autoFocus
+              placeholder="What needs doing?"
+              className="text-base"
+            />
+          </Field>
+
+          <Field label="Description" optional>
+            <MarkdownEditor
+              value={form.description}
+              onChange={form.setDescription}
+              rows={form.isSubtaskCreate ? 3 : 5}
+              compact={form.isSubtaskCreate}
+              placeholder="Notes, checklists, links…"
+            />
+          </Field>
+
+          <LabelField
+            labels={labels}
+            selectedIds={form.labelIds}
+            onChange={form.setLabelIds}
+            onCreate={form.openLabelCreate}
           />
-        </Field>
-
-        <Field label="Description">
-          <MarkdownEditor
-            value={form.description}
-            onChange={form.setDescription}
-            rows={form.isSubtaskCreate ? 3 : 6}
-            compact={form.isSubtaskCreate}
-            placeholder="Notes, checklists, links…"
-          />
-        </Field>
-
-        <LabelField
-          labels={labels}
-          selectedIds={form.labelIds}
-          onChange={form.setLabelIds}
-          onCreate={form.openLabelCreate}
-        />
+        </div>
 
         <TaskMetaFields
           editing={!!form.editing}
@@ -136,7 +137,7 @@ const TaskForm: FC<Props> = ({
         />
 
         {form.editing && !form.editing.parent_id && (
-          <section className="space-y-1.5 pt-2">
+          <section className="space-y-1.5">
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-[11px] font-semibold uppercase tracking-wide text-muted">
                 {form.childrenTasks.length > 0

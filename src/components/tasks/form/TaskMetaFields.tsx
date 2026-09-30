@@ -1,7 +1,7 @@
 "use client";
 
-import { FC } from "react";
-import { DatePicker, Field, Select } from "@/components/common";
+import { FC, ReactNode } from "react";
+import { DatePicker, Field, FieldLabel, Select } from "@/components/common";
 import type {
   Project,
   RecordId,
@@ -11,11 +11,17 @@ import type {
   TaskStoryPoints,
 } from "@/shared/types";
 import {
+  PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS,
   PRIORITY_OPTIONS,
+  STATUS_BADGE_CLASS,
+  STATUS_DOT_CLASS,
+  STATUS_LABELS,
+  STATUS_OPTIONS,
+  STORY_POINTS_BADGE_CLASS,
   STORY_POINTS_OPTIONS,
 } from "../helpers";
-import TaskEditMetaFields from "./TaskEditMetaFields";
+import ChoiceChips from "./ChoiceChips";
 
 interface Props {
   editing: boolean;
@@ -56,98 +62,116 @@ const TaskMetaFields: FC<Props> = ({
   storyPoints,
   onStoryPointsChange,
 }) => {
-  if (editing)
-    return (
-      <TaskEditMetaFields
-        priority={priority}
-        onPriorityChange={onPriorityChange}
-        status={status}
-        onStatusChange={onStatusChange}
-        doingDate={doingDate}
-        onDoingDateChange={onDoingDateChange}
-        sprintId={sprintId}
-        onSprintIdChange={onSprintIdChange}
-        sprints={sprints}
-        projectId={projectId}
-        onProjectIdChange={onProjectIdChange}
-        projects={projects}
-        showProjectSelector={showProjectSelector}
-        storyPoints={storyPoints}
-        onStoryPointsChange={onStoryPointsChange}
-      />
-    );
-
   if (isSubtaskCreate) return null;
 
+  const projectSelect = showProjectSelector ? (
+    <Field label="Project" optional>
+      <Select
+        value={projectId}
+        onChange={(event) => onProjectIdChange(event.target.value)}
+        className="w-full"
+        aria-label="Project"
+      >
+        <option value="">No project</option>
+        {projects.map((project) => (
+          <option key={project._id} value={project._id}>
+            {project.name}
+          </option>
+        ))}
+      </Select>
+    </Field>
+  ) : null;
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <div>
-        <span className="mb-1.5 block text-sm text-muted">Priority</span>
-        <Select
-          value={priority}
-          onChange={(event) =>
-            onPriorityChange(event.target.value as TaskPriority)
-          }
-          className="w-full"
-          aria-label="Priority"
-        >
-          {PRIORITY_OPTIONS.map((value) => (
-            <option key={value} value={value}>
-              {PRIORITY_LABELS[value]}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      <Field label="Doing date">
-        <DatePicker
-          value={doingDate}
-          onChange={onDoingDateChange}
-          aria-label="Doing date"
-        />
-      </Field>
-
-      <div>
-        <span className="mb-1.5 block text-sm text-muted">Story points</span>
-        <Select
-          value={storyPoints}
-          onChange={(event) =>
-            onStoryPointsChange(
-              event.target.value
-                ? (Number(event.target.value) as TaskStoryPoints)
-                : "",
-            )
-          }
-          className="w-full"
-          aria-label="Story points"
-        >
-          <option value="">None</option>
-          {STORY_POINTS_OPTIONS.map((value) => (
-            <option key={value} value={value}>
-              {value}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      {showProjectSelector && (
+    <div className="space-y-5">
+      {editing && (
         <div>
-          <span className="mb-1.5 block text-sm text-muted">Project</span>
-          <Select
-            value={projectId}
-            onChange={(event) => onProjectIdChange(event.target.value)}
-            className="w-full"
-            aria-label="Project"
-          >
-            <option value="">None</option>
-            {projects.map((project) => (
-              <option key={project._id} value={project._id}>
-                {project.name}
-              </option>
-            ))}
-          </Select>
+          <FieldLabel>Status</FieldLabel>
+          <ChoiceChips
+            value={status}
+            onChange={onStatusChange}
+            aria-label="Status"
+            options={STATUS_OPTIONS.map((value) => ({
+              value,
+              selectedClassName: STATUS_BADGE_CLASS[value],
+              label: (
+                <>
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT_CLASS[value]}`}
+                    aria-hidden
+                  />
+                  {STATUS_LABELS[value]}
+                </>
+              ),
+            }))}
+          />
         </div>
       )}
+
+      <div>
+        <FieldLabel optional>Priority</FieldLabel>
+        <ChoiceChips
+          value={priority}
+          onChange={onPriorityChange}
+          aria-label="Priority"
+          options={PRIORITY_OPTIONS.map((value) => ({
+            value,
+            selectedClassName: PRIORITY_BADGE_CLASS[value],
+            label: PRIORITY_LABELS[value],
+          }))}
+        />
+      </div>
+
+      <div>
+        <FieldLabel optional>Story points</FieldLabel>
+        <ChoiceChips
+          value={storyPoints}
+          onChange={onStoryPointsChange}
+          aria-label="Story points"
+          options={[
+            { value: "" as const, label: "None" },
+            ...STORY_POINTS_OPTIONS.map((value) => ({
+              value,
+              selectedClassName: STORY_POINTS_BADGE_CLASS,
+              className: "min-w-8 justify-center tabular-nums",
+              label: value,
+            })),
+          ]}
+        />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Doing date" optional>
+          <DatePicker
+            value={doingDate}
+            onChange={onDoingDateChange}
+            placeholder="Not scheduled"
+            aria-label="Doing date"
+          />
+        </Field>
+
+        {editing ? (
+          <Field label="Sprint" optional>
+            <Select
+              value={sprintId}
+              onChange={(event) => onSprintIdChange(event.target.value)}
+              className="w-full"
+              aria-label="Sprint"
+            >
+              <option value="">No sprint</option>
+              {sprints.map((sprint) => (
+                <option key={sprint._id} value={sprint._id}>
+                  {sprint.name}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        ) : (
+          projectSelect
+        )}
+
+        {editing && projectSelect}
+      </div>
     </div>
   );
 };

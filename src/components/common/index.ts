@@ -1,7 +1,7 @@
 export { default as Button } from "./Button";
 export { default as DatePicker } from "./date-picker/DatePicker";
 export { default as DatePickerIconButton } from "./date-picker/DatePickerIconButton";
-export { default as Field } from "./Field";
+export { default as Field, FieldLabel } from "./Field";
 export { default as IconButton } from "./IconButton";
 export { default as Input } from "./Input";
 export { default as Markdown } from "./markdown/Markdown";

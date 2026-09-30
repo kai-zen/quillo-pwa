@@ -29,7 +29,12 @@ const LabelField: FC<Props> = ({ labels, selectedIds, onChange, onCreate }) => {
       value={selectedIds}
       onChange={onChange}
       onCreate={onCreate}
-      label="Labels"
+      label={
+        <span className="inline-flex items-baseline gap-1.5">
+          Labels
+          <span className="text-[11px] text-muted/65">optional</span>
+        </span>
+      }
       placeholder="Search labels"
       selectedPlaceholder="Add another label…"
       createButtonLabel="Create label"
