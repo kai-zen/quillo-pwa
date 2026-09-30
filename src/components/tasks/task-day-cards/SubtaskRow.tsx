@@ -7,6 +7,8 @@ import type { Task } from "@/shared/types";
 import {
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS,
+  STORY_POINTS_BADGE_CLASS,
+  formatStoryPoints,
   isTaskSettled,
 } from "../helpers";
 import DoneCheckbox from "./DoneCheckbox";
@@ -27,6 +29,7 @@ const SubtaskRow: FC<Props> = ({
   onDelete,
 }) => {
   const settled = isTaskSettled(task);
+  const storyPointsLabel = formatStoryPoints(task.story_points);
 
   return (
     <div className="flex items-center gap-2 px-2.5 py-2">
@@ -54,6 +57,18 @@ const SubtaskRow: FC<Props> = ({
           )}
         >
           {PRIORITY_LABELS[task.priority]}
+        </span>
+      )}
+
+      {storyPointsLabel && (
+        <span
+          className={cn(
+            "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+            STORY_POINTS_BADGE_CLASS,
+          )}
+          title="Story points"
+        >
+          {storyPointsLabel} SP
         </span>
       )}
 

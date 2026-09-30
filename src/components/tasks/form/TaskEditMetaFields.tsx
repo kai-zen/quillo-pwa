@@ -8,12 +8,14 @@ import type {
   Sprint,
   TaskPriority,
   TaskStatus,
+  TaskStoryPoints,
 } from "@/shared/types";
 import {
   PRIORITY_LABELS,
   PRIORITY_OPTIONS,
   STATUS_LABELS,
   STATUS_OPTIONS,
+  STORY_POINTS_OPTIONS,
 } from "../helpers";
 
 interface Props {
@@ -30,6 +32,8 @@ interface Props {
   onProjectIdChange: (value: RecordId | "") => void;
   projects: Project[];
   showProjectSelector: boolean;
+  storyPoints: TaskStoryPoints | "";
+  onStoryPointsChange: (value: TaskStoryPoints | "") => void;
 }
 
 const TaskEditMetaFields: FC<Props> = ({
@@ -46,6 +50,8 @@ const TaskEditMetaFields: FC<Props> = ({
   onProjectIdChange,
   projects,
   showProjectSelector,
+  storyPoints,
+  onStoryPointsChange,
 }) => {
   const projectRecordId = (projectId as unknown as Project)?._id || projectId;
   return (
@@ -82,6 +88,29 @@ const TaskEditMetaFields: FC<Props> = ({
             {PRIORITY_OPTIONS.map((value) => (
               <option key={value} value={value}>
                 {PRIORITY_LABELS[value]}
+              </option>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <span className="mb-1.5 block text-sm text-muted">Story points</span>
+          <Select
+            value={storyPoints}
+            onChange={(event) =>
+              onStoryPointsChange(
+                event.target.value
+                  ? (Number(event.target.value) as TaskStoryPoints)
+                  : "",
+              )
+            }
+            className="w-full"
+            aria-label="Story points"
+          >
+            <option value="">None</option>
+            {STORY_POINTS_OPTIONS.map((value) => (
+              <option key={value} value={value}>
+                {value}
               </option>
             ))}
           </Select>

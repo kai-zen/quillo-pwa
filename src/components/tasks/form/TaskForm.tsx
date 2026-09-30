@@ -131,6 +131,8 @@ const TaskForm: FC<Props> = ({
           projectId={form.projectId}
           onProjectIdChange={form.setProjectId}
           projects={projects}
+          storyPoints={form.storyPoints}
+          onStoryPointsChange={form.setStoryPoints}
         />
 
         {form.editing && !form.editing.parent_id && (

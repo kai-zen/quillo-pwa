@@ -8,8 +8,13 @@ import type {
   Sprint,
   TaskPriority,
   TaskStatus,
+  TaskStoryPoints,
 } from "@/shared/types";
-import { PRIORITY_LABELS, PRIORITY_OPTIONS } from "../helpers";
+import {
+  PRIORITY_LABELS,
+  PRIORITY_OPTIONS,
+  STORY_POINTS_OPTIONS,
+} from "../helpers";
 import TaskEditMetaFields from "./TaskEditMetaFields";
 
 interface Props {
@@ -28,6 +33,8 @@ interface Props {
   projectId: RecordId | "";
   onProjectIdChange: (value: RecordId | "") => void;
   projects: Project[];
+  storyPoints: TaskStoryPoints | "";
+  onStoryPointsChange: (value: TaskStoryPoints | "") => void;
 }
 
 const TaskMetaFields: FC<Props> = ({
@@ -46,6 +53,8 @@ const TaskMetaFields: FC<Props> = ({
   projectId,
   onProjectIdChange,
   projects,
+  storyPoints,
+  onStoryPointsChange,
 }) => {
   if (editing)
     return (
@@ -63,6 +72,8 @@ const TaskMetaFields: FC<Props> = ({
         onProjectIdChange={onProjectIdChange}
         projects={projects}
         showProjectSelector={showProjectSelector}
+        storyPoints={storyPoints}
+        onStoryPointsChange={onStoryPointsChange}
       />
     );
 
@@ -95,6 +106,29 @@ const TaskMetaFields: FC<Props> = ({
           aria-label="Doing date"
         />
       </Field>
+
+      <div>
+        <span className="mb-1.5 block text-sm text-muted">Story points</span>
+        <Select
+          value={storyPoints}
+          onChange={(event) =>
+            onStoryPointsChange(
+              event.target.value
+                ? (Number(event.target.value) as TaskStoryPoints)
+                : "",
+            )
+          }
+          className="w-full"
+          aria-label="Story points"
+        >
+          <option value="">None</option>
+          {STORY_POINTS_OPTIONS.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </Select>
+      </div>
 
       {showProjectSelector && (
         <div>

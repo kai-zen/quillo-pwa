@@ -1,5 +1,7 @@
 import { Button, cn } from "@/components/common";
 import {
+  formatStoryPoints,
+  STORY_POINTS_BADGE_CLASS,
   STATUS_BADGE_CLASS,
   STATUS_DOT_CLASS,
   STATUS_LABELS,
@@ -21,7 +23,10 @@ const RemainingTaskRow: FC<RemainingTaskRowProps> = ({
   scheduleLabel,
   onSchedule,
   onEdit,
-}) => (
+}) => {
+  const storyPointsLabel = formatStoryPoints(task.story_points);
+
+  return (
   <li className="flex items-center gap-3 border-b border-border px-3 py-2 last:border-b-0">
     <span className="font-mono text-[11px] font-semibold tabular-nums text-muted">
       #{task.task_number}
@@ -46,6 +51,17 @@ const RemainingTaskRow: FC<RemainingTaskRowProps> = ({
       />
       {STATUS_LABELS[task.status]}
     </span>
+    {storyPointsLabel ? (
+      <span
+        className={cn(
+          "hidden shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums sm:inline-flex",
+          STORY_POINTS_BADGE_CLASS,
+        )}
+        title="Story points"
+      >
+        {storyPointsLabel} SP
+      </span>
+    ) : null}
     <Button
       variant="secondary"
       size="sm"
@@ -56,6 +72,7 @@ const RemainingTaskRow: FC<RemainingTaskRowProps> = ({
       {pending ? "Saving…" : scheduleLabel}
     </Button>
   </li>
-);
+  );
+};
 
 export default RemainingTaskRow;

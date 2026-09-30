@@ -12,6 +12,7 @@ import {
 } from "@/components/common";
 import type { Label, Task } from "@/shared/types";
 import {
+  formatStoryPoints,
   groupTasks,
   labelsById,
   STATUS_BADGE_CLASS,
@@ -46,12 +47,14 @@ const TaskSummaryTable: FC<Props> = ({ tasks, labels, onEdit }) => {
           <TableHead className="w-20">#</TableHead>
           <TableHead>Title</TableHead>
           <TableHead className="w-28">Status</TableHead>
+          <TableHead className="w-16">SP</TableHead>
           <TableHead className="w-56">Labels</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rows.map(({ task, depth }) => {
           const taskLabels = resolveLabels(task);
+          const storyPointsLabel = formatStoryPoints(task.story_points);
 
           return (
             <TableRow
@@ -90,6 +93,15 @@ const TaskSummaryTable: FC<Props> = ({ tasks, labels, onEdit }) => {
                   />
                   {STATUS_LABELS[task.status]}
                 </span>
+              </TableCell>
+              <TableCell>
+                {storyPointsLabel ? (
+                  <span className="font-mono text-xs font-semibold tabular-nums text-muted">
+                    {storyPointsLabel}
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted">—</span>
+                )}
               </TableCell>
               <TableCell>
                 {taskLabels.length === 0 ? (

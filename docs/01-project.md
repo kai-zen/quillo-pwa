@@ -143,10 +143,11 @@ Named lists of task drafts. Applying routines for a day creates normal tasks wit
 
 ### Tasks
 
-The work item. Optional `label_ids`, `sprint_id`, `project_id`, `doing_date`, `parent_id`.
+The work item. Optional `label_ids`, `sprint_id`, `project_id`, `doing_date`, `parent_id`, `story_points`.
 
 Priorities: `unset` | `low` | `medium` | `high` | `urgent`  
-Statuses: `todo` | `doing` | `done` | `paused` | `cancelled`
+Statuses: `todo` | `doing` | `done` | `paused` | `cancelled`  
+Story points: `1` | `2` | `3` | `5` | `8` | `13` | `21` (optional; send `null` on update to clear)
 
 ### Note folders
 

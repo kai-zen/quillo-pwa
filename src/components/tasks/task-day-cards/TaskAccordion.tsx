@@ -14,9 +14,11 @@ import type { Label, Project, RecordId, Task } from "@/shared/types";
 import {
   PRIORITY_BADGE_CLASS,
   PRIORITY_LABELS,
+  STORY_POINTS_BADGE_CLASS,
   STATUS_BADGE_CLASS,
   STATUS_DOT_CLASS,
   STATUS_LABELS,
+  formatStoryPoints,
   isTaskSettled,
 } from "../helpers";
 import DoneCheckbox from "./DoneCheckbox";
@@ -66,6 +68,7 @@ const TaskAccordion: FC<Props> = ({
     task.project_id && typeof task.project_id === "object"
       ? task.project_id
       : null;
+  const storyPointsLabel = formatStoryPoints(task.story_points);
   const { dragging: reorderDragging, ...reorderHandleProps } =
     reorderHandle ?? {};
 
@@ -152,6 +155,17 @@ const TaskAccordion: FC<Props> = ({
                   {PRIORITY_LABELS[task.priority]}
                 </span>
               )}
+              {storyPointsLabel && (
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+                    STORY_POINTS_BADGE_CLASS,
+                  )}
+                  title="Story points"
+                >
+                  {storyPointsLabel} SP
+                </span>
+              )}
               {hasSubtasks && (
                 <span className="pl-0.5 text-xs tabular-nums text-muted">
                   {subtasksDone}/{childrenTasks.length} sub
@@ -176,27 +190,6 @@ const TaskAccordion: FC<Props> = ({
                 </span>
               </>
             ) : null}
-
-            {labels.length > 0 ? (
-              <>
-                <MetaSep />
-                <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                  {labels.map((label) => (
-                    <span
-                      key={label._id}
-                      className="inline-flex items-center gap-1 text-[11px] text-muted"
-                    >
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ backgroundColor: label.color }}
-                        aria-hidden
-                      />
-                      {label.name}
-                    </span>
-                  ))}
-                </span>
-              </>
-            ) : null}
           </div>
         </div>
 
@@ -209,6 +202,26 @@ const TaskAccordion: FC<Props> = ({
       <div className="space-y-3 border-t border-border px-3 py-3">
         {description ? (
           <Markdown className="text-muted">{description}</Markdown>
+        ) : null}
+
+        {labels.length > 0 ? (
+          <>
+            <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+              {labels.map((label) => (
+                <span
+                  key={label._id}
+                  className="inline-flex items-center gap-1 text-[11px] text-muted"
+                >
+                  <span
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{ backgroundColor: label.color }}
+                    aria-hidden
+                  />
+                  {label.name}
+                </span>
+              ))}
+            </span>
+          </>
         ) : null}
 
         <section className="space-y-1.5">

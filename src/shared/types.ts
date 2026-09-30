@@ -43,6 +43,9 @@ export const TASK_STATUSES = [
 ] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
+export const TASK_STORY_POINTS = [1, 2, 3, 5, 8, 13, 21] as const;
+export type TaskStoryPoints = (typeof TASK_STORY_POINTS)[number];
+
 export const SPRINT_STATUSES = [
   "planned",
   "active",
@@ -203,6 +206,7 @@ export interface Task extends Timestamps {
   task_number: number;
   children: Task[];
   sort_order: number;
+  story_points: TaskStoryPoints | null;
 }
 
 export interface NoteFolder extends Timestamps {
@@ -408,6 +412,7 @@ export interface CreateTaskBody {
   project_id?: RecordId | null;
   doing_date?: string | null;
   parent_id?: RecordId | null;
+  story_points?: TaskStoryPoints | null;
 }
 
 export type UpdateTaskBody = CreateTaskBody;

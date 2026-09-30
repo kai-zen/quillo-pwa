@@ -4,7 +4,13 @@ import { FormEvent, useReducer, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getErrorMessage } from "@/shared/errors";
 import { useTasksApi } from "@/shared/hooks";
-import type { RecordId, Task, TaskPriority, TaskStatus } from "@/shared/types";
+import type {
+  RecordId,
+  Task,
+  TaskPriority,
+  TaskStatus,
+  TaskStoryPoints,
+} from "@/shared/types";
 import { toUpdateBody } from "../helpers";
 import {
   buildTaskFormBody,
@@ -58,6 +64,8 @@ export const useTaskForm = (mode: TaskFormMode, onSaved: () => void) => {
   const setProjectId = (value: RecordId | "") =>
     updateFields({ projectId: value });
   const setDoingDate = (value: string) => updateFields({ doingDate: value });
+  const setStoryPoints = (value: TaskStoryPoints | "") =>
+    updateFields({ storyPoints: value });
 
   const openLabelCreate = (draftName: string) => {
     setLabelDraftName(draftName);
@@ -161,6 +169,8 @@ export const useTaskForm = (mode: TaskFormMode, onSaved: () => void) => {
     setProjectId,
     doingDate: fields.doingDate,
     setDoingDate,
+    storyPoints: fields.storyPoints,
+    setStoryPoints,
     labelManagerOpen,
     labelDraftName,
     deleteConfirmOpen,

@@ -8,6 +8,7 @@ import type {
   Task,
   TaskPriority,
   TaskStatus,
+  TaskStoryPoints,
   UpdateTaskBody,
 } from "@/shared/types";
 import { groupTasks, toDateInputValue } from "../helpers";
@@ -32,6 +33,7 @@ export type TaskFormFieldsState = {
   sprintId: RecordId | "";
   projectId: RecordId | "";
   doingDate: string;
+  storyPoints: TaskStoryPoints | "";
 };
 
 export type TaskFormFieldsAction =
@@ -66,6 +68,7 @@ export const createTaskFormFieldsState = (
       getProjectId(editing?.project_id) ??
       (mode.type === "create" ? (mode.projectId ?? "") : ""),
     doingDate: toDateInputValue(initialDoingDate),
+    storyPoints: editing?.story_points ?? "",
   };
 };
 
@@ -137,6 +140,7 @@ export const buildTaskFormBody = ({
         : {
             priority: fields.priority,
             doing_date: fields.doingDate || null,
+            story_points: fields.storyPoints || null,
           }),
     };
   }
@@ -151,5 +155,6 @@ export const buildTaskFormBody = ({
     project_id: fields.projectId || null,
     doing_date: fields.doingDate || null,
     parent_id: editing?.parent_id ?? null,
+    story_points: fields.storyPoints || null,
   };
 };

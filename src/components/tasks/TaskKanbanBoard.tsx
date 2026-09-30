@@ -5,8 +5,10 @@ import { cn } from "@/components/common";
 import type { Label, RecordId, Task, TaskStatus } from "@/shared/types";
 import { TASK_STATUSES } from "@/shared/types";
 import {
+  formatStoryPoints,
   groupTasks,
   labelsById,
+  STORY_POINTS_BADGE_CLASS,
   STATUS_BADGE_CLASS,
   STATUS_DOT_CLASS,
   STATUS_LABELS,
@@ -134,6 +136,9 @@ const TaskKanbanBoard: FC<Props> = ({
                       .filter((label): label is Label => !!label);
                     const pending = pendingId === task._id;
                     const dragging = draggingId === task._id;
+                    const storyPointsLabel = formatStoryPoints(
+                      task.story_points,
+                    );
 
                     return (
                       <div
@@ -167,9 +172,22 @@ const TaskKanbanBoard: FC<Props> = ({
                         <span className="font-mono text-[11px] font-semibold tabular-nums text-muted">
                           #{task.task_number}
                         </span>
-                        <span className="mt-0.5 block text-sm font-medium leading-snug text-foreground">
-                          {task.title}
-                        </span>
+                        <div className="mt-0.5 flex items-start gap-1.5">
+                          <span className="block flex-1 text-sm font-medium leading-snug text-foreground">
+                            {task.title}
+                          </span>
+                          {storyPointsLabel ? (
+                            <span
+                              className={cn(
+                                "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+                                STORY_POINTS_BADGE_CLASS,
+                              )}
+                              title="Story points"
+                            >
+                              {storyPointsLabel}
+                            </span>
+                          ) : null}
+                        </div>
                         {task.parent_id ? (
                           <span className="mt-1 block text-[11px] text-muted">
                             Subtask

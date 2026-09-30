@@ -4,9 +4,10 @@ import type {
   Task,
   TaskPriority,
   TaskStatus,
+  TaskStoryPoints,
   UpdateTaskBody,
 } from "@/shared/types";
-import { TASK_PRIORITIES, TASK_STATUSES } from "@/shared/types";
+import { TASK_PRIORITIES, TASK_STATUSES, TASK_STORY_POINTS } from "@/shared/types";
 
 export const STATUS_LABELS: Record<TaskStatus, string> = {
   todo: "To do",
@@ -51,6 +52,14 @@ export const PRIORITY_BADGE_CLASS: Record<TaskPriority, string> = {
 
 export const STATUS_OPTIONS = TASK_STATUSES;
 export const PRIORITY_OPTIONS = TASK_PRIORITIES;
+export const STORY_POINTS_OPTIONS = TASK_STORY_POINTS;
+
+export const STORY_POINTS_BADGE_CLASS =
+  "bg-violet-100 text-violet-800 dark:bg-violet-950 dark:text-violet-300";
+
+export const formatStoryPoints = (
+  points: TaskStoryPoints | null,
+): string | null => (points != null ? String(points) : null);
 
 export const toUpdateBody = (task: Task): UpdateTaskBody => {
   const projectId =
@@ -68,6 +77,7 @@ export const toUpdateBody = (task: Task): UpdateTaskBody => {
     project_id: projectId ?? null,
     doing_date: task.doing_date,
     parent_id: task.parent_id,
+    story_points: task.story_points,
   };
 };
 
