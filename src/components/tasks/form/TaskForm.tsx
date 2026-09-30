@@ -102,7 +102,7 @@ const TaskForm: FC<Props> = ({
             <MarkdownEditor
               value={form.description}
               onChange={form.setDescription}
-              rows={form.isSubtaskCreate ? 3 : 5}
+              rows={2}
               compact={form.isSubtaskCreate}
               placeholder="Notes, checklists, links…"
             />
