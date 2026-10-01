@@ -23,6 +23,11 @@ const DATA_TYPE_OPTIONS: {
     description: "Tasks scheduled on a day",
   },
   {
+    value: "daily_sections",
+    label: "Daily sections",
+    description: "Sections of a day",
+  },
+  {
     value: "daily_notes",
     label: "Daily notes",
     description: "Notes tied to a date",
@@ -44,6 +49,7 @@ const DATA_TYPE_LABELS: Record<UserDataDeleteType, string> = {
   daily_notes: "Daily notes",
   progress_inputs: "Progress inputs",
   daily_reviews: "Daily reviews",
+  daily_sections: "Daily sections",
 };
 
 const formatDeleted = (deleted: DeleteUserDataResponse["deleted"]): string => {
@@ -105,9 +111,7 @@ const DeleteUserDataModal: FC<ModalProps> = ({ open, onClose }) => {
 };
 
 interface BodyProps {
-  deleteMyData: (
-    body: DeleteUserDataBody,
-  ) => Promise<DeleteUserDataResponse>;
+  deleteMyData: (body: DeleteUserDataBody) => Promise<DeleteUserDataResponse>;
   isDeletingData: boolean;
   onClose: () => void;
 }

@@ -109,6 +109,7 @@ export type DailyReviewMood = (typeof DAILY_REVIEW_MOODS)[number];
 
 export const USER_DATA_DELETE_TYPES = [
   "daily_tasks",
+  "daily_sections",
   "daily_notes",
   "progress_inputs",
   "daily_reviews",

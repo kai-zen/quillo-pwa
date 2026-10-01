@@ -10,6 +10,7 @@ const DATA_TYPE_QUERY_KEYS: Record<
   readonly string[]
 > = {
   daily_tasks: queryKeys.tasks.all,
+  daily_sections: queryKeys.dailySections.all,
   daily_notes: queryKeys.notes.all,
   progress_inputs: queryKeys.progressInputs.all,
   daily_reviews: queryKeys.dailyReviews.all,

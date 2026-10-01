@@ -103,7 +103,7 @@ Auth and the current account.
 
 - register / login → `{ token, user }`
 - get me / change password / delete me
-- delete my data (`DELETE /users/me/data`) — selective cleanup by type: `daily_tasks` (tasks with `doing_date`), `daily_notes` (notes with `date`), `progress_inputs`, `daily_reviews` → `{ deleted }` counts
+- delete my data (`DELETE /users/me/data`) — selective cleanup by type: `daily_tasks` (tasks with `doing_date`), `daily_sections` (all daily sections), `daily_notes` (notes with `date`), `progress_inputs`, `daily_reviews` → `{ deleted }` counts
 
 ### Labels
 
@@ -244,7 +244,7 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 - Username is unique and cannot be changed after registration.
 - Never display or store `password_hash`.
 - On login/register success, persist the JWT; on logout / delete-me / `401`, clear it.
-- Selective data delete does not remove the account. `daily_tasks` only deletes dated tasks (clears `parent_id` on leftover subtasks); `daily_notes` only dated notes; `progress_inputs` and `daily_reviews` wipe those collections for the user. Progress definitions stay.
+- Selective data delete does not remove the account. `daily_tasks` only deletes dated tasks (clears `parent_id` on leftover subtasks); `daily_sections` wipes all daily sections; `daily_notes` only dated notes; `progress_inputs` and `daily_reviews` wipe those collections for the user. Progress definitions and section templates stay.
 
 ### Labels
 
