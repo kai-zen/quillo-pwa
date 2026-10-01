@@ -12,6 +12,7 @@ import type {
   RecordId,
   RoutineListQuery,
   SprintListQuery,
+  SectionTemplateListQuery,
   TaskListQuery,
 } from "@/shared/types";
 
@@ -83,5 +84,16 @@ export const queryKeys = {
     byDate: (date: string) => ["dailyReviews", "date", date] as const,
     range: (query?: DailyReviewRangeQuery) =>
       ["dailyReviews", "range", query] as const,
+  },
+  dailySections: {
+    all: ["dailySections"] as const,
+    byDate: (date: string) => ["dailySections", "date", date] as const,
+    detail: (id: RecordId) => ["dailySections", "detail", id] as const,
+  },
+  sectionTemplates: {
+    all: ["sectionTemplates"] as const,
+    list: (query?: SectionTemplateListQuery) =>
+      ["sectionTemplates", "list", query] as const,
+    detail: (id: RecordId) => ["sectionTemplates", "detail", id] as const,
   },
 };

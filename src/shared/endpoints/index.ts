@@ -9,6 +9,8 @@ export {
 } from "./client";
 export {
   dailyReviewsModule,
+  dailySectionsModule,
+  sectionTemplatesModule,
   goalsModule,
   labelsModule,
   noteFoldersModule,
@@ -23,6 +25,8 @@ export {
 } from "./modules";
 export type {
   DailyReviewsModule,
+  DailySectionsModule,
+  SectionTemplatesModule,
   GoalsModule,
   LabelsModule,
   NoteFoldersModule,

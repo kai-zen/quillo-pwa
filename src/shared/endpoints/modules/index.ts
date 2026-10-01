@@ -1,4 +1,6 @@
 export { dailyReviewsModule } from "./daily-reviews";
+export { dailySectionsModule } from "./daily-sections";
+export { sectionTemplatesModule } from "./section-templates";
 export { goalsModule } from "./goals";
 export { labelsModule } from "./labels";
 export { noteFoldersModule } from "./note-folders";
@@ -12,6 +14,8 @@ export { tasksModule } from "./tasks";
 export { usersModule } from "./users";
 
 export type { DailyReviewsModule } from "./daily-reviews";
+export type { DailySectionsModule } from "./daily-sections";
+export type { SectionTemplatesModule } from "./section-templates";
 export type { GoalsModule } from "./goals";
 export type { LabelsModule } from "./labels";
 export type { NoteFoldersModule } from "./note-folders";

@@ -2,6 +2,7 @@ import {
   Flag,
   FolderKanban,
   Inbox,
+  LayoutTemplate,
   ListTodo,
   Repeat,
   StickyNote,
@@ -30,6 +31,12 @@ export const NAV_ITEMS: NavItem[] = [
     icon: FolderKanban,
   },
   { is_primary: false, href: "/routines", label: "Routines", icon: Repeat },
+  {
+    is_primary: false,
+    href: "/day-templates",
+    label: "Day templates",
+    icon: LayoutTemplate,
+  },
   {
     is_primary: false,
     href: "/progresses",

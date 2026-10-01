@@ -257,6 +257,26 @@ export interface ProgressInput extends Timestamps {
   value: boolean | number | string;
 }
 
+export interface DailySection extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  date: string;
+  title: string;
+  sort_order: number;
+}
+
+export interface SectionTemplateSection {
+  title: string;
+  sort_order: number;
+}
+
+export interface SectionTemplate extends Timestamps {
+  _id: RecordId;
+  user_id: RecordId;
+  name: string;
+  sections: SectionTemplateSection[];
+}
+
 // ---------------------------------------------------------------------------
 // Users — request bodies
 // ---------------------------------------------------------------------------
@@ -508,6 +528,67 @@ export interface DailyReviewRangeQuery {
 export interface DailyReviewRangeResponse {
   items: DailyReview[];
 }
+
+// ---------------------------------------------------------------------------
+// Daily sections — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateDailySectionBody {
+  date: string;
+  title?: string;
+  sort_order?: number;
+}
+
+export interface UpdateDailySectionBody {
+  title: string;
+  sort_order: number;
+}
+
+export interface ReorderDailySectionsBody {
+  items: { id: RecordId; sort_order: number }[];
+}
+
+export interface ReorderDailySectionsResponse {
+  updated: number;
+}
+
+export interface DailySectionItemsResponse {
+  items: DailySection[];
+}
+
+// ---------------------------------------------------------------------------
+// Section templates — request bodies & queries
+// ---------------------------------------------------------------------------
+
+export interface CreateSectionTemplateSectionBody {
+  title?: string;
+  sort_order?: number;
+}
+
+export interface SectionTemplateSectionBody {
+  title: string;
+  sort_order: number;
+}
+
+export interface CreateSectionTemplateBody {
+  name: string;
+  sections?: CreateSectionTemplateSectionBody[];
+}
+
+export interface UpdateSectionTemplateBody {
+  name: string;
+  sections: SectionTemplateSectionBody[];
+}
+
+export interface ApplySectionTemplateBody {
+  date: string;
+}
+
+export interface ApplySectionTemplateResponse {
+  items: DailySection[];
+}
+
+export type SectionTemplateListQuery = PaginationQuery;
 
 // ---------------------------------------------------------------------------
 // Progresses — request bodies & queries

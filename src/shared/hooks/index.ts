@@ -1,5 +1,7 @@
 export { queryKeys } from "./keys";
 export { useDailyReviewsApi } from "./useDailyReviewsApi";
+export { useDailySectionsApi } from "./useDailySectionsApi";
+export { useSectionTemplatesApi } from "./useSectionTemplatesApi";
 export { useGoalsApi } from "./useGoalsApi";
 export { useLabelsApi } from "./useLabelsApi";
 export { useNoteFoldersApi } from "./useNoteFoldersApi";

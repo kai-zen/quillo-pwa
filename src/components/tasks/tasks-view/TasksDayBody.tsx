@@ -2,7 +2,12 @@
 
 import { Plus } from "lucide-react";
 import { FC, RefObject } from "react";
-import { Button } from "@/components/common";
+import { Button, ConfirmModal } from "@/components/common";
+import {
+  DailySectionsList,
+  DailySectionsToolbar,
+  useDailySectionsActions,
+} from "@/components/day-sections";
 import { LinkedNotes, type LinkedNotesHandle } from "@/components/notes";
 import DayProgress from "../DayProgress";
 import { formatDayHeading } from "../helpers";
@@ -30,10 +35,23 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
     toggleDone,
     requestDelete,
     reorderTasks,
+    openApplyTemplate,
   } = view;
+
+  const sectionActions = useDailySectionsActions(selectedDate);
+  const {
+    hasSections,
+    pending: sectionsPending,
+    actionError: sectionActionError,
+    toDelete: sectionToDelete,
+    addSection,
+    clearDelete: clearSectionDelete,
+    confirmDelete: confirmSectionDelete,
+  } = sectionActions;
 
   const heading = formatDayHeading(selectedDate);
   const showProgress = !isLoading && !isError && tasks.length > 0;
+  const showSectionsUi = !showNotes && !isLoading && !isError;
 
   return (
     <>
@@ -48,6 +66,18 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
         />
       ) : (
         <>
+          {showSectionsUi && (
+            <DailySectionsToolbar
+              pending={sectionsPending}
+              onAddSection={() => void addSection()}
+              onApplyTemplate={openApplyTemplate}
+            />
+          )}
+
+          {hasSections && (
+            <DailySectionsList actions={sectionActions} />
+          )}
+
           {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
 
           {isError && (
@@ -56,7 +86,7 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
             </p>
           )}
 
-          {isEmpty && (
+          {isEmpty && !hasSections && (
             <div className="rounded-xl border border-dashed border-border bg-surface px-4 py-14 text-center">
               <p className="font-medium text-foreground">
                 No tasks for this day
@@ -75,8 +105,17 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
             </div>
           )}
 
-          {actionError && (
-            <p className="text-sm text-foreground">{actionError}</p>
+          {isEmpty && hasSections && (
+            <p className="text-sm text-muted">
+              No tasks yet for {heading}. Sections above organize your day when
+              tasks are added.
+            </p>
+          )}
+
+          {(actionError || sectionActionError) && (
+            <p className="text-sm text-foreground">
+              {actionError || sectionActionError}
+            </p>
           )}
 
           {!isLoading && !isError && tasks.length > 0 && (
@@ -93,6 +132,21 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
           )}
         </>
       )}
+
+      <ConfirmModal
+        open={!!sectionToDelete}
+        title="Delete section"
+        description={
+          sectionToDelete
+            ? `Delete “${sectionToDelete.title.trim() || "Untitled"}”? Tasks for this day stay as they are.`
+            : undefined
+        }
+        confirmLabel="Delete"
+        pending={sectionsPending}
+        pendingLabel="Deleting…"
+        onClose={clearSectionDelete}
+        onConfirm={() => void confirmSectionDelete()}
+      />
     </>
   );
 };

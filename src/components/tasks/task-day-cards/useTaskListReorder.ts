@@ -46,12 +46,14 @@ interface Options {
   ids: RecordId[];
   enabled?: boolean;
   onReorder?: (ids: RecordId[]) => void;
+  itemSelector?: string;
 }
 
 export function useTaskListReorder({
   ids,
   enabled = true,
   onReorder,
+  itemSelector = "[data-task-id]",
 }: Options) {
   const listRef = useRef<HTMLUListElement>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -61,13 +63,13 @@ export function useTaskListReorder({
   const measureSlot = useCallback((clientY: number) => {
     const root = listRef.current;
     if (!root) return 0;
-    const items = [...root.querySelectorAll<HTMLElement>("[data-task-id]")];
+    const items = [...root.querySelectorAll<HTMLElement>(itemSelector)];
     for (let i = 0; i < items.length; i += 1) {
       const rect = items[i].getBoundingClientRect();
       if (clientY < rect.top + rect.height / 2) return i;
     }
     return items.length;
-  }, []);
+  }, [itemSelector]);
 
   const finish = useCallback(() => {
     const state = dragRef.current;

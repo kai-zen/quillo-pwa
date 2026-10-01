@@ -71,6 +71,19 @@ export const ROUTES = {
     byDate: ({ date }: DailyReviewDateParam) => `/daily-reviews/date/${date}`,
   },
 
+  dailySections: {
+    base: "/daily-sections",
+    byId: ({ id }: IdParam) => `/daily-sections/${id}`,
+    byDate: ({ date }: DailyReviewDateParam) => `/daily-sections/date/${date}`,
+    sort: "/daily-sections/sort",
+  },
+
+  sectionTemplates: {
+    base: "/section-templates",
+    byId: ({ id }: IdParam) => `/section-templates/${id}`,
+    apply: ({ id }: IdParam) => `/section-templates/${id}/apply`,
+  },
+
   progresses: {
     base: "/progresses",
     byId: ({ id }: IdParam) => `/progresses/${id}`,

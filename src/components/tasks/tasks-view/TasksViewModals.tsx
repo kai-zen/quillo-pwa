@@ -2,6 +2,7 @@
 
 import { FC, useMemo } from "react";
 import { ConfirmModal, Modal } from "@/components/common";
+import { ApplySectionTemplateModal } from "@/components/day-sections";
 import { ApplyRoutinesModal } from "@/components/routines";
 import { pickActiveSprint } from "@/components/sprints/helpers";
 import { AddDayTasksModal } from "../add-day-tasks";
@@ -26,6 +27,8 @@ const TasksViewModals: FC<Props> = ({ view }) => {
     applyOpen,
     openApply,
     closeApply,
+    applyTemplateOpen,
+    closeApplyTemplate,
     toDelete,
     clearDelete,
     confirmDelete,
@@ -77,6 +80,12 @@ const TasksViewModals: FC<Props> = ({ view }) => {
         open={applyOpen}
         doingDate={selectedDate}
         onClose={closeApply}
+      />
+
+      <ApplySectionTemplateModal
+        open={applyTemplateOpen}
+        date={selectedDate}
+        onClose={closeApplyTemplate}
       />
 
       <ConfirmModal

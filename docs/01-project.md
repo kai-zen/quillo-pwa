@@ -21,7 +21,7 @@ These are filters on `GET /tasks`, not separate screens with separate data store
 
 Stay minimal. Do not add UI surface, state, or shared helpers unless a v1 screen needs them.
 
-Twelve domain modules: users, labels, projects, goals, sprints, routines, tasks, note folders, notes, daily reviews, progresses, progress inputs. Match the API. Prefer shared types and one data-access path so components stay thin.
+Fourteen domain modules: users, labels, projects, goals, sprints, routines, tasks, daily sections, section templates, note folders, notes, daily reviews, progresses, progress inputs. Match the API. Prefer shared types and one data-access path so components stay thin.
 
 ## Stack
 
@@ -36,7 +36,7 @@ Components do not call Axios directly. Flow is:
 
 ```
 component
-  → module hook (useUsersApi / useLabelsApi / useProjectsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi / useNoteFoldersApi / useNotesApi / useDailyReviewsApi / useProgressesApi / useProgressInputsApi)
+  → module hook (useUsersApi / useLabelsApi / useProjectsApi / useGoalsApi / useSprintsApi / useRoutinesApi / useTasksApi / useDailySectionsApi / useSectionTemplatesApi / useNoteFoldersApi / useNotesApi / useDailyReviewsApi / useProgressesApi / useProgressInputsApi)
     → request() + module endpoint def
       → apiClient (Axios)
         → Quillo API
@@ -65,6 +65,9 @@ notesModule.togglePinned; // PATCH /notes/:id/pinned/toggle → Note
 notesModule.toggleArchived; // PATCH /notes/:id/archived/toggle → Note
 dailyReviewsModule.getByRange; // GET /daily-reviews/range → { items }
 dailyReviewsModule.getByDate; // GET /daily-reviews/date/:date → DailyReview
+dailySectionsModule.listByDate; // GET /daily-sections/date/:date → { items }
+dailySectionsModule.reorder; // PUT /daily-sections/sort → { updated }
+sectionTemplatesModule.apply; // POST /section-templates/:id/apply → { items }
 ```
 
 Call them through `request(endpoint, { body, query, params })`.
@@ -149,6 +152,24 @@ Priorities: `unset` | `low` | `medium` | `high` | `urgent`
 Statuses: `todo` | `doing` | `done` | `paused` | `cancelled`  
 Story points: `1` | `2` | `3` | `5` | `8` | `13` | `21` (optional; send `null` on update to clear)
 
+### Daily sections
+
+Optional dividers within a calendar day’s task list. A day with no sections is normal.
+
+- `date`, `title`, `sort_order`
+- `date` is fixed after create
+- list for a day: `GET /daily-sections/date/:date` → `{ items }`
+- reorder: `PUT /daily-sections/sort` → `{ updated }`
+- task-to-section assignment is not in v1 yet
+
+### Section templates
+
+Reusable preset for a day’s section structure. Optional — users can manage daily sections without templates.
+
+- `name`, embedded `sections[]` (`title`, `sort_order`)
+- apply: `POST /section-templates/:id/apply` with `{ date }` → `{ items }` (new daily sections, independent copies)
+- applying appends to any existing sections on that day
+
 ### Note folders
 
 Named buckets for organizing notes (`name`). Unique name per user. A note may belong to one folder, or to none.
@@ -208,7 +229,7 @@ One nesting level only. Parent/child `done` is linked on the API; the UI just se
 | View    | Rule                                |
 | ------- | ----------------------------------- |
 | Backlog | `GET /tasks` with no special filter |
-| Daily   | `GET /tasks?doing_date=YYYY-MM-DD`  |
+| Daily   | `GET /tasks?doing_date=YYYY-MM-DD` and optionally `GET /daily-sections/date/:date` for dividers |
 | Sprint  | `GET /tasks?sprint_id=<id>`         |
 | Project | `GET /tasks?project_id=<id>`        |
 
@@ -255,6 +276,20 @@ These are enforced by the API. The frontend should not invent conflicting rules.
 - Name unique per user.
 - Applying a routine creates new tasks; it does not update existing ones.
 - Deleting a routine does not delete tasks created from it.
+
+### Daily sections
+
+- `date` is `YYYY-MM-DD` and does not change after create.
+- Updates use full mutable state (`title`, `sort_order`) via `PUT /:id`.
+- Reorder uses `PUT /daily-sections/sort` (only writes `sort_order`).
+- Deleting a section does not delete tasks.
+
+### Section templates
+
+- Name unique per user.
+- Updates use full resource bodies (`PUT`), including the full `sections` array.
+- Applying a template creates new daily sections; it does not update existing ones or keep a live link.
+- Deleting a template does not delete daily sections created from it.
 
 ### Tasks
 
