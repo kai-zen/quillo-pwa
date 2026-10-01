@@ -9,12 +9,10 @@ import {
   useRef,
   useState,
 } from "react";
-import type { RecordId } from "@/shared/types";
-
 const EDGE_PX = 56;
 const SCROLL_PX = 12;
 
-const moveId = (ids: RecordId[], from: number, to: number): RecordId[] => {
+const moveId = (ids: string[], from: number, to: number): string[] => {
   if (
     from === to ||
     from < 0 ||
@@ -36,16 +34,16 @@ const slotToIndex = (from: number, slot: number): number => {
 };
 
 interface DragState {
-  activeId: RecordId;
+  activeId: string;
   fromIndex: number;
   slot: number;
   pointerId: number;
 }
 
 interface Options {
-  ids: RecordId[];
+  ids: string[];
   enabled?: boolean;
-  onReorder?: (ids: RecordId[]) => void;
+  onReorder?: (ids: string[]) => void;
   itemSelector?: string;
 }
 
@@ -84,7 +82,7 @@ export function useTaskListReorder({
   }, [ids, onReorder]);
 
   const onPointerDown = useCallback(
-    (id: RecordId) => (event: ReactPointerEvent<HTMLButtonElement>) => {
+    (id: string) => (event: ReactPointerEvent<HTMLButtonElement>) => {
       if (!enabled || event.button !== 0) return;
       const fromIndex = ids.indexOf(id);
       if (fromIndex < 0 || ids.length < 2) return;
@@ -156,7 +154,7 @@ export function useTaskListReorder({
   }, [isDragging, measureSlot]);
 
   const onKeyDown = useCallback(
-    (id: RecordId) => (event: KeyboardEvent<HTMLButtonElement>) => {
+    (id: string) => (event: KeyboardEvent<HTMLButtonElement>) => {
       if (!enabled) return;
       const from = ids.indexOf(id);
       if (from < 0) return;
@@ -176,7 +174,7 @@ export function useTaskListReorder({
   );
 
   const bindHandle = useCallback(
-    (id: RecordId) => ({
+    (id: string) => ({
       onPointerDown: onPointerDown(id),
       onPointerMove,
       onPointerUp,

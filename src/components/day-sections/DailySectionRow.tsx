@@ -66,7 +66,6 @@ const DailySectionRow: FC<Props> = ({
 
   return (
     <div
-      data-section-id={section._id}
       className={cn(
         "group/section flex items-center gap-1 py-1",
         reorderDragging && "opacity-40",

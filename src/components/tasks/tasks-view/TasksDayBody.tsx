@@ -1,17 +1,16 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { FC, RefObject } from "react";
+import { FC, RefObject, useState } from "react";
 import { Button, ConfirmModal } from "@/components/common";
 import {
-  DailySectionsList,
   DailySectionsToolbar,
+  DayScheduleList,
   useDailySectionsActions,
 } from "@/components/day-sections";
 import { LinkedNotes, type LinkedNotesHandle } from "@/components/notes";
 import DayProgress from "../DayProgress";
 import { formatDayHeading } from "../helpers";
-import TaskDayCards from "../task-day-cards";
 import type { TasksDayViewModel } from "../useTasksDayView";
 
 interface Props {
@@ -34,11 +33,11 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
     openEdit,
     toggleDone,
     requestDelete,
-    reorderTasks,
     openApplyTemplate,
   } = view;
 
-  const sectionActions = useDailySectionsActions(selectedDate);
+  const [scheduleError, setScheduleError] = useState("");
+  const sectionActions = useDailySectionsActions(selectedDate, tasks);
   const {
     hasSections,
     pending: sectionsPending,
@@ -52,6 +51,7 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
   const heading = formatDayHeading(selectedDate);
   const showProgress = !isLoading && !isError && tasks.length > 0;
   const showSectionsUi = !showNotes && !isLoading && !isError;
+  const hasScheduleItems = hasSections || tasks.length > 0;
 
   return (
     <>
@@ -72,10 +72,6 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
               onAddSection={() => void addSection()}
               onApplyTemplate={openApplyTemplate}
             />
-          )}
-
-          {hasSections && (
-            <DailySectionsList actions={sectionActions} />
           )}
 
           {isLoading && <p className="text-sm text-muted">Loading tasks…</p>}
@@ -105,21 +101,16 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
             </div>
           )}
 
-          {isEmpty && hasSections && (
-            <p className="text-sm text-muted">
-              No tasks yet for {heading}. Sections above organize your day when
-              tasks are added.
-            </p>
-          )}
-
-          {(actionError || sectionActionError) && (
+          {(actionError || sectionActionError || scheduleError) && (
             <p className="text-sm text-foreground">
-              {actionError || sectionActionError}
+              {actionError || sectionActionError || scheduleError}
             </p>
           )}
 
-          {!isLoading && !isError && tasks.length > 0 && (
-            <TaskDayCards
+          {!isLoading && !isError && hasScheduleItems && (
+            <DayScheduleList
+              date={selectedDate}
+              sections={sectionActions}
               tasks={tasks}
               labels={labels}
               pendingId={pendingId}
@@ -127,7 +118,7 @@ const TasksDayBody: FC<Props> = ({ view, linkedNotesRef }) => {
               onCreateSubtask={openCreate}
               onToggleDone={toggleDone}
               onDelete={requestDelete}
-              onReorder={reorderTasks}
+              onReorderError={setScheduleError}
             />
           )}
         </>

@@ -4,10 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import { queryKeys, useDailySectionsApi } from "@/shared/hooks";
-import type { DailySection, RecordId } from "@/shared/types";
+import type { DailySection, RecordId, Task } from "@/shared/types";
+import { maxUnifiedSortOrder } from "./dayScheduleHelpers";
 import { sectionsFromDaily } from "./helpers";
 
-export function useDailySectionsActions(date: string) {
+export function useDailySectionsActions(date: string, tasks: Task[] = []) {
   const queryClient = useQueryClient();
   const {
     useDailySectionsByDate,
@@ -37,7 +38,7 @@ export function useDailySectionsActions(date: string) {
       const created = await createDailySection({
         date,
         title: "",
-        sort_order: sections.length,
+        sort_order: maxUnifiedSortOrder(sections, tasks) + 1,
       });
       setEditingId(created._id);
     } catch (err) {
