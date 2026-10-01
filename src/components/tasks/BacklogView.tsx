@@ -35,7 +35,7 @@ const BacklogView: FC = () => {
   const { useSprintsList } = useSprintsApi();
   const { useProjectsList } = useProjectsApi();
 
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | "">("");
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | "">("todo");
   const [labelFilter, setLabelFilter] = useState("");
   const [projectFilter, setProjectFilter] = useState("");
   const [page, setPage] = useState(1);
