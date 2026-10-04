@@ -96,7 +96,7 @@ const TaskAccordion: FC<Props> = ({
             aria-pressed={reorderDragging}
             title="Drag to reorder, or use arrow keys"
             className={cn(
-              "-ml-1 mt-0 flex h-8 w-7 shrink-0 touch-none items-center justify-center rounded-md text-muted",
+              "-ml-1 mt-0 flex shrink-0 touch-none items-center justify-center rounded-md text-muted",
               "hover:bg-foreground/3 hover:text-foreground",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30",
               "disabled:cursor-not-allowed disabled:opacity-40",
@@ -114,19 +114,17 @@ const TaskAccordion: FC<Props> = ({
         />
 
         <div className="min-w-0 flex-1">
-          <div className="leading-snug text-foreground flex items-center mb-1.5">
-            <p className="mr-1.5 font-mono text-xs tabular-nums">
+          <p
+            className={cn(
+              "font-medium text-sm md:text-base mb-1.5",
+              settled && "text-muted line-through",
+            )}
+          >
+            <span className="mr-1.5 font-mono text-xs tabular-nums mt-0.5">
               #{task.task_number}
-            </p>
-            <p
-              className={cn(
-                "font-medium",
-                settled && "text-muted line-through",
-              )}
-            >
-              {task.title}
-            </p>
-          </div>
+            </span>
+            {task.title}
+          </p>
 
           <div className="mt-1 flex flex-wrap items-center gap-y-1">
             <span className="inline-flex items-center gap-1">

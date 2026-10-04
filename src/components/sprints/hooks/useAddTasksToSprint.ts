@@ -46,13 +46,15 @@ export function useAddTasksToSprint(
     limit: PAGE_LIMIT,
     doing_date: "null",
     sprint_id: "null",
+    status: "todo",
   });
   const listTotal = tasksQuery.data?.total ?? 0;
 
   const available = useMemo(
     () =>
       flattenTasks(tasksQuery.data?.items ?? []).filter(
-        (task) => !task.sprint_id && !task.doing_date,
+        (task) =>
+          task.status === "todo" && !task.sprint_id && !task.doing_date,
       ),
     [tasksQuery.data?.items],
   );

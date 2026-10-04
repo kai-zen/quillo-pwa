@@ -1,7 +1,7 @@
 "use client";
 
 import { Inbox, ListFilter, Plus } from "lucide-react";
-import { FC, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import {
   Button,
   ConfirmModal,
@@ -58,7 +58,22 @@ const BacklogView: FC = () => {
   const sprintsQuery = useSprintsList({ page: 1, limit: 100 });
   const projectsQuery = useProjectsList({ page: 1, limit: 250 });
 
-  const tasks = tasksQuery.data?.items ?? [];
+  const tasks = useMemo(() => {
+    const items = tasksQuery.data?.items ?? [];
+    if (!statusFilter) return items;
+    return items
+      .filter((task) => task.status === statusFilter)
+      .map((task) =>
+        task.children?.length
+          ? {
+              ...task,
+              children: task.children.filter(
+                (child) => child.status === statusFilter,
+              ),
+            }
+          : task,
+      );
+  }, [tasksQuery.data?.items, statusFilter]);
   const labels: Label[] = labelsQuery.data?.items ?? [];
   const sprints = sprintsQuery.data?.items ?? [];
   const projects = projectsQuery.data?.items ?? [];
