@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useMemo } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/components/common";
 import TaskAccordion from "@/components/tasks/task-day-cards/TaskAccordion";
 import { useTaskListReorder } from "@/components/tasks/task-day-cards/useTaskListReorder";
@@ -10,7 +10,10 @@ import {
 } from "@/components/tasks/helpers";
 import type { Label, RecordId, Task } from "@/shared/types";
 import DailySectionRow from "./DailySectionRow";
-import { buildDayScheduleItems } from "./dayScheduleHelpers";
+import {
+  buildDayScheduleItems,
+  hiddenTaskIdsForCollapsedSections,
+} from "./dayScheduleHelpers";
 import type { DailySectionsActions } from "./useDailySectionsActions";
 import { useDayScheduleReorder } from "./useDayScheduleReorder";
 
@@ -58,6 +61,28 @@ const DayScheduleList: FC<Props> = ({
     [sections, tasks],
   );
 
+  const [collapsedSectionIds, setCollapsedSectionIds] = useState<
+    Set<string>
+  >(() => new Set());
+
+  useEffect(() => {
+    setCollapsedSectionIds(new Set());
+  }, [date]);
+
+  const toggleSectionCollapse = useCallback((sectionId: string) => {
+    setCollapsedSectionIds((current) => {
+      const next = new Set(current);
+      if (next.has(sectionId)) next.delete(sectionId);
+      else next.add(sectionId);
+      return next;
+    });
+  }, []);
+
+  const hiddenTaskIds = useMemo(
+    () => hiddenTaskIdsForCollapsedSections(items, collapsedSectionIds),
+    [collapsedSectionIds, items],
+  );
+
   const ids = items.map((item) => item.id);
   const { listRef, activeId, dropSlot, bindHandle } = useTaskListReorder({
     ids,
@@ -81,11 +106,20 @@ const DayScheduleList: FC<Props> = ({
       className={cn("flex flex-col gap-2", activeId && "select-none")}
       aria-label="Day schedule"
     >
-      {items.map((item, index) => (
+      {items.map((item, index) => {
+        const isHiddenTask =
+          item.kind === "task" && hiddenTaskIds.has(item.id);
+
+        return (
         <li
           key={item.id}
           data-day-item-id={item.id}
-          className={cn("relative", item.kind === "section" && "py-0")}
+          className={cn(
+            "relative",
+            item.kind === "section" && "py-0",
+            isHiddenTask && "hidden",
+          )}
+          aria-hidden={isHiddenTask || undefined}
         >
           {dropSlot === index ? (
             <div
@@ -99,6 +133,7 @@ const DayScheduleList: FC<Props> = ({
               section={item.section}
               editing={editingId === item.section._id}
               pending={sectionsPending}
+              collapsed={collapsedSectionIds.has(item.section._id)}
               reorderHandle={
                 ids.length > 1 && editingId !== item.section._id
                   ? {
@@ -111,6 +146,7 @@ const DayScheduleList: FC<Props> = ({
               onSaveTitle={(title) => void saveSectionTitle(item.section, title)}
               onCancelEdit={() => setEditingId(null)}
               onDelete={() => requestDelete(item.section)}
+              onToggleCollapse={() => toggleSectionCollapse(item.section._id)}
             />
           ) : (
             <TaskAccordion
@@ -141,7 +177,8 @@ const DayScheduleList: FC<Props> = ({
             />
           ) : null}
         </li>
-      ))}
+        );
+      })}
     </ul>
   );
 };

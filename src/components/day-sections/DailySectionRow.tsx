@@ -1,6 +1,6 @@
 "use client";
 
-import { GripVertical, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, GripVertical, Pencil, Trash2 } from "lucide-react";
 import {
   ButtonHTMLAttributes,
   FC,
@@ -17,6 +17,7 @@ interface Props {
   section: DailySection;
   editing: boolean;
   pending: boolean;
+  collapsed?: boolean;
   reorderHandle?:
     | (ButtonHTMLAttributes<HTMLButtonElement> & {
         dragging?: boolean;
@@ -26,17 +27,20 @@ interface Props {
   onSaveTitle: (title: string) => void;
   onCancelEdit: () => void;
   onDelete: () => void;
+  onToggleCollapse?: () => void;
 }
 
 const DailySectionRow: FC<Props> = ({
   section,
   editing,
   pending,
+  collapsed = false,
   reorderHandle,
   onStartEdit,
   onSaveTitle,
   onCancelEdit,
   onDelete,
+  onToggleCollapse,
 }) => {
   const inputId = useId();
   const [draftTitle, setDraftTitle] = useState(section.title);
@@ -45,6 +49,7 @@ const DailySectionRow: FC<Props> = ({
 
   useEffect(() => {
     if (!editing) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraftTitle(section.title);
     const input = document.getElementById(inputId) as HTMLInputElement | null;
     input?.focus({ preventScroll: true });
@@ -95,7 +100,7 @@ const DailySectionRow: FC<Props> = ({
             maxLength={120}
             disabled={pending}
             placeholder="07:00, Morning, Work…"
-            className="h-8 text-sm"
+            className="h-8 flex-1 text-sm"
             aria-label="Section title"
           />
         ) : (
@@ -108,8 +113,19 @@ const DailySectionRow: FC<Props> = ({
         )}
       </div>
 
-      {!editing && (
-        <div className="flex shrink-0 items-center opacity-100 transition-opacity sm:opacity-0 sm:group-hover/section:opacity-100 sm:group-focus-within/section:opacity-100">
+      {editing ? (
+        <IconButton
+          label={`Delete ${sectionDisplayTitle(section.title)}`}
+          size="sm"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={onDelete}
+          disabled={pending}
+          className="shrink-0 text-rose-700 hover:bg-rose-500/10 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300"
+        >
+          <Trash2 className="h-3.5 w-3.5" aria-hidden />
+        </IconButton>
+      ) : (
+        <div className="flex shrink-0 items-center">
           <IconButton
             label={`Edit ${sectionDisplayTitle(section.title)}`}
             size="sm"
@@ -118,16 +134,31 @@ const DailySectionRow: FC<Props> = ({
           >
             <Pencil className="h-3.5 w-3.5" aria-hidden />
           </IconButton>
-          <IconButton
-            label={`Delete ${sectionDisplayTitle(section.title)}`}
-            size="sm"
-            onClick={onDelete}
-            disabled={pending}
-          >
-            <Trash2 className="h-3.5 w-3.5" aria-hidden />
-          </IconButton>
         </div>
       )}
+
+      {!editing && onToggleCollapse ? (
+        <IconButton
+          label={
+            collapsed
+              ? `Expand ${sectionDisplayTitle(section.title)}`
+              : `Collapse ${sectionDisplayTitle(section.title)}`
+          }
+          size="sm"
+          onClick={onToggleCollapse}
+          disabled={pending}
+          aria-expanded={!collapsed}
+          className="shrink-0"
+        >
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform",
+              !collapsed && "rotate-180",
+            )}
+            aria-hidden
+          />
+        </IconButton>
+      ) : null}
     </div>
   );
 };

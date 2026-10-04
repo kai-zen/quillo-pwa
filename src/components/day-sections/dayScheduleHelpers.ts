@@ -102,6 +102,29 @@ export const buildDayScheduleItems = (
   });
 };
 
+export const hiddenTaskIdsForCollapsedSections = (
+  items: DayScheduleItem[],
+  collapsedSectionIds: ReadonlySet<string>,
+): Set<string> => {
+  const hidden = new Set<string>();
+  let activeSectionId: RecordId | null = null;
+
+  for (const item of items) {
+    if (item.kind === "section") {
+      activeSectionId = item.section._id;
+      continue;
+    }
+    if (
+      activeSectionId &&
+      collapsedSectionIds.has(activeSectionId)
+    ) {
+      hidden.add(item.id);
+    }
+  }
+
+  return hidden;
+};
+
 export const splitUnifiedOrder = (orderedIds: string[]) => {
   const sectionItems: { id: RecordId; sort_order: number }[] = [];
   const taskItems: { id: RecordId; sort_order: number }[] = [];
