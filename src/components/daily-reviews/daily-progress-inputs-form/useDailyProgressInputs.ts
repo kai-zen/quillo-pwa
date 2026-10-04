@@ -3,7 +3,12 @@
 import { useMemo, useState } from "react";
 import { getErrorMessage } from "@/shared/errors";
 import { useProgressInputsApi } from "@/shared/hooks";
-import type { Progress, ProgressInput, RecordId } from "@/shared/types";
+import type {
+  CreateProgressInputBody,
+  Progress,
+  ProgressInput,
+  RecordId,
+} from "@/shared/types";
 
 export type ProgressDraftValue = boolean | number | string | null;
 
@@ -39,10 +44,6 @@ const validateValue = (
   progress: Progress,
   value: ProgressDraftValue,
 ): string | null => {
-  if (!isValueFilled(progress, value)) {
-    return "Enter a value for this tracker.";
-  }
-
   if (
     (progress.input_type === "number" || progress.input_type === "rating") &&
     typeof value === "number"
@@ -154,7 +155,10 @@ const useDailyProgressInputs = (
     setError("");
 
     for (const progress of progresses) {
-      const message = validateValue(progress, values[progress._id] ?? null);
+      const value = values[progress._id] ?? null;
+      if (!isValueFilled(progress, value)) continue;
+
+      const message = validateValue(progress, value);
       if (message) {
         setError(message);
         return false;
@@ -164,8 +168,8 @@ const useDailyProgressInputs = (
     try {
       await Promise.all(
         progresses.map(async (progress) => {
-          const value = values[progress._id];
-          if (value === null || value === "") return;
+          const value = values[progress._id] ?? null;
+          if (!isValueFilled(progress, value)) return;
 
           const body = {
             progress_id: progress._id,
@@ -173,8 +177,12 @@ const useDailyProgressInputs = (
             value,
           };
           const existing = existingByProgressId.get(progress._id);
-          if (existing) await updateProgressInput(existing._id, body);
-          else await createProgressInput(body);
+          if (existing)
+            await updateProgressInput(
+              existing._id,
+              body as CreateProgressInputBody,
+            );
+          else await createProgressInput(body as CreateProgressInputBody);
         }),
       );
       return true;

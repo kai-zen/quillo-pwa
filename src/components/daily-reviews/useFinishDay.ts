@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { findProgresses, pickActiveSprint } from "@/components/sprints/helpers";
 import type { AddDayTasksSource } from "@/components/tasks/add-day-tasks";
 import { todayIso } from "@/components/tasks/helpers";
-import { useProgressesApi, useSprintsApi } from "@/shared/hooks";
+import {
+  useProgressesApi,
+  useProgressInputsApi,
+  useSprintsApi,
+} from "@/shared/hooks";
 import useDailyReview from "./useDailyReview";
 
 export type FinishDayStep = 1 | 2 | 3;
@@ -43,14 +47,19 @@ const useFinishDay = (date: string) => {
 
   const [step, setStep] = useState<FinishDayStep>(1);
   const [reviewTab, setReviewTab] = useState<FinishDayReviewTab>("reflect");
-  const [reviewEditing, setReviewEditing] =
-    useState<FinishDayReviewTab | null>(null);
+  const [reviewEditing, setReviewEditing] = useState<FinishDayReviewTab | null>(
+    null,
+  );
   const [addPanel, setAddPanel] = useState<AddDayTasksSource>("none");
   const [createOpen, setCreateOpen] = useState(false);
+  const [progressPanelOpen, setProgressPanelOpen] = useState(false);
 
-  useEffect(() => {
-    setCreateFlow(false);
-  }, [date]);
+  const { useProgressInputsByDate } = useProgressInputsApi();
+  const progressInputsQuery = useProgressInputsByDate(
+    date,
+    review.reviewable && hasProgressStep,
+  );
+  const hasLoggedProgress = (progressInputsQuery.data?.items ?? []).length > 0;
 
   const openFinishDay = () => {
     setCreateFlow(!review.filled);
@@ -97,6 +106,8 @@ const useFinishDay = (date: string) => {
   const closeAddPanel = () => setAddPanel("none");
   const openCreateTask = () => setCreateOpen(true);
   const closeCreateTask = () => setCreateOpen(false);
+  const openProgressPanel = () => setProgressPanelOpen(true);
+  const closeProgressPanel = () => setProgressPanelOpen(false);
 
   return {
     ...review,
@@ -118,6 +129,10 @@ const useFinishDay = (date: string) => {
       !!activeSprint?.progress_ids?.length && progressesQuery.isLoading,
     addPanel,
     createOpen,
+    progressPanelOpen,
+    hasLoggedProgress,
+    openProgressPanel,
+    closeProgressPanel,
     openFinishDay,
     closeFinishDay,
     advanceFromReflect,

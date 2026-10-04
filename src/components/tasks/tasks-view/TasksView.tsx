@@ -2,6 +2,7 @@
 
 import { FC, Suspense, useRef } from "react";
 import { DailyReview } from "@/components/daily-reviews";
+import ProgressInputsModal from "@/components/daily-reviews/progress-inputs-modal/ProgressInputsModal";
 import useFinishDay from "@/components/daily-reviews/useFinishDay";
 import type { LinkedNotesHandle } from "@/components/notes";
 import { ActiveSprintCard } from "@/components/sprints";
@@ -55,9 +56,13 @@ const TasksView: FC = () => {
           jumpToDate={jumpToDate}
           showNotes={showNotes}
           toggleNotes={toggleNotes}
+          canLogProgress={finishDay.hasProgressStep && finishDay.reviewable}
+          progressLogged={finishDay.hasLoggedProgress}
+          onOpenProgress={finishDay.openProgressPanel}
         />
         <TasksDayBody view={view} linkedNotesRef={linkedNotesRef} />
         <TasksViewModals view={view} />
+        <ProgressInputsModal date={selectedDate} view={finishDay} />
         <DailyReview
           key={`review-${selectedDate}`}
           date={selectedDate}
